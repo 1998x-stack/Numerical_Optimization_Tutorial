@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" role="img" aria-labelledby="title desc">
+<title id="title">目标函数等高线与可行域</title><desc id="desc">二维坐标中，目标函数等高线围绕无约束理想点一层层展开；斜线右上方的浅绿色区域满足 x1 加 x2 大于等于 3。目标点位于可行域外，最优可行点落在边界上。</desc>
+<rect width="900" height="480" rx="18" fill="#fff"/>
+<path d="M130 130 L650 130 L650 370 L520 370 Z" fill="#e6f2ed" opacity=".95"/>
+<g stroke="#d7e1db" stroke-width="1"><path d="M130 130V370H650"/><path d="M260 130V370M390 130V370M520 130V370M130 310H650M130 250H650M130 190H650"/></g>
+<g fill="none" stroke="#9eb5aa" stroke-width="2"><ellipse cx="260" cy="290" rx="60" ry="42"/><ellipse cx="260" cy="290" rx="112" ry="78"/><ellipse cx="260" cy="290" rx="164" ry="114"/></g>
+<path d="M130 130 L520 370" stroke="#126e66" stroke-width="4"/>
+<path d="M260 290 L325 250" stroke="#bd633f" stroke-width="3" stroke-dasharray="8 7"/>
+<circle cx="260" cy="290" r="8" fill="#bd633f"/><circle cx="325" cy="250" r="9" fill="#126e66" stroke="#fff" stroke-width="3"/>
+<g stroke="#1d2b2a" stroke-width="2.5" fill="none"><path d="M130 390V90M110 370H680"/><path d="M130 90l-7 13m7-13 7 13M680 370l-13-7m13 7-13 7"/></g>
+<g fill="#1d2b2a" font-family="Arial,sans-serif" font-size="18"><text x="685" y="376">x₁</text><text x="105" y="82">x₂</text><text x="115" y="396">0</text><text x="238" y="414">1</text><text x="368" y="414">2</text><text x="498" y="414">3</text><text x="628" y="414">4</text></g>
+<g font-family="Arial,sans-serif" font-size="18"><text x="275" y="277" fill="#a84e2f">无约束目标点 (1,1)</text><text x="340" y="245" fill="#126e66">最优可行点 (1.5,1.5)</text><text x="470" y="170" fill="#126e66">可行域：x₁ + x₂ ≥ 3</text><text x="540" y="300" fill="#53676d">目标函数等高线</text></g>
+</svg>

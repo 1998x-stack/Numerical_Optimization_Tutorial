@@ -1,36 +1,94 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.5. Global and Local Optimization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="局部算法通常只探索当前点附近的地形。非凸目标函数可能有多个局部极小值，找到一个稳定的低点，不等于证明它是全局最优。">
+<title>1.5 全局最优与局部最优 | Numerical Optimization</title>
+<link rel="stylesheet" href="../assets/course.css">
+<script defer src="../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>04_1.5._Global_and_Local_Optimization</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 04_1.5._Global_and_Local_Optimization
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录"><span class="toc-label">Chapter 01 / Introduction</span><a href="#definitions">两个不同的最优性概念</a>
+<a href="#example">一个有两个谷底的函数</a>
+<a href="#basin">初始点为什么重要</a>
+<a href="#convexity">凸性带来的保证</a>
+<a href="#practice">实践中怎样降低风险</a>
+<a href="#demo">改变梯度下降起点</a>
+<a href="#code">Python：两个起点，两种结果</a>
+<a href="#references">练习与参考</a><a href="../index.html#chapter-01">返回第一章</a><a href="../index.html#chapters">完整课程目录</a></aside>
+<main id="content" class="article-main"><article class="article">
+<header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.5 / Global and Local Optimization</div><h1>全局最优与局部最优</h1><p class="dek">局部算法通常只探索当前点附近的地形。非凸目标函数可能有多个局部极小值，找到一个稳定的低点，不等于证明它是全局最优。</p><div class="article-meta"><span>数值优化基础</span><span>独立教学模块</span><span>含可运行 Python 示例</span></div></header>
+
+<section id="definitions"><h2>两个不同的最优性概念</h2>
+<p>设可行域为 Ω。点 x* 是<strong>全局极小点</strong>，如果对所有可行点 x 都有 f(x*)≤f(x)。它是<strong>局部极小点</strong>，如果存在一个以 x* 为中心的邻域，使该邻域内的所有可行点都满足 f(x*)≤f(x)。</p>
+<p>全局最优比较的是整个可行域；局部最优只比较附近。全局极小点一定是局部极小点（在通常的定义下），但局部极小点不一定是全局极小点。若把不等式对邻域内其他点都变成严格小于，则称为严格局部极小点。</p>
+</section>
+<section id="example"><h2>一个有两个谷底的函数</h2>
+<p>考虑非凸函数：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="双谷目标函数"><math display="block" aria-label="f(x) 等于 x 平方减一的平方加零点四 x"><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>1</mn><msup><mo>)</mo><mn>2</mn></msup><mo>+</mo><mn>0.4</mn><mi>x</mi></math></div></div>
+<figure><img src="../assets/figures/local-global.svg" alt="非凸双谷函数有两个局部极小点，左侧函数值较低是全局极小点，右侧是非全局局部极小点。"><figcaption>同一个函数有两个局部极小点。左侧谷底更低，是全局极小点；右侧谷底只在附近最优。</figcaption></figure>
+<p>求导得到：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="一阶和二阶导数"><math display="block" aria-label="一阶导数为四 x 乘 x 平方减一加零点四，二阶导数为十二 x 平方减四"><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>4</mn><mi>x</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>0.4</mn><mo>,</mo><mspace width="1em"/><msup><mi>f</mi><mo>″</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>12</mn><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn></math></div></div>
+<p>驻点方程有三个实根，数值近似如下：</p>
+<table><thead><tr><th>驻点 x</th><th>函数值 f(x)</th><th>分类</th></tr></thead><tbody><tr><td>−1.04668</td><td>−0.40954</td><td>全局极小点</td></tr><tr><td>0.10103</td><td>1.02010</td><td>局部极大点</td></tr><tr><td>0.94565</td><td>0.38944</td><td>非全局局部极小点</td></tr></tbody></table>
+<p>由于四次项系数为正，函数在 |x| 趋于无穷时趋于正无穷；所有驻点只有上述三个。比较两个局部极小点的函数值后，左侧谷底更低，因此它是全局极小点。</p>
+</section>
+<section id="basin"><h2>初始点为什么重要</h2>
+<p>梯度下降按 <math class="math-inline" aria-label="数学表达式：x ← x − α f ′ ( x )"><mi>x</mi><mo>←</mo><mi>x</mi><mo>−</mo><mi>α</mi><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo></math> 更新。步长 α 合适时，算法会沿着局部下降方向前进，但最终落在哪个谷底取决于起点和目标函数地形。局部极大点附近的分界位置把不同起点分配到不同吸引域。</p>
+<p>这不是说梯度下降必然收敛到某个局部极小点：步长过大可能振荡或发散；函数不光滑、梯度不准确或数值误差也会影响轨迹。图中的吸引域只针对本文这个函数和指定的固定步长演示。</p>
+</section>
+<section id="convexity"><h2>凸性带来的保证</h2>
+<p>如果目标函数在凸可行域上是凸函数，那么任何局部极小点都是全局极小点。若目标函数严格凸，则全局极小点至多一个。凸性因此把“附近没有更好的点”提升为“整个可行域都没有更好的点”。</p>
+<p>反过来，非凸并不意味着每个实例都难，也不意味着局部算法一定失败；它意味着不能仅凭局部驻点就自动获得全局最优保证。还需要额外结构、下界证明或全局搜索策略。</p>
+</section>
+<section id="practice"><h2>实践中怎样降低风险</h2>
+<ul><li><strong>多起点：</strong>从不同初始值运行局部算法，比较结果；这能增加发现更好谷底的机会，但不能单独证明全局最优。</li><li><strong>利用结构：</strong>检查目标函数和可行域是否凸，或是否存在可分解、可松弛的结构。</li><li><strong>做独立验证：</strong>比较目标值、约束违反、梯度范数和不同算法的结果。</li><li><strong>需要证明时使用全局方法：</strong>例如分支定界、区间方法或可验证的全局下界；它们通常需要更多计算资源。</li></ul>
+</section>
+<section id="demo"><h2>改变梯度下降起点</h2>
+<p>下面使用固定步长 α=0.01 对本文函数执行梯度下降。移动起点，观察轨迹收敛到哪个谷底。这个演示说明初始点的影响，不构成全局最优性证明。</p>
+<div class="interactive-panel" data-demo="local-global"><h3>梯度下降起点实验</h3><div class="demo-control"><label for="g-x0">初始点 x₀ <span>−1.5–1.5</span></label><input id="g-x0" data-key="x0" type="range" min="-1.5" max="1.5" step=".05" value="1.5"></div><div class="demo-output" data-output aria-live="polite"></div></div>
+</section>
+<section id="code"><h2>Python：两个起点，两种结果</h2>
+<pre><code>"""Illustrate two attraction basins for a nonconvex objective."""
+def objective(x: float) -&gt; float:
+    return (x * x - 1.0) ** 2 + 0.4 * x
+
+
+def gradient(x: float) -&gt; float:
+    return 4.0 * x * (x * x - 1.0) + 0.4
+
+
+def gradient_descent(start: float, step: float = 0.01, iterations: int = 5000):
+    x = start
+    for _ in range(iterations):
+        next_x = x - step * gradient(x)
+        if abs(next_x - x) &lt; 1e-11:
+            x = next_x
+            break
+        x = next_x
+    return x
+
+
+if __name__ == "__main__":
+    left = gradient_descent(-1.5)
+    right = gradient_descent(1.5)
+    print(f"start -1.5 -&gt; x={left:.6f}, f={objective(left):.6f}")
+    print(f"start +1.5 -&gt; x={right:.6f}, f={objective(right):.6f}")
+    assert abs(left - (-1.04668)) &lt; 1e-3
+    assert abs(right - 0.94565) &lt; 1e-3
+    assert objective(left) &lt; objective(right)
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 04_1.5._Global_and_Local_Optimization
-
-"""
-Lecture: /01._Introduction
-Content: 04_1.5._Global_and_Local_Optimization
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+</section>
+<section id="references"><h2>练习与参考</h2>
+<p><strong>练习：</strong>把函数中的线性项 0.4x 改为 0，重新寻找驻点。两个谷底的函数值会发生什么变化？这时全局极小点是否唯一？</p>
+<p><strong>自检：</strong>函数变为 (x²−1)²，两个极小点 x=−1 和 x=1 的函数值均为 0；两者都是全局极小点，因此全局解不一定唯一。</p>
+<div class="references"><strong>参考资料</strong><ol><li>Jorge Nocedal, Stephen J. Wright, <em>Numerical Optimization</em>, 2nd ed., Springer, 2006，Chapter 1 “Global and Local Optimization” 与 “Convexity”。<a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">出版社书目</a>。</li></ol></div>
+</section>
+<footer class="article-footer"><p class="references">本页公式、例子与算法说明均按页面中的符号约定独立表述；示例代码用于教学检查，不应被误认为通用优化求解器。</p><nav class="prev-next" aria-label="相邻内容"><a href="03_1.4._Constrained_and_Unconstrained_Optimization.html"><small>上一篇 · 1.4</small><strong>有约束优化与无约束优化</strong></a><a href="../index.html#chapters"><small>下一步</small><strong>浏览完整课程目录</strong></a></nav></footer>
+</article></main></div>
+</body></html>

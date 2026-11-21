@@ -1,36 +1,71 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.3. Continuous vs. Discrete Optimization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="决策变量能否取任意实数，决定了问题的几何结构、可用算法和计算难度。连续解不能不加检查地四舍五入成整数解。">
+<title>1.3 连续优化与离散优化 | Numerical Optimization</title>
+<link rel="stylesheet" href="../assets/course.css">
+<script defer src="../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>02_1.3._Continuous_vs._Discrete_Optimization</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 02_1.3._Continuous_vs._Discrete_Optimization
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录"><span class="toc-label">Chapter 01 / Introduction</span><a href="#difference">变量的取值空间不同</a>
+<a href="#example">同一个目标函数，两种答案</a>
+<a href="#rounding">为什么简单取整可能失败</a>
+<a href="#families">连续、离散与混合整数</a>
+<a href="#demo">观察连续候选与整数决策</a>
+<a href="#code">Python：比较两个最优值</a>
+<a href="#exercise">练习与参考</a><a href="../index.html#chapter-01">返回第一章</a><a href="../index.html#chapters">完整课程目录</a></aside>
+<main id="content" class="article-main"><article class="article">
+<header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.3 / Continuous versus Discrete Optimization</div><h1>连续优化与离散优化</h1><p class="dek">决策变量能否取任意实数，决定了问题的几何结构、可用算法和计算难度。连续解不能不加检查地四舍五入成整数解。</p><div class="article-meta"><span>数值优化基础</span><span>独立教学模块</span><span>含可运行 Python 示例</span></div></header>
+
+<section id="difference"><h2>变量的取值空间不同</h2>
+<p>连续优化中，变量通常取自实数区间或实数向量空间。例如机器参数、长度、温度、流量和投资比例，在模型允许的范围内可以取任意实数值。离散优化中，变量只能从有限或可数集合中选择，例如设备数量、开关状态、路径顺序或是否建设某个设施。</p>
+<p>差别不只是“有没有小数”。连续问题的可行域通常由曲线、曲面或区域组成；离散问题的可行解是一个个彼此分开的组合。变量类型会改变模型结构，也会改变适用的算法。</p>
+<figure><img src="../assets/figures/continuous-discrete.svg" alt="抛物线连续最优点在 x=2.4，整数可选点位于整数刻度，整数最优点为 x=2。"><figcaption>连续变量可以取到曲线最低点；整数变量只能在离散候选点中选择。</figcaption></figure>
+</section>
+<section id="example"><h2>同一个目标函数，两种答案</h2>
+<p>考虑目标函数 <math class="math-inline" aria-label="数学表达式：f ( x ) = ( x − 2.4 ) 2"><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>2.4</mn><msup><mo>)</mo><mn>2</mn></msup></math>。</p>
+<ul><li>若 <math class="math-inline" aria-label="数学表达式：x ∈ [ 0 , 5 ]"><mi>x</mi><mo>∈</mo><mo>[</mo><mn>0</mn><mo>,</mo><mn>5</mn><mo>]</mo></math>，连续最优解是 x=2.4，目标值为 0。</li><li>若 <math class="math-inline" aria-label="数学表达式：x ∈ { 0 , 1 , 2 , 3 , 4 , 5 }"><mi>x</mi><mo>∈</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo>}</mo></math>，只能比较整数候选，最优解是 x=2，目标值为 0.16。</li></ul>
+<p>目标函数没有变化，改变的是允许选择的变量集合。连续最优值给出了一个下界，但整数问题必须在自己的可行集合中重新求解。</p>
+</section>
+<section id="rounding"><h2>为什么简单取整可能失败</h2>
+<p>把连续解四舍五入通常不是整数规划算法。假设连续模型包含容量约束 <math class="math-inline" aria-label="数学表达式：x 1 + x 2 ≤ 1.2"><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mo>≤</mo><mn>1.2</mn></math>，某个连续可行点是 (0.6,0.6)。若分别把两个分量四舍五入为 1，得到 (1,1)，它就违反了容量约束。即使取整后的点仍然可行，也不保证它是整数问题的最优解。</p>
+<div class="note warning"><p><strong>不要混淆：</strong>“连续松弛的最优解”是放宽整数限制后得到的结果；“整数最优解”是在原离散集合中达到的最佳结果。前者可以帮助构造下界或启发式，但不能直接替代后者。</p></div>
+</section>
+<section id="families"><h2>连续、离散与混合整数</h2>
+<table><thead><tr><th>类型</th><th>变量示例</th><th>典型问题</th><th>常见方法</th></tr></thead><tbody><tr><th>连续优化</th><td>实数向量</td><td>参数拟合、能耗最小化</td><td>梯度法、牛顿法、内点法</td></tr><tr><th>离散优化</th><td>整数、二元变量、排列</td><td>路径、排班、选址</td><td>动态规划、网络流、分支定界</td></tr><tr><th>混合整数优化</th><td>连续量 + 整数/二元变量</td><td>产量与设备启用联合决策</td><td>MILP/MINLP 求解器、分解方法</td></tr></tbody></table>
+<p>也要避免把“离散”与“难以求解”画等号。最短路径等离散问题可以高效求解；旅行商问题等组合问题在一般情形下则具有很高的计算复杂度。具体难度取决于问题结构，而不是变量名字。</p>
+</section>
+<section id="demo"><h2>观察连续候选与整数决策</h2>
+<p>拖动连续候选点。演示会显示该点的目标值，以及最近整数点的目标值；离散问题真正的最优值仍需在所有整数可行点中比较。</p>
+<div class="interactive-panel" data-demo="integrality"><h3>连续与整数候选比较</h3><div class="demo-control"><label for="i-x">连续候选 x <span>0–5</span></label><input id="i-x" data-key="x" type="range" min="0" max="5" step=".1" value="2.4"></div><div class="demo-output" data-output aria-live="polite"></div></div>
+</section>
+<section id="code"><h2>Python：比较两个最优值</h2>
+<pre><code>"""Compare a continuous optimum with an integer-constrained optimum."""
+def objective(x: float) -&gt; float:
+    return (x - 2.4) ** 2
+
+
+if __name__ == "__main__":
+    continuous_x = 2.4
+    integer_x = min(range(6), key=objective)
+    print(f"continuous: x={continuous_x:.1f}, f={objective(continuous_x):.2f}")
+    print(f"integer:    x={integer_x}, f={objective(integer_x):.2f}")
+    assert objective(continuous_x) == 0.0
+    assert integer_x == 2
+    assert abs(objective(integer_x) - 0.16) &lt; 1e-12
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 02_1.3._Continuous_vs._Discrete_Optimization
-
-"""
-Lecture: /01._Introduction
-Content: 02_1.3._Continuous_vs._Discrete_Optimization
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+</section>
+<section id="exercise"><h2>练习与参考</h2>
+<p><strong>练习：</strong>将目标函数改为 <math class="math-inline" aria-label="数学表达式：( x − 2.7 ) 2"><mo>(</mo><mi>x</mi><mo>−</mo><mn>2.7</mn><msup><mo>)</mo><mn>2</mn></msup></math>，连续区间仍为 [0,5]，整数集合仍为 {0,1,2,3,4,5}。求连续最优解和整数最优解，并比较两个目标值。</p>
+<p><strong>自检：</strong>连续最优点为 2.7；整数最优点为 3，目标值为 0.09。</p>
+<div class="references"><strong>参考资料</strong><ol><li>Jorge Nocedal, Stephen J. Wright, <em>Numerical Optimization</em>, 2nd ed., Springer, 2006，Chapter 1 “Continuous versus Discrete Optimization”。<a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">出版社书目</a>。</li></ol></div>
+</section>
+<footer class="article-footer"><p class="references">本页公式、例子与算法说明均按页面中的符号约定独立表述；示例代码用于教学检查，不应被误认为通用优化求解器。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_1.2._Example:_A_Transportation_Problem.html"><small>上一篇 · 1.2</small><strong>运输问题：把物流决策写成线性规划</strong></a><a href="03_1.4._Constrained_and_Unconstrained_Optimization.html"><small>下一篇 · 1.4</small><strong>有约束优化与无约束优化</strong></a></nav></footer>
+</article></main></div>
+</body></html>

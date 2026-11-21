@@ -1,36 +1,89 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.4. Constrained and Unconstrained Optimization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="约束会改变可选方案，也会改变最优点的几何位置。最优解可能落在边界上，因此“梯度等于零”不是所有约束问题的必要条件。">
+<title>1.4 有约束优化与无约束优化 | Numerical Optimization</title>
+<link rel="stylesheet" href="../assets/course.css">
+<script defer src="../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>03_1.4._Constrained_and_Unconstrained_Optimization</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 03_1.4._Constrained_and_Unconstrained_Optimization
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录"><span class="toc-label">Chapter 01 / Introduction</span><a href="#meaning">约束改变了什么？</a>
+<a href="#example">一个边界最优点</a>
+<a href="#kkt">从边界条件看 KKT</a>
+<a href="#methods">常见处理思路</a>
+<a href="#demo">检查候选点是否可行</a>
+<a href="#code">Python：比较两个问题</a>
+<a href="#pitfalls">方法选择与常见误区</a>
+<a href="#references">练习与参考</a><a href="../index.html#chapter-01">返回第一章</a><a href="../index.html#chapters">完整课程目录</a></aside>
+<main id="content" class="article-main"><article class="article">
+<header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.4 / Constrained and Unconstrained Optimization</div><h1>有约束优化与无约束优化</h1><p class="dek">约束会改变可选方案，也会改变最优点的几何位置。最优解可能落在边界上，因此“梯度等于零”不是所有约束问题的必要条件。</p><div class="article-meta"><span>数值优化基础</span><span>独立教学模块</span><span>含可运行 Python 示例</span></div></header>
+
+<section id="meaning"><h2>约束改变了什么？</h2>
+<p>无约束优化允许变量在指定定义域内自由变化，典型形式是 <math class="math-inline" aria-label="数学表达式：min x f ( x )"><msub><mi>min</mi><mi>x</mi></msub><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></math>。有约束优化则要求决策满足额外条件，例如容量上限、预算、守恒关系、变量非负或几何边界。</p>
+<p>从几何上看，无约束问题在整个定义域里寻找目标函数最低点；有约束问题只能在可行域中寻找最低点。可行域可能是整个空间的一部分、一个曲面、边界，甚至只有少数离散点。</p>
+</section>
+<section id="example"><h2>一个边界最优点</h2>
+<p>考虑目标函数 <math class="math-inline" aria-label="数学表达式：f ( x ) = ( x − 2 ) 2"><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><msup><mo>)</mo><mn>2</mn></msup></math>。无约束时，最优点是 x=2，目标值为 0。现在加入约束 0≤x≤1：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="约束问题"><math display="block" aria-label="最小化 x 减 2 的平方，满足零小于等于 x 小于等于一"><msub><mi>min</mi><mrow><mn>0</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mn>1</mn></mrow></msub><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><msup><mo>)</mo><mn>2</mn></msup></math></div></div>
+<figure><img src="../assets/figures/constrained-unconstrained.svg" alt="目标函数抛物线的无约束最小点在 x=2，但可行域限制为 x≤1，因此有约束最小点在边界 x=1。"><figcaption>无约束最优点位于可行域外；约束问题只能在绿色可行区间中选择，因此最优点落在边界 x=1。</figcaption></figure>
+<p>由于可行域只包含 [0,1]，最优点变成 x=1，目标值为 1。注意此处导数为 <math class="math-inline" aria-label="数学表达式：f ′ ( 1 ) = − 2"><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><mo>−</mo><mn>2</mn></math>，并不等于零。它仍然是约束问题的最优点，因为沿着允许的方向移动，目标值不会继续下降。</p>
+</section>
+<section id="kkt"><h2>从边界条件看 KKT</h2>
+<p>将上面的上界写成 <math class="math-inline" aria-label="数学表达式：g ( x ) = x − 1 ≤ 0"><mi>g</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>≤</mo><mn>0</mn></math>。对最小化问题，拉格朗日函数为：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="拉格朗日函数"><math display="block" aria-label="L 等于 x 减 2 的平方加 lambda 乘 x 减 1"><mi>L</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>λ</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><msup><mo>)</mo><mn>2</mn></msup><mo>+</mo><mi>λ</mi><mo>(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>)</mo></math></div></div>
+<p>在 x=1 处，取 λ=2，可以同时满足一阶驻点条件、乘子非负和互补条件：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="KKT 条件"><math display="block" aria-label="二乘 x 减二加 lambda 等于零，lambda 大于等于零，lambda 乘 x 减一等于零"><mtable><mtr><mtd><mn>2</mn><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mi>λ</mi><mo>=</mo><mn>0</mn></mtd><mtd>stationarity</mtd></mtr><mtr><mtd><mi>λ</mi><mo>≥</mo><mn>0</mn></mtd><mtd>dual feasibility</mtd></mtr><mtr><mtd><mi>λ</mi><mo>(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>=</mo><mn>0</mn></mtd><mtd>complementarity</mtd></mtr></mtable></math></div></div>
+<p>这里 λ=2 表示上界约束对最优性条件产生了非零作用。KKT 条件是约束优化的一阶分析框架；在一般非凸问题中，它通常需要适当的约束资格条件才能作为必要条件，在凸问题中还可配合凸性条件得到更强的充分性结论。</p>
+</section>
+<section id="methods"><h2>常见处理思路</h2>
+<ul><li><strong>变量消元：</strong>若等式约束能显式解出部分变量，可以减少维度；但表达式可能变复杂。</li><li><strong>投影方法：</strong>每次更新后把点投影回可行集合；投影本身可能很难计算。</li><li><strong>拉格朗日乘子与 KKT：</strong>把约束对最优性的影响写进驻点条件，适合理论分析和许多数值方法。</li><li><strong>罚函数与增广拉格朗日：</strong>把约束违反程度加入目标或构造更好的子问题；罚参数过大可能导致数值病态。</li><li><strong>障碍函数：</strong>通过在边界附近增大的代价保持迭代点位于内部；要求初始点和可行域结构满足方法需要。</li></ul>
+</section>
+<section id="demo"><h2>检查候选点是否可行</h2>
+<p>目标函数为 (x−2)²，约束为 0≤x≤1。拖动候选点，观察它是否可行，以及它与约束最优点 x=1 的区别。</p>
+<div class="interactive-panel" data-demo="constraint"><h3>一维约束检查器</h3><div class="demo-control"><label for="c-x">候选点 x <span>0–3</span></label><input id="c-x" data-key="x" type="range" min="0" max="3" step=".05" value="2"></div><div class="demo-output" data-output aria-live="polite"></div></div>
+</section>
+<section id="code"><h2>Python：比较两个问题</h2>
+<pre><code>"""Show why a constrained optimum can lie on a boundary."""
+def objective(x: float) -&gt; float:
+    return (x - 2.0) ** 2
+
+
+def feasible(x: float) -&gt; bool:
+    return 0.0 &lt;= x &lt;= 1.0
+
+
+if __name__ == "__main__":
+    unconstrained_x = 2.0
+    constrained_x = 1.0
+    multiplier = 2.0
+    gradient_at_boundary = 2.0 * (constrained_x - 2.0)
+
+    print("unconstrained:", unconstrained_x, objective(unconstrained_x))
+    print("constrained:  ", constrained_x, objective(constrained_x))
+    print("boundary gradient:", gradient_at_boundary)
+    print("KKT multiplier:", multiplier)
+
+    assert not feasible(unconstrained_x)
+    assert feasible(constrained_x)
+    assert objective(constrained_x) == 1.0
+    assert gradient_at_boundary + multiplier == 0.0
+    assert multiplier &gt;= 0.0
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 03_1.4._Constrained_and_Unconstrained_Optimization
-
-"""
-Lecture: /01._Introduction
-Content: 03_1.4._Constrained_and_Unconstrained_Optimization
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+</section>
+<section id="pitfalls"><h2>方法选择与常见误区</h2>
+<ul><li>不能把无约束最优点直接当作约束问题的答案；先检查可行性。</li><li>约束最优点可能位于边界，梯度不必为零。</li><li>罚函数不是“免费消除约束”；参数选择会影响精度与条件数。</li><li>约束方向和乘子符号必须使用同一套约定。若把 g(x)≤0 改成 g(x)≥0，拉格朗日函数的符号也要同步调整。</li></ul>
+</section>
+<section id="references"><h2>练习与参考</h2>
+<p><strong>练习：</strong>将目标改为 (x−0.4)²，约束仍为 0≤x≤1。此时约束是否改变最优解？再把目标改为 (x−1.6)²，重新求解。</p>
+<p><strong>自检：</strong>第一个目标的无约束最优点 0.4 可行，因此约束不改变解；第二个目标的无约束最优点 1.6 不可行，约束最优点变为边界 1。</p>
+<div class="references"><strong>参考资料</strong><ol><li>Jorge Nocedal, Stephen J. Wright, <em>Numerical Optimization</em>, 2nd ed., Springer, 2006，Chapter 1 “Constrained and Unconstrained Optimization”；Chapter 12 “Theory of Constrained Optimization”。<a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">出版社书目</a>。</li></ol></div>
+</section>
+<footer class="article-footer"><p class="references">本页公式、例子与算法说明均按页面中的符号约定独立表述；示例代码用于教学检查，不应被误认为通用优化求解器。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_1.3._Continuous_vs._Discrete_Optimization.html"><small>上一篇 · 1.3</small><strong>连续优化与离散优化</strong></a><a href="04_1.5._Global_and_Local_Optimization.html"><small>下一篇 · 1.5</small><strong>全局最优与局部最优</strong></a></nav></footer>
+</article></main></div>
+</body></html>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "G1",
+    "claim": "全局极小点在整个可行域上不劣于任何其他可行点；局部极小点只比较某个邻域。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Global and Local Optimization",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "G2",
+    "claim": "凸函数在凸可行域上的局部极小点也是全局极小点；严格凸性保证最优点至多一个。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Convexity",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "G3",
+    "claim": "f(x)=(x²−1)²+0.4x 的两个局部极小点约为 −1.04668 与 0.94565，左侧函数值更低。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "一阶/二阶导数与 01._Introduction/04_1.5._Global_and_Local_Optimization.py",
+    "status": "derived",
+    "notes": "数值近似来自数值驻点分析与固定步长梯度下降；不是教材实验结果。"
+  }
+]

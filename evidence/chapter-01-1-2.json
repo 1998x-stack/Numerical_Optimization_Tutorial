@@ -1,0 +1,20 @@
+[
+  {
+    "id": "T1",
+    "claim": "运输问题可将路线发货量作为决策变量，以单位成本乘发货量之和为线性目标，并用供给、需求和非负约束描述可行方案。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Example: A Transportation Problem",
+    "status": "verified",
+    "notes": "本文独立重述模型，不复制教材原文。"
+  },
+  {
+    "id": "T2",
+    "claim": "示例成本矩阵、供给和需求为本文独立构造；最优计划成本为 255。",
+    "kind": "illustrative-and-derived",
+    "source_url": "",
+    "locator": "本文代数下界证明与 01._Introduction/01_1.2._Example:_A_Transportation_Problem.py",
+    "status": "derived",
+    "notes": "数值不是教材原例数据；证明覆盖连续变量可行域，脚本枚举整数方案作交叉检查。"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "M1",
+    "claim": "连续优化问题可用目标函数、等式约束和不等式约束表达；可行域由约束共同定义。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Mathematical Formulation",
+    "status": "verified",
+    "notes": "本文采用 g_i(x) ≤ 0 的符号约定。"
+  },
+  {
+    "id": "M2",
+    "claim": "二维示例的最优可行点为 (1.5, 1.5)，最优值为 0.5。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文给出的柯西–施瓦茨不等式推导；01._Introduction/00_1.1._Mathematical_Formulation.py",
+    "status": "derived",
+    "notes": "独立构造的教学例子，不是教材数值。"
+  }
+]
