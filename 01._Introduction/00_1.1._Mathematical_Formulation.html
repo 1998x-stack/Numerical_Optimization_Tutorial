@@ -1,36 +1,101 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.1. Mathematical Formulation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="把一个模糊的“做得更好”，转化为变量、目标函数、约束和可行域。数学建模的第一步不是选择算法，而是明确究竟要决定什么。">
+<title>1.1 优化问题的数学表达 | Numerical Optimization</title>
+<link rel="stylesheet" href="../assets/course.css">
+<script defer src="../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>00_1.1._Mathematical_Formulation</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 00_1.1._Mathematical_Formulation
-</code></pre>
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录"><span class="toc-label">Chapter 01 / Introduction</span><a href="#question">先问：我们要决定什么？</a>
+<a href="#form">统一的数学形式</a>
+<a href="#model">从现实问题走到模型</a>
+<a href="#example">二维例子：离目标最近的可行点</a>
+<a href="#demo">动手检查一个候选解</a>
+<a href="#code">Python：枚举一个小网格</a>
+<a href="#pitfalls">建模时最容易混淆的事</a>
+<a href="#exercise">练习与参考</a><a href="../index.html#chapter-01">返回第一章</a><a href="../index.html#chapters">完整课程目录</a></aside>
+<main id="content" class="article-main"><article class="article">
+<header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.1 / Mathematical Formulation</div><h1>优化问题的数学表达</h1><p class="dek">把一个模糊的“做得更好”，转化为变量、目标函数、约束和可行域。数学建模的第一步不是选择算法，而是明确究竟要决定什么。</p><div class="article-meta"><span>数值优化基础</span><span>独立教学模块</span><span>含可运行 Python 示例</span></div></header>
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_1.1._Mathematical_Formulation
+<section id="question"><h2>先问：我们要决定什么？</h2>
+<p>优化不是“让所有东西都变好”的口号。它要求我们先选定一个可以比较的量：成本、时间、能耗、误差、风险，或这些量经过明确权衡后的组合。然后，我们要说明哪些决策可以改变，以及哪些现实条件不能被违反。</p>
+<p>例如，配送公司要决定每辆车走哪条路线；制造工厂要决定每种产品生产多少；机器学习系统要决定模型参数。它们的应用背景不同，但都可以拆成四件事：</p>
+<ul><li><strong>决策变量：</strong>我们可以控制的未知量。</li><li><strong>目标函数：</strong>给每个决策方案一个可比较的数值。</li><li><strong>约束：</strong>定义哪些方案在现实中允许出现。</li><li><strong>数据与假设：</strong>成本、容量、需求、变量范围，以及模型忽略了什么。</li></ul>
+<div class="note"><p><strong>核心判断：</strong>一个优化模型首先是对现实问题的抽象。算法只能求解你写下的模型，不能自动修复遗漏的成本、错误的单位或不合理的约束。</p></div>
+</section>
+<section id="form"><h2>统一的数学形式</h2>
+<p>令决策向量为 <math class="math-inline" aria-label="x 属于实数 n 维空间"><mi>x</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>n</mi></msup></math>，其中每个分量代表一个决策。最常见的非线性优化形式是：</p>
+<div class="equation" role="group" aria-label="优化问题的标准形式"><div class="math-scroll" tabindex="0" role="region" aria-label="标准优化形式，可横向滚动"><math display="block" aria-label="最小化 f(x)，满足等式约束 h j(x) 等于零，以及不等式约束 g i(x) 小于等于零"><mrow><msub><mi>min</mi><mrow><mi>x</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>n</mi></msup></mrow></msub><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mspace width="1em"/><mtext>subject to</mtext><mspace width=".6em"/><mtable><mtr><mtd><msub><mi>h</mi><mi>j</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>0</mn></mtd><mtd><mi>j</mi><mo>∈</mo><mi>E</mi></mtd></mtr><mtr><mtd><msub><mi>g</mi><mi>i</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>≤</mo><mn>0</mn></mtd><mtd><mi>i</mi><mo>∈</mo><mi>I</mi></mtd></mtr></mtable></math></div></div>
+<p>这里的符号有明确分工：</p>
+<ul><li><math class="math-inline" aria-label="f(x)"><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></math> 是标量目标函数；“最小化”表示希望它尽可能小。最大化问题可以通过最小化 <math class="math-inline" aria-label="负 f(x)"><mo>−</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></math> 转换。</li><li><math class="math-inline" aria-label="h j"><msub><mi>h</mi><mi>j</mi></msub></math> 表示等式约束，<math class="math-inline" aria-label="g i"><msub><mi>g</mi><mi>i</mi></msub></math> 表示不等式约束。本文统一采用 <math class="math-inline" aria-label="g 小于等于零"><mi>g</mi><mo>≤</mo><mn>0</mn></math> 的符号约定；其他教材也常使用相反方向。</li><li><math class="math-inline" aria-label="E 和 I"><mi>E</mi><mo>,</mo><mi>I</mi></math> 是约束索引集合，不是变量。</li></ul>
+<p>所有满足约束的点构成<strong>可行域</strong>：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="可行域定义"><math display="block" aria-label="可行域是所有满足 h j 等于零且 g i 小于等于零的 x 的集合"><mi>Ω</mi><mo>=</mo><mo>{</mo><mi>x</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>n</mi></msup><mo>:</mo><msub><mi>h</mi><mi>j</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>g</mi><mi>i</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>≤</mo><mn>0</mn><mo>}</mo></math></div></div>
+<p>因此，一个解不是任意让 <math class="math-inline" aria-label="数学表达式：f ( x )"><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></math> 很小的点，而是可行域中的点。若最小值确实被某个点取得，记为 <math class="math-inline" aria-label="数学表达式：x *"><msup><mi>x</mi><mo>*</mo></msup></math>；“最优值存在”与“数值算法找到了一个近似点”是两件不同的事。</p>
+</section>
+<section id="model"><h2>从现实问题走到模型</h2>
+<ol><li><strong>写出决策：</strong>变量应对应可以实际选择的量，并明确单位、维度和取值范围。</li><li><strong>选定目标：</strong>决定比较的是总成本、误差还是多目标加权和。权重必须有业务或科学解释。</li><li><strong>翻译限制：</strong>产能、守恒、预算、法规和逻辑条件分别变成等式、不等式或整数条件。</li><li><strong>检查边界：</strong>变量是否允许为负？是否有上界？约束方向是否写反？单位是否一致？</li><li><strong>验证模型：</strong>代入一个手算方案，检查目标值与每条约束是否符合现实含义。</li></ol>
+<p>一个模型可以写得很复杂，却仍然遗漏关键因素。比如只最小化行驶距离，却不计车辆容量、道路限行和时间窗，求出的路线可能在数学上可行、在现实中却不能执行。</p>
+</section>
+<section id="example"><h2>二维例子：离目标最近的可行点</h2>
+<p>假设我们希望选择两个非负变量 <math class="math-inline" aria-label="数学表达式：x 1"><msub><mi>x</mi><mn>1</mn></msub></math> 和 <math class="math-inline" aria-label="数学表达式：x 2"><msub><mi>x</mi><mn>2</mn></msub></math>，它们越接近理想值 1 越好，但总量必须至少为 3。于是：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="二维例子的目标函数和约束"><math display="block" aria-label="最小化 x1 减 1 的平方加 x2 减 1 的平方，满足 x1 和 x2 非负且和大于等于三"><mrow><msub><mi>min</mi><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub></mrow></msub><mo>(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>−</mo><mn>1</mn><msup><mo>)</mo><mn>2</mn></msup><mo>+</mo><mo>(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>−</mo><mn>1</mn><msup><mo>)</mo><mn>2</mn></msup></mrow><mspace width="1em"/><mtext>s.t.</mtext><mspace width=".5em"/><msub><mi>x</mi><mn>1</mn></msub><mo>≥</mo><mn>0</mn><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>≥</mo><mn>0</mn><mo>,</mo><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mo>≥</mo><mn>3</mn></math></div></div>
+<figure><img src="../assets/figures/optimization-formulation.svg" alt="二维目标函数等高线与可行域：理想点 (1,1) 位于可行域外，最优可行点 (1.5,1.5) 位于 x1+x2=3 的边界上。"><figcaption>等高线表示相同目标值；浅绿色区域满足约束。最优点是可行域中离理想点最近的位置。</figcaption></figure>
+<p>不考虑约束时，目标函数在 (1,1) 处为 0，但这个点不满足总量至少为 3 的要求。考虑约束后，最优点变为 (1.5,1.5)，目标值为 0.5。可以用柯西–施瓦茨不等式验证：令 <math class="math-inline" aria-label="数学表达式：u = x 1 − 1"><mi>u</mi><mo>=</mo><msub><mi>x</mi><mn>1</mn></msub><mo>−</mo><mn>1</mn></math>、<math class="math-inline" aria-label="数学表达式：v = x 2 − 1"><mi>v</mi><mo>=</mo><msub><mi>x</mi><mn>2</mn></msub><mo>−</mo><mn>1</mn></math>，则 <math class="math-inline" aria-label="数学表达式：u + v ≥ 1"><mi>u</mi><mo>+</mo><mi>v</mi><mo>≥</mo><mn>1</mn></math>，且 <math class="math-inline" aria-label="数学表达式：u 2 + v 2 ≥ 1 2"><msup><mi>u</mi><mn>2</mn></msup><mo>+</mo><msup><mi>v</mi><mn>2</mn></msup><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math>；等号在 u=v=0.5 时成立。</p>
+</section>
+<section id="demo"><h2>动手检查一个候选解</h2>
+<p>移动两个变量，观察目标值和可行性如何变化。目标值更小并不代表方案可用；必须先满足约束。</p>
+<div class="interactive-panel" data-demo="formulation"><h3>候选点检查器</h3><div class="demo-controls"><div class="demo-control"><label for="f-x1">x₁ <output> </output></label><input id="f-x1" data-key="x1" type="range" min="0" max="3" step=".05" value="1"></div><div class="demo-control"><label for="f-x2">x₂</label><input id="f-x2" data-key="x2" type="range" min="0" max="3" step=".05" value="1"></div></div><div class="demo-output" data-output aria-live="polite"></div></div>
+</section>
+<section id="code"><h2>Python：枚举一个小网格</h2>
+<p>下面的程序只为这个二维例子检查有限网格，不是通用优化器。它把连续空间离散化，因此结果精度受步长限制；本例的最优点恰好落在网格上。</p>
+<pre><code>"""Evaluate a small constrained optimization model by grid search.
 
+This is a transparent teaching example, not a general-purpose optimizer.
 """
-Lecture: /01._Introduction
-Content: 00_1.1._Mathematical_Formulation
-"""
+from math import isclose
 
+
+def objective(x1: float, x2: float) -&gt; float:
+    return (x1 - 1.0) ** 2 + (x2 - 1.0) ** 2
+
+
+def feasible(x1: float, x2: float) -&gt; bool:
+    return x1 &gt;= 0.0 and x2 &gt;= 0.0 and x1 + x2 &gt;= 3.0
+
+
+def grid_search(step: float = 0.05):
+    candidates = []
+    for i in range(81):
+        for j in range(81):
+            x1, x2 = i * step, j * step
+            if feasible(x1, x2):
+                candidates.append((objective(x1, x2), x1, x2))
+    return min(candidates)
+
+
+if __name__ == "__main__":
+    value, x1, x2 = grid_search()
+    print(f"grid minimizer: ({x1:.2f}, {x2:.2f}), f={value:.4f}")
+    assert isclose(x1, 1.5, abs_tol=1e-9)
+    assert isclose(x2, 1.5, abs_tol=1e-9)
+    assert isclose(value, 0.5, abs_tol=1e-9)
 </code></pre>
-  </div>
-</body>
-</html>
-  
+</section>
+<section id="pitfalls"><h2>建模时最容易混淆的事</h2>
+<ul><li><strong>目标值与可行性：</strong>不可行点即使目标值很低，也不能直接作为答案。</li><li><strong>变量与参数：</strong>变量是要决定的量；参数是当前模型中给定的数据。把二者混淆会改变问题本身。</li><li><strong>最小化与最大化：</strong>改变符号可以转换目标方向，但不能改变约束的物理意义。</li><li><strong>最优解与最优值：</strong>多个决策可能达到同一个最优值；也可能只有下确界而没有可达到的最小点。</li></ul>
+</section>
+<section id="exercise"><h2>练习与参考</h2>
+<p><strong>练习：</strong>把约束改为 <math class="math-inline" aria-label="数学表达式：x 1 + x 2 ≤ 1"><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mo>≤</mo><mn>1</mn></math>，并保留同一个目标函数。请先判断无约束理想点是否可行，再求新的最优点和目标值。</p>
+<p><strong>自检：</strong>理想点 (1,1) 不可行；由于目标关于两变量对称，最优点落在 x₁+x₂=1 上且两变量相等，即 (0.5,0.5)，目标值为 0.5。</p>
+<div class="references"><strong>参考资料</strong><ol><li>Jorge Nocedal, Stephen J. Wright, <em>Numerical Optimization</em>, 2nd ed., Springer, 2006，Chapter 1 “Introduction” 与 “Mathematical Formulation”。<a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">出版社书目与版本信息</a>。</li></ol></div>
+</section>
+<footer class="article-footer"><p class="references">本页公式、例子与算法说明均按页面中的符号约定独立表述；示例代码用于教学检查，不应被误认为通用优化求解器。</p><nav class="prev-next" aria-label="相邻内容"><a href="../index.html#chapter-01"><small>课程入口</small><strong>返回课程首页</strong></a><a href="01_1.2._Example:_A_Transportation_Problem.html"><small>下一篇 · 1.2</small><strong>运输问题：把物流决策写成线性规划</strong></a></nav></footer>
+</article></main></div>
+</body></html>

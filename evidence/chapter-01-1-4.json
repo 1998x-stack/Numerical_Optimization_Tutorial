@@ -1,0 +1,20 @@
+[
+  {
+    "id": "C1",
+    "claim": "有约束优化在可行域内求最小值；边界最优点不必满足无约束梯度为零。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Constrained and Unconstrained Optimization; Chapter 12, First-Order Optimality Conditions",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "C2",
+    "claim": "对于 f(x)=(x−2)^2 且 0≤x≤1，最优点为 x=1，KKT 乘子 λ=2。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析导数与 01._Introduction/03_1.4._Constrained_and_Unconstrained_Optimization.py",
+    "status": "derived",
+    "notes": "独立构造的一维教学例子。"
+  }
+]

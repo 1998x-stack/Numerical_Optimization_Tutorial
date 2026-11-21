@@ -1,0 +1,20 @@
+[
+  {
+    "id": "D1",
+    "claim": "连续与离散优化的核心区别是决策变量的允许取值集合。",
+    "kind": "textbook-concept",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, Continuous versus Discrete Optimization",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "D2",
+    "claim": "f(x)=(x−2.4)^2 在 [0,5] 上的连续最优点为 2.4；整数集合 {0,…,5} 上最优点为 2，目标值为 0.16。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析比较与 01._Introduction/02_1.3._Continuous_vs._Discrete_Optimization.py",
+    "status": "derived",
+    "notes": "独立构造的教学例子。"
+  }
+]
