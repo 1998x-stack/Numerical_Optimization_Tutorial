@@ -1,36 +1,68 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="算法反复选择搜索方向和步长，让目标函数沿着可验证的方向改进。梯度下降与牛顿法在同一个二次函数上展示了两种截然不同的更新方式。"><title>1.8 优化算法：从局部信息走向更好的决策 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 01 / Optimization Algorithms</span><a href="#why">为什么需要迭代算法</a>
+<a href="#example">一条可精确求解的抛物线</a>
+<a href="#gradient">梯度下降：沿负梯度移动</a>
+<a href="#newton">牛顿法：利用局部曲率</a>
+<a href="#stopping">怎样决定停止与验收</a>
+<a href="#interactive">一步梯度下降与步长</a>
+<a href="#code">Python：解析结果与数值迭代</a><a href="../index.html#chapter-01">课程导读</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.8 / Optimization Algorithms</div><h1>优化算法：从局部信息走向更好的决策</h1><p class="dek">算法反复选择搜索方向和步长，让目标函数沿着可验证的方向改进。梯度下降与牛顿法在同一个二次函数上展示了两种截然不同的更新方式。</p><div class="article-meta"><span>数值优化</span><span>定义 · 推导 · 验证</span><span>可运行示例</span></div></header><section id="why"><h2>为什么需要迭代算法</h2>
+<p>复杂目标函数往往没有可以直接写出的解析最优解。数值算法从起点 x₀ 出发，读取函数值、梯度或曲率信息，再逐次计算新的候选点。每一步都要回答两个问题：<strong>朝哪走</strong>，以及<strong>走多远</strong>。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="下一迭代点等于当前点加步长乘搜索方向"><math display="block" aria-label="下一迭代点等于当前点加步长乘搜索方向"><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><msub><mi>α</mi><mi>k</mi></msub><msub><mi>p</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>这里 pₖ 是方向，αₖ 是步长。线搜索方法首先选方向，再沿该方向选步长；信赖域方法首先限制局部模型可信的范围，再在范围内找步子。这两种思想贯穿后续的数值优化算法。</p></section>
+<section id="example"><h2>一条可精确求解的抛物线</h2>
+<p>先使用自构造的目标 f(x)=(x−3)²+1。它的唯一全局最小点是 x*=3，最优值 f*=1。一阶导数为 2(x−3)，二阶导数恒为 2。从起点 x₀=0 开始，比一比梯度法和牛顿法的首步。</p>
+<figure><img src="../assets/figures/gradient-newton.svg" alt="同一抛物线上，梯度下降从零到 1.2，牛顿法从零到 3。"><figcaption>在这个二次目标中，固定步长 0.2 的梯度下降第一步到 x=1.2，而精确使用 Hessian 的牛顿步直接到 x=3。</figcaption></figure></section>
+<section id="gradient"><h2>梯度下降：沿负梯度移动</h2>
+<p>梯度下降使用 pₖ=−f'(xₖ)。对当前函数，更新是 xₖ₊₁=xₖ−2α(xₖ−3)。如果 α=0.2，则 x₁=0+0.2·6=1.2；后续每一步都更接近 3。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="到最优点的误差每轮乘以一减二倍步长"><math display="block" aria-label="到最优点的误差每轮乘以一减二倍步长"><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>3</mn><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mn>2</mn><mi>α</mi><mo>)</mo><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><mn>3</mn><mo>)</mo></mrow></math></div></div>
+<p>只要 |1−2α|<1，即 0<α<1，误差在这个问题中线性收缩。α=0.5 一步到达最优；α=1 会在 0 与 6 之间振荡，α>1 则会放大偏差。<strong>这一具体步长范围不能不加修改地套用于其他函数。</strong></p></section>
+<section id="newton"><h2>牛顿法：利用局部曲率</h2>
+<p>牛顿法在当前位置用二阶 Taylor 近似目标：f(x+p)≈f(x)+f'(x)p+½f''(x)p²。对正曲率的局部二次模型求最小点，得 p=−f'(x)/f''(x)。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="牛顿更新用一阶导数除以二阶导数修正当前点"><math display="block" aria-label="牛顿更新用一阶导数除以二阶导数修正当前点"><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><mfrac><mrow><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo></mrow><mrow><msup><mi>f</mi><mo>″</mo></msup><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo></mrow></mfrac></mrow></math></div></div>
+<p>本例 f''=2，故 x₁=0−(−6)/2=3，一步精确到达最优点。原因是原函数本身就是严格凸二次函数，二阶模型没有近似误差。对于非凸或 Hessian 不正定的问题，纯牛顿方向不一定下降；实践中通常加入线搜索、信赖域或 Hessian 修正。</p></section>
+<section id="stopping"><h2>怎样决定停止与验收</h2>
+<ul><li><strong>目标与梯度：</strong>比较目标值下降、梯度范数和相对变化，但梯度小本身不意味着全局最优。</li><li><strong>约束与数值误差：</strong>有约束问题还要检查可行性与最优性残差；目标值的微小变化也可能只是停滞。</li><li><strong>成本与稳健性：</strong>牛顿步要计算/求解 Hessian 系统，可能远比一次梯度更新昂贵；高维优化常用拟牛顿或矩阵自由方法。</li></ul>
+<p>收敛论证需要明确函数光滑性、步长选择、曲率与初始点条件。单个示例的成功运行不能证明所有起点、所有函数都收敛。</p></section>
+<section id="interactive"><h2>一步梯度下降与步长</h2>
+<p>从 x₀=0 出发，移动步长 α，查看首步目标值、更新点与稳定范围。牛顿步在本例始终等于 3，用作比较。</p>
+<div class="interactive-panel" data-demo="algorithm"><h3>实时计算</h3><p>α 的推荐范围仅针对本例 f(x)=(x−3)²+1。</p><div class="demo-control"><label for="algorithm-control">梯度步长 α</label><input id="algorithm-control" data-key="alpha" type="range" min="0.05" max="1.1" step="0.05" value="0.2"></div><div class="demo-output" data-output aria-live="polite">数值输出由当前参数计算。</div></div></section>
+<section id="code"><h2>Python：解析结果与数值迭代</h2>
+<p>代码检查首步、十步、牛顿步，以及 α>1 时误差增长的反例。算法采用固定步长，不含通用线搜索或信赖域框架。</p>
+<pre><code>"""Gradient descent and Newton steps on one strictly convex quadratic."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.8. Optimization Algorithms</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>07_1.8._Optimization_Algorithms</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 07_1.8._Optimization_Algorithms
+def f(x: float) -&gt; float:
+    return (x - 3.0) ** 2 + 1.0
+
+def gradient(x: float) -&gt; float:
+    return 2.0 * (x - 3.0)
+
+def hessian(x: float) -&gt; float:
+    return 2.0
+
+def gradient_descent(x: float, step: float, count: int) -&gt; float:
+    for _ in range(count):
+        x -= step * gradient(x)
+    return x
+
+def newton_step(x: float) -&gt; float:
+    return x - gradient(x) / hessian(x)
+
+if __name__ == "__main__":
+    x0 = 0.0
+    gd_first = gradient_descent(x0, 0.2, 1)
+    gd_tenth = gradient_descent(x0, 0.2, 10)
+    newton_first = newton_step(x0)
+    unstable = gradient_descent(x0, 1.05, 10)
+    print(f"GD (1 step) = {gd_first:.6f}")
+    print(f"GD (10 steps) = {gd_tenth:.6f}")
+    print(f"Newton (1 step) = {newton_first:.6f}")
+    assert isclose(gd_first, 1.2)
+    assert isclose(gd_tenth, 3.0 * (1.0 - 0.6 ** 10))
+    assert isclose(newton_first, 3.0)
+    assert isclose(f(newton_first), 1.0)
+    assert abs(unstable - 3.0) &gt; abs(x0 - 3.0)
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 07_1.8._Optimization_Algorithms
-
-"""
-Lecture: /01._Introduction
-Content: 07_1.8._Optimization_Algorithms
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<p><strong>练习：</strong>把目标改为 10(x−3)²+1，仍用 α=0.2。此时更新误差因子变为 1−20α=−3，迭代发散；合适的稳定步长必须小于 0.1。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization（第二版）</a>，第 1 章。本文所有公式示例、图形与程序为独立构造；上述数值结果可由页面中的代数和代码核对。参考 ISBN 978-0-387-40065-5。</div></section><footer class="article-footer"><p class="references">数学结论需在文中给出的定义域和假设下理解；程序用于小规模教学验证。</p><nav class="prev-next" aria-label="相邻内容"><a href="06_1.7._Convexity.html"><small>上一篇 · 1.7</small><strong>凸性：为什么局部最优可以变成全局最优</strong></a><a href="08_1.9._Notes_and_References.html"><small>下一篇 · 1.9</small><strong>注释与参考：怎样独立核对一个优化结论</strong></a></nav></footer></article></main></div></body></html>

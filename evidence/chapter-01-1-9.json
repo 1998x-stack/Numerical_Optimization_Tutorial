@@ -1,0 +1,20 @@
+[
+  {
+    "id": "R1",
+    "claim": "教材第一章以 Notes and References 结束。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, table of contents",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "R2",
+    "claim": "中心差分在二次函数上实数精确运算的截断误差为零，但实际浮点实现仍受舍入误差影响。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "中心差分展开推导和 Python 浮点实验",
+    "status": "derived",
+    "notes": "不能据此宣称任意函数或任意 h 都有高精度。"
+  }
+]

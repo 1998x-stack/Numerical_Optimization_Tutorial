@@ -1,36 +1,58 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="凸性把局部几何与全局保证连接起来。观察一条曲线与两端点之间的弦，理解为什么凸优化允许可靠的全局最优性判断。"><title>1.7 凸性：为什么局部最优可以变成全局最优 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 01 / Convexity</span><a href="#intuition">看曲线与弦之间的关系</a>
+<a href="#set">什么是凸集</a>
+<a href="#function">凸函数的不等式</a>
+<a href="#test">导数与 Hessian 判别</a>
+<a href="#global">从局部极小到全局极小</a>
+<a href="#interactive">移动插值权重 θ</a>
+<a href="#code">检查不等式并练习</a><a href="../index.html#chapter-01">课程导读</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.7 / Convexity</div><h1>凸性：为什么局部最优可以变成全局最优</h1><p class="dek">凸性把局部几何与全局保证连接起来。观察一条曲线与两端点之间的弦，理解为什么凸优化允许可靠的全局最优性判断。</p><div class="article-meta"><span>数值优化</span><span>定义 · 推导 · 验证</span><span>可运行示例</span></div></header><section id="intuition"><h2>看曲线与弦之间的关系</h2>
+<p>考虑 f(x)=(x−1)²。任意挑两个输入点，把它们连成一条直线；曲线上两点之间的函数值不会高于这条弦对应的高度。这正是凸函数最直观的几何特征。</p>
+<figure><img src="../assets/figures/convex-chord.svg" alt="凸二次函数的曲线低于连接 x=0 与 x=4 的弦。"><figcaption>当端点为 x=0 和 x=4 时，插值 x=3 处的曲线值为 4，弦值为 7；弦与曲线的垂直间距就是凸性不等式中的差值。</figcaption></figure></section>
+<section id="set"><h2>什么是凸集</h2>
+<p>一个集合 C 是凸集，意味着任意两点 a、b∈C 之间的全部线段都在 C 内。实数上的区间、欧氏空间中的球、半空间是典型例子；中间挖洞的环形区域通常不是凸集。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="凸集中两点的凸组合仍属于该集合"><math display="block" aria-label="凸集中两点的凸组合仍属于该集合"><mrow><mi>θ</mi><mi>a</mi><mo>+</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo>)</mo><mi>b</mi><mo>∈</mo><mi>C</mi><mspace width=".6em"/><mtext>当</mtext><mspace width=".25em"/><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>C</mi><mo>,</mo><mn>0</mn><mo>≤</mo><mi>θ</mi><mo>≤</mo><mn>1</mn></mrow></math></div></div>
+<p>优化里还需要注意<strong>定义域</strong>。讨论函数在 C 上是否凸，首先要求 C 本身为凸集；否则两点之间的插值可能连函数都没有定义。</p></section>
+<section id="function"><h2>凸函数的不等式</h2>
+<p>给定凸定义域 C，函数 f 是凸的，当且仅当任意 a、b∈C 与 θ∈[0,1] 满足下式。左侧是插值处的函数值，右侧是端点函数值按相同权重得到的弦上高度。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="凸函数在两点的插值处不超过端点函数值插值"><math display="block" aria-label="凸函数在两点的插值处不超过端点函数值插值"><mrow><mi>f</mi><mo>(</mo><mi>θ</mi><mi>a</mi><mo>+</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo>)</mo><mi>b</mi><mo>)</mo><mo>≤</mo><mi>θ</mi><mi>f</mi><mo>(</mo><mi>a</mi><mo>)</mo><mo>+</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo>)</mo><mi>f</mi><mo>(</mo><mi>b</mi><mo>)</mo></mrow></math></div></div>
+<p>对于 f(x)=(x−1)²，取 a=0、b=4、θ=1/4。插值点 x=3，左侧 f(3)=4，右侧 1/4·f(0)+3/4·f(4)=7。差 3≥0，符合凸性。对所有 θ∈[0,1]，差恰好是 16θ(1−θ)，因此始终非负。</p></section>
+<section id="test"><h2>导数与 Hessian 判别</h2>
+<p>如果一元函数在开区间内二次连续可微，f''(x)≥0 对全部 x 成立，与凸性等价。多维情况下，若函数在开凸域内二次连续可微，Hessian 对所有点均为半正定，就是凸性的充分必要条件。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Hessian 的所有二次型不小于零"><math display="block" aria-label="Hessian 的所有二次型不小于零"><mrow><msup><mi>v</mi><mi>⊤</mi></msup><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mi>v</mi><mo>≥</mo><mn>0</mn><mspace width=".6em"/><mtext>对所有向量</mtext><mspace width=".2em"/><mi>v</mi></mrow></math></div></div>
+<p>本例 f''(x)=2>0，因此严格凸；并且在实数域上有唯一最小点 x=1。注意<strong>严格凸</strong>不要求每个点的 Hessian 都正定，例如 x⁴ 严格凸，但在零点的二阶导数为零。</p></section>
+<section id="global"><h2>从局部极小到全局极小</h2>
+<p>若目标 f 凸且可行域 C 也是凸集，任何局部极小点都是全局极小点。理由是：若存在更好的远处点 y，连接当前候选点 x 和 y 的线段仍可行；凸性保证沿着这条线段刚离开 x 的点就能改善目标，与局部最优矛盾。</p>
+<p>严格凸意味着<strong>若最小点存在则至多一个</strong>，但并不保证存在。例如 eˣ 在整个实数轴上严格凸，函数值始终大于零，却只无限接近零，不会取得最小值。</p>
+<div class="note"><p>凸优化并不是“所有约束问题都容易”，而是给予可利用的全局结构。不能仅凭目标函数凸就忽略非凸可行域。</p></div></section>
+<section id="interactive"><h2>移动插值权重 θ</h2>
+<p>改变 θ，展示曲线值和弦值。端点时二者相等；在区间内部，严格凸二次函数的曲线低于连接端点的弦。</p>
+<div class="interactive-panel" data-demo="convexity"><h3>实时计算</h3><p>端点 a=0，b=4，x=θa+(1−θ)b。</p><div class="demo-control"><label for="convexity-control">凸组合权重 θ</label><input id="convexity-control" data-key="theta" type="range" min="0" max="1" step="0.05" value="0.25"></div><div class="demo-output" data-output aria-live="polite">数值输出由当前参数计算。</div></div></section>
+<section id="code"><h2>检查不等式并练习</h2>
+<p>程序对 θ=0,0.01,…,1 进行离散检查，并单独验证 θ=1/4 时的精确值。有限采样<strong>不能替代</strong>全区间的数学证明；这里的证明来自平方展开。</p>
+<pre><code>"""Check the convexity inequality for a quadratic teaching example."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.7. Convexity</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>06_1.7._Convexity</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 06_1.7._Convexity
+def f(x: float) -&gt; float:
+    return (x - 1.0) ** 2
+
+def chord_gap(theta: float, a: float = 0.0, b: float = 4.0) -&gt; float:
+    x = theta * a + (1.0 - theta) * b
+    return theta * f(a) + (1.0 - theta) * f(b) - f(x)
+
+if __name__ == "__main__":
+    theta = 0.25
+    x = theta * 0.0 + (1.0 - theta) * 4.0
+    lhs = f(x)
+    rhs = theta * f(0.0) + (1.0 - theta) * f(4.0)
+    print(f"x={x:.2f}, curve={lhs:.2f}, chord={rhs:.2f}, gap={rhs-lhs:.2f}")
+    assert isclose(x, 3.0)
+    assert isclose(lhs, 4.0)
+    assert isclose(rhs, 7.0)
+    for i in range(101):
+        assert chord_gap(i / 100.0) &gt;= -1e-12
+    assert isclose(chord_gap(0.0), 0.0)
+    assert isclose(chord_gap(1.0), 0.0)
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 06_1.7._Convexity
-
-"""
-Lecture: /01._Introduction
-Content: 06_1.7._Convexity
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<p><strong>练习：</strong>证明非负加权和 αf+βg 在 α,β≥0 且 f、g 均凸时仍凸；再思考如果权重允许负数，结论是否还成立。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization（第二版）</a>，第 1 章。本文所有公式示例、图形与程序为独立构造；上述数值结果可由页面中的代数和代码核对。参考 ISBN 978-0-387-40065-5。</div></section><footer class="article-footer"><p class="references">数学结论需在文中给出的定义域和假设下理解；程序用于小规模教学验证。</p><nav class="prev-next" aria-label="相邻内容"><a href="05_1.6._Stochastic_and_Deterministic_Optimization.html"><small>上一篇 · 1.6</small><strong>随机优化与确定性优化</strong></a><a href="07_1.8._Optimization_Algorithms.html"><small>下一篇 · 1.8</small><strong>优化算法：从局部信息走向更好的决策</strong></a></nav></footer></article></main></div></body></html>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "A1",
+    "claim": "教材第一章包含 Optimization Algorithms 小节。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, table of contents",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "A2",
+    "claim": "对于 f(x)=(x−3)^2+1，步长 0.2 的首步梯度更新到 1.2；牛顿法一步到 3。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析迭代及 Python 断言",
+    "status": "derived",
+    "notes": "只适用于这个正定二次模型。"
+  }
+]
