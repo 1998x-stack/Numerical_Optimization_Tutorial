@@ -109,7 +109,7 @@ class CrossVerificationTests(unittest.TestCase):
 
     def test_variable_scaling_condition_number(self):
         scaled = 100.0 * 0.1**2
-        self.assertEqual(max(scaled, 1.0)/min(scaled, 1.0), 1.0)
+        self.assertAlmostEqual(max(scaled, 1.0)/min(scaled, 1.0), 1.0)
 
     def test_exercise_stationary_point_and_value(self):
         x, y = 8/3, -4/3
