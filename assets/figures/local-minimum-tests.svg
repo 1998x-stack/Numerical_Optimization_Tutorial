@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">驻点的 Hessian 曲率测试</title><desc id="fig-desc">四个局部曲率案例：正定 Hessian 对应严格极小，半正定需要更高阶信息，不定 Hessian 对应鞍点，负定 Hessian 对应严格极大。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g stroke="#e7ece7" stroke-width="1"><path d="M55 185H420M55 105H420M55 265H420M55 55V315M480 185H845M480 105H845M480 265H845M480 55V315"/></g>
+<text x="237" y="35" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="middle">正定：严格局部极小</text>
+<path d="M80 85 Q237 350 395 85" fill="none" stroke="#127164" stroke-width="5"/>
+<text x="237" y="350" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">f(t)=t²，H ≻ 0</text>
+<text x="662" y="35" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#92702c" font-size="18" font-weight="700" text-anchor="middle">半正定：二阶检验不充分</text>
+<path d="M500 250 Q580 245 620 180 Q660 115 700 180 Q740 245 820 250" fill="none" stroke="#bd9b49" stroke-width="5"/>
+<text x="662" y="350" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">f(t)=t⁴，H(0)=0</text>
+<g transform="translate(0 0)">
+<text x="237" y="395" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#6e62a6" font-size="18" font-weight="700" text-anchor="middle">不定 Hessian → 鞍点</text>
+<path d="M80 305 Q237 100 395 305" fill="none" stroke="#6e62a6" stroke-width="4"/>
+<path d="M80 305 Q237 420 395 305" fill="none" stroke="#bd633f" stroke-width="4"/>
+<text x="662" y="395" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="18" font-weight="700" text-anchor="middle">负定 Hessian → 局部极大</text>
+<path d="M500 305 Q662 80 825 305" fill="none" stroke="#bd633f" stroke-width="5"/>
+</g>
+<text x="237" y="425" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="13" font-weight="400" text-anchor="middle">x²−y²：两个方向曲率异号</text>
+<text x="662" y="425" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="13" font-weight="400" text-anchor="middle">−x²−y²</text>
+</svg>

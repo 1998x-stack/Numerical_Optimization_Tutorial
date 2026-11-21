@@ -1,36 +1,57 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="局部模型给出下一步往哪里走，但模型在多大范围内可信？线搜索固定方向再选距离；信赖域先限制模型可信的半径，再在其中寻找步向量。"><title>线搜索与信赖域：两种全局化策略 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.2 / Overview of Algorithms · Two Strategies: Line Search and Trust Region</span><a href="#iteration">从当前点构造下一步</a>
+<a href="#line-search">策略一：固定方向，沿线寻找步长</a>
+<a href="#trust-region">策略二：限制局部模型的可信半径</a>
+<a href="#compare">同一个二次目标，两种步子</a>
+<a href="#interactive">交互：分别改变 α 与 Δ</a>
+<a href="#code">Python：两个子问题的可复核对照</a><a href="../../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.2 / Overview of Algorithms · Two Strategies: Line Search and Trust Region</div><h1>线搜索与信赖域：两种全局化策略</h1><p class="dek">局部模型给出下一步往哪里走，但模型在多大范围内可信？线搜索固定方向再选距离；信赖域先限制模型可信的半径，再在其中寻找步向量。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="iteration"><h2>从当前点构造下一步</h2>
+<p>在无约束最小化 minₓ f(x) 中，算法从当前点 xₖ 计算一个候选移动，再得到 xₖ₊₁。一个通用写法是 xₖ₊₁=xₖ+sₖ。关键设计问题是如何选 sₖ，以及如何避免局部近似把算法带到不可靠的区域。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="迭代更新"><math display="block" aria-label="迭代更新"><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><msub><mi>s</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>线搜索把移动拆成方向 pₖ 和标量步长 αₖ；信赖域方法则直接在一个有界区域内选择向量 sₖ。两者都属于全局化策略：它们控制局部算法在实际目标函数上的行为。</p></section>
+<section id="line-search"><h2>策略一：固定方向，沿线寻找步长</h2>
+<p>线搜索先选一个下降方向 pₖ，再考虑一维函数 φₖ(α)=f(xₖ+αpₖ)，最后选择 αₖ>0。方向决定沿哪条射线走，步长决定在这条射线上走多远。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="线搜索的一维子问题"><math display="block" aria-label="线搜索的一维子问题"><mrow><msub><mi>φ</mi><mi>k</mi></msub><mo>(</mo><mi>α</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>α</mi><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo><mo>,</mo><mspace width=".5em"/><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><msub><mi>α</mi><mi>k</mi></msub><msub><mi>p</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>若 pₖ 是下降方向，则 φₖ'(0)=∇f(xₖ)ᵀpₖ<0。精确线搜索会最小化 φₖ(α)，但每轮求得精确最小值通常太贵，因此实践中多用满足充分下降与曲率要求的非精确线搜索。</p></section>
+<section id="trust-region"><h2>策略二：限制局部模型的可信半径</h2>
+<p>信赖域方法在 xₖ 周围构造局部模型 mₖ(s)，常用二次 Taylor 近似。它不要求模型在整个空间都准确，只要求在当前半径 Δₖ 内足够有用，然后求解一个带范数约束的小问题。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="信赖域子问题"><math display="block" aria-label="信赖域子问题"><mrow><munder><mi>min</mi><mi>s</mi></munder><mspace width=".3em"/><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><mi>s</mi><mo>)</mo><mspace width=".8em"/><mtext>subject to</mtext><mspace width=".5em"/><mo>‖</mo><mi>s</mi><mo>‖</mo><mo>≤</mo><msub><mi>Δ</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>若实际目标与模型预测一致，可以扩大半径；若模型预测与实际表现差距很大，就缩小半径或拒绝这一步。这里的半径不是变量的物理边界，而是算法对局部模型可信程度的控制。</p></section>
+<section id="compare"><h2>同一个二次目标，两种步子</h2>
+<figure><img src="../../assets/figures/line-search-vs-trust-region.svg" alt="线搜索沿固定方向调节步长，信赖域直接限制步向量的长度。"><figcaption>在线搜索中先定方向 pₖ，再调 αₖ；在信赖域中，候选步必须位于半径 Δₖ 的球内。</figcaption></figure>
+<p>取 f(x)=4x²，当前点 x₀=1，梯度为 8。线搜索选择 p=−8 并用 α=1/8，位移 αp=−1，直接到达零点。信赖域若半径 Δ=0.4，则步长只能取 p=−0.4，更新到 x=0.6。</p>
+<p>这不是说线搜索一定比信赖域好；它只说明两种策略施加约束的位置不同。高维、非凸、Hessian 不定或方向质量差时，两者的实际表现会明显不同。</p></section>
+<section id="interactive"><h2>交互：分别改变 α 与 Δ</h2>
+<p>固定 f(x)=4x²、x₀=1、线搜索方向 p=−8。移动 α 和 Δ，比较两种策略更新后的函数值。</p>
+<div class="interactive-panel" data-demo="strategies"><h3>实时计算</h3><p>线搜索位移为 −8α；本例的信赖域二次子问题位移为 −min(Δ,1)。</p><div class="demo-controls"><div class="demo-control"><label for="strategies-alpha">线搜索步长 α<output data-value-for="alpha">0.125</output></label><input id="strategies-alpha" data-key="alpha" type="range" min="0.02" max="0.2" step="0.01" value="0.125"></div><div class="demo-control"><label for="strategies-delta">信赖域半径 Δ<output data-value-for="delta">0.4</output></label><input id="strategies-delta" data-key="delta" type="range" min="0.1" max="1" step="0.05" value="0.4"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：两个子问题的可复核对照</h2>
+<p>示例函数是严格凸二次函数，因此两个策略的模型都精确。代码比较精确线搜索步长与受半径限制的信赖域步；它不实现一般维度的线搜索或信赖域求解器。</p>
+<pre><code>"""Compare line search and a 1-D trust-region subproblem on one quadratic."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.4.1. Two Strategies: Line Search and Trust Region</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region</h1>
-<pre><code>Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region
-</code></pre>
+def f(x: float) -&gt; float:
+    return 4.0 * x * x
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region
+def model(x: float, p: float) -&gt; float:
+    # Exact quadratic model at x for this objective.
+    gradient = 8.0 * x
+    hessian = 8.0
+    return f(x) + gradient * p + 0.5 * hessian * p * p
 
-"""
-Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    x0 = 1.0
+    gradient = 8.0
+    direction = -gradient
+    exact_line_alpha = 1.0 / 8.0
+    line_step = exact_line_alpha * direction
+    radius = 0.4
+    trust_step = max(-radius, min(radius, -1.0))
+    print(f"line search: alpha={exact_line_alpha:.3f}, displacement={line_step:.3f}, f={f(x0+line_step):.3f}")
+    print(f"trust region: radius={radius:.3f}, displacement={trust_step:.3f}, f={f(x0+trust_step):.3f}")
+    assert isclose(line_step, -1.0)
+    assert isclose(f(x0 + line_step), 0.0)
+    assert isclose(trust_step, -0.4)
+    assert isclose(model(x0, trust_step), f(x0 + trust_step))
+    assert abs(trust_step) &lt;= radius</code></pre>
+<p><strong>练习：</strong>如果方向 p 不是下降方向，线搜索会遇到什么问题？信赖域是否能在模型曲率不定时仍找到下降步？说明“模型子问题有解”和“实际目标下降”之间的区别。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, “Overview of Algorithms”, subsection “Two Strategies: Line Search and Trust Region”, pp. 18–20.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="../02_2.3._Nonsmooth_Problems.html"><small>上一篇 · 2.1</small><strong>非光滑问题：没有梯度，仍然可以优化</strong></a><a href="01_2.4.2._Search_Directions_for_Line_Search_Methods.html"><small>下一篇 · 2.2</small><strong>搜索方向：什么方向真的会下降</strong></a></nav></footer></article></main></div></body></html>

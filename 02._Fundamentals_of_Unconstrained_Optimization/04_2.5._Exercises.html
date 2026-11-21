@@ -1,36 +1,74 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="用五道原创小题检查驻点分类、非光滑最优性、下降方向、信赖域模型与变量缩放。每题都给出推导、数值检查和适用边界。"><title>无约束优化练习：从条件到可验证答案 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.2 / Exercises · Exercises</span><a href="#how-to">先写假设，再写结论</a>
+<a href="#problem-1">题一：求驻点并证明其为全局最小</a>
+<a href="#problem-2">题二：L1 惩罚下的最优系数</a>
+<a href="#problem-3">题三：判断方向是否下降</a>
+<a href="#problem-4">题四：计算信赖域模型比率</a>
+<a href="#problem-5">题五：用变量缩放改善条件数</a>
+<a href="#interactive">交互：选择一题查看核心答案</a>
+<a href="#code">Python：把五个结果放进一个回归检查</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.2 / Exercises · Exercises</div><h1>无约束优化练习：从条件到可验证答案</h1><p class="dek">用五道原创小题检查驻点分类、非光滑最优性、下降方向、信赖域模型与变量缩放。每题都给出推导、数值检查和适用边界。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="how-to"><h2>先写假设，再写结论</h2>
+<p>这些题目均为独立构造的教学问题，不是教材习题的复制。除非题目特别说明，变量属于实数空间，目标函数按最小化理解。每道题先给出足够的定义与数据，再要求一个可核对的结果。</p>
+<figure><img src="../assets/figures/exercise-map.svg" alt="五个练习主题依次连接 Hessian、次梯度、方向导数、信赖域模型与变量缩放。"><figcaption>练习从最优性条件开始，逐步进入算法方向、局部模型与数值几何。</figcaption></figure></section>
+<section id="problem-1"><h2>题一：求驻点并证明其为全局最小</h2>
+<p>给定 f(x,y)=x²+xy+y²−4x。求驻点，并判断它是局部极小、局部极大还是鞍点。若能证明全局最优，请给出理由。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="梯度与 Hessian"><math display="block" aria-label="梯度与 Hessian"><mrow><mi>∇</mi><mi>f</mi><mo>=</mo><mrow><mo>[</mo><mtable><mtr><mtd><mn>2</mn><mi>x</mi><mo>+</mo><mi>y</mi><mo>−</mo><mn>4</mn></mtd></mtr><mtr><mtd><mi>x</mi><mo>+</mo><mn>2</mn><mi>y</mi></mtd></mtr></mtable><mo>]</mo></mrow><mo>,</mo><mspace width=".5em"/><mi>H</mi><mo>=</mo><mrow><mo>[</mo><mtable><mtr><mtd><mn>2</mn></mtd><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd><mtd><mn>2</mn></mtd></mtr></mtable><mo>]</mo></mrow></mrow></math></div></div>
+<details class="solution-box"><summary>展开解答</summary><div class="solution-body"><p>解方程 2x+y=4、x+2y=0，得到 x*=8/3、y*=−4/3。H 的特征值为 1 和 3，故 H 正定；目标是严格凸二次函数，驻点是唯一全局最小点。代回得到 f(x*)=−16/3。</p></div></details></section>
+<section id="problem-2"><h2>题二：L1 惩罚下的最优系数</h2>
+<p>求解 minₓ ½(x−1.5)²+0.5|x|。写出次梯度最优性条件，并判断最优系数是否为零。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="次梯度最优性"><math display="block" aria-label="次梯度最优性"><mrow><mn>0</mn><mo>∈</mo><mi>x</mi><mo>−</mo><mi>y</mi><mo>+</mo><mi>λ</mi><mi>∂</mi><mo>|</mo><mi>x</mi><mo>|</mo></mrow></math></div></div>
+<details class="solution-box"><summary>展开解答</summary><div class="solution-body"><p>这里 y=1.5、λ=0.5。由于 y>λ，软阈值解 x*=y−λ=1。此时 x*>0，次梯度为 {1}，代入得到 x−1.5+0.5=0。</p></div></details></section>
+<section id="problem-3"><h2>题三：判断方向是否下降</h2>
+<p>在某点梯度为 g=(2,−1)ᵀ。判断 p₁=(−1,−1)ᵀ 与 p₂=(1,2)ᵀ 是否是严格下降方向。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="判别量"><math display="block" aria-label="判别量"><mrow><mi>D</mi><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>[</mo><mi>p</mi><mo>]</mo><mo>=</mo><msup><mi>g</mi><mo>⊤</mo></msup><mi>p</mi></mrow></math></div></div>
+<details class="solution-box"><summary>展开解答</summary><div class="solution-body"><p>gᵀp₁=2(−1)+(−1)(−1)=−1，因此 p₁ 是下降方向。gᵀp₂=2(1)+(−1)(2)=0，因此 p₂ 不是严格下降方向；一阶信息为零不代表函数沿整条射线恒定。</p></div></details></section>
+<section id="problem-4"><h2>题四：计算信赖域模型比率</h2>
+<p>取 f(x)=eˣ，当前点 xₖ=0，二阶模型 m(p)=1+p+½p²。若信赖域半径为 0.25，采用 p=−0.25，计算实际下降、预测下降与 ρ。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="模型比率"><math display="block" aria-label="模型比率"><mrow><mi>ρ</mi><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mn>0.25</mn></mrow></msup></mrow><mrow><mn>1</mn><mo>−</mo><mo>(</mo><mn>1</mn><mo>−</mo><mn>0.25</mn><mo>+</mo><mn>0.5</mn><mo>·</mo><msup><mn>0.25</mn><mn>2</mn></msup><mo>)</mo></mrow></mfrac></mrow></math></div></div>
+<details class="solution-box"><summary>展开解答</summary><div class="solution-body"><p>预测下降为 0.25−0.5×0.25²=0.21875。实际下降为 1−e^(−0.25)≈0.221199。故 ρ≈1.0112，大于一，说明真实目标在这一步的下降略好于二阶模型预测。</p></div></details></section>
+<section id="problem-5"><h2>题五：用变量缩放改善条件数</h2>
+<p>给定 H=diag(25,1)，作变量变换 x=Dz，D=diag(s,1)。求使 DᵀHD=I 的正缩放 s，并计算原始条件数与缩放后条件数。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="变换后的 Hessian"><math display="block" aria-label="变换后的 Hessian"><mrow><msup><mi>D</mi><mo>⊤</mo></msup><mi>H</mi><mi>D</mi><mo>=</mo><mi>diag</mi><mo>(</mo><mn>25</mn><msup><mi>s</mi><mn>2</mn></msup><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math></div></div>
+<details class="solution-box"><summary>展开解答</summary><div class="solution-body"><p>令 25s²=1，取正值 s=0.2。原始条件数 κ₂(H)=25；变换后 Hessian 为单位矩阵，条件数为 1。</p></div></details></section>
+<section id="interactive"><h2>交互：选择一题查看核心答案</h2>
+<p>用滑块切换五道题的关键数值结果。完整推导仍应先独立完成，再展开每题的解答。</p>
+<div class="interactive-panel" data-demo="exercises"><h3>实时计算</h3><p>每个答案对应上方同编号的题目与解析。</p><div class="demo-controls"><div class="demo-control"><label for="exercises-problem">题目编号<output data-value-for="problem">1</output></label><input id="exercises-problem" data-key="problem" type="range" min="1" max="5" step="1" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：把五个结果放进一个回归检查</h2>
+<p>代码独立计算五道题的关键结果，并用断言检查解析答案。它验证的是这些特定教学例子，不是通用的局部最优性或信赖域求解器。</p>
+<pre><code>"""Numerically verify five original exercises from unconstrained optimization."""
+from math import exp, isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.5. Exercises</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>04_2.5._Exercises</h1>
-<pre><code>Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 04_2.5._Exercises
-</code></pre>
+def soft_threshold(y: float, lam: float) -&gt; float:
+    return max(-lam, min(lam, y)) * -1.0 + y if abs(y) &gt; lam else 0.0
 
-    <h3>Python 文件</h3>
-    <pre><code># 04_2.5._Exercises
+def exercise_results() -&gt; dict[str, float]:
+    # 1) Stationary point of x^2 + xy + y^2 - 4x.
+    x, y = 8.0 / 3.0, -4.0 / 3.0
+    value = x*x + x*y + y*y - 4.0*x
+    # 2) L1-regularized scalar least squares, y=1.5, lambda=0.5.
+    sparse_solution = soft_threshold(1.5, 0.5)
+    # 3) Directional derivative for g=(2,-1), p=(-1,-1).
+    slope = 2.0*(-1.0) + (-1.0)*(-1.0)
+    # 4) Trust-region ratio for exp(x), x=0, p=-0.25.
+    predicted = 0.25 - 0.5 * 0.25**2
+    actual = 1.0 - exp(-0.25)
+    ratio = actual / predicted
+    # 5) Scale H=diag(100,1) by D=diag(0.1,1).
+    scaled_condition = max(100.0*0.1**2, 1.0) / min(100.0*0.1**2, 1.0)
+    return {"x": x, "y": y, "quadratic_minimum": value,
+            "sparse_solution": sparse_solution, "directional_slope": slope,
+            "trust_ratio": ratio, "scaled_condition": scaled_condition}
 
-"""
-Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 04_2.5._Exercises
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    result = exercise_results()
+    for name, value in result.items():
+        print(f"{name}: {value:.8f}")
+    assert isclose(result["x"], 8.0/3.0)
+    assert isclose(result["y"], -4.0/3.0)
+    assert isclose(result["quadratic_minimum"], -16.0/3.0)
+    assert isclose(result["sparse_solution"], 1.0)
+    assert isclose(result["directional_slope"], -1.0)
+    assert result["trust_ratio"] &gt; 1.0
+    assert isclose(result["scaled_condition"], 1.0)</code></pre>
+<p><strong>建议：</strong>先遮住所有解答独立推导，再运行代码。若自己的答案与程序不同，先检查变量顺序、方向导数符号、目标值与模型预测值是否混淆。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, “Fundamentals of Unconstrained Optimization”, exercises, pp. 27–29. 本页题目为原创练习。。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="2.4._Overview_of_Algorithms/03_2.4.4._Scaling.html"><small>上一篇 · 2.2</small><strong>尺度变换：让优化问题更容易数值求解</strong></a><a href="../03._Line_Search_Methods/00_3.1._Step_Length.html"><small>下一篇 · 3.1</small><strong>步长选择：沿着下降方向走多远</strong></a></nav></footer></article></main></div></body></html>

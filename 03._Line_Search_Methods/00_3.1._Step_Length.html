@@ -1,189 +1,90 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="方向导数只说明足够小的步子是否下降，并不能决定走多远。步长条件在函数下降、曲率信息与计算成本之间折中，是线搜索算法的核心。"><title>步长选择：沿着下降方向走多远 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.1 / Step Length · Step Length</span><a href="#line">把多维问题压到一条直线上</a>
+<a href="#example">先看一个可以手算的例子</a>
+<a href="#armijo">Armijo：要求足够下降</a>
+<a href="#wolfe">Wolfe 与强 Wolfe：兼顾曲率</a>
+<a href="#goldstein">Goldstein：给函数值下降设上下界</a>
+<a href="#backtracking">回溯：从大步长开始逐次缩短</a>
+<a href="#interactive">交互：观察 Armijo 与 Wolfe 条件</a>
+<a href="#code">Python：四种条件与有界回溯</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.1 / Step Length · Step Length</div><h1>步长选择：沿着下降方向走多远</h1><p class="dek">方向导数只说明足够小的步子是否下降，并不能决定走多远。步长条件在函数下降、曲率信息与计算成本之间折中，是线搜索算法的核心。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="line"><h2>把多维问题压到一条直线上</h2>
+<p>给定当前点 xₖ 和下降方向 pₖ，线搜索考虑 φ(α)=f(xₖ+αpₖ)，只在 α>0 的一维射线上选择步长。链式法则给出 φ'(0)=∇f(xₖ)ᵀpₖ；当它为负时，足够小的正步长会带来下降。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="沿搜索方向的一维函数"><math display="block" aria-label="沿搜索方向的一维函数"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>α</mi><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo><mo>,</mo><mspace width=".5em"/><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><msup><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo></mrow><mo>⊤</mo></msup><msub><mi>p</mi><mi>k</mi></msub><mo>&lt;</mo><mn>0</mn></mrow></math></div></div>
+<p>精确线搜索要解 min_{α>0} φ(α)，通常每轮计算成本太高。非精确线搜索只要求步长满足一组可检查的不等式，从而在函数评估次数与理论收敛条件之间折中。</p></section>
+<section id="example"><h2>先看一个可以手算的例子</h2>
+<p>令 f(x)=(x−2)²，当前点 x₀=0，选 p=4。于是 φ(α)=(4α−2)²，起点函数值为 4，沿方向的初始斜率为 −16。α=0.5 正好到达最小点；α=1 则走过头，函数值又回到 4。</p>
+<figure><img src="../assets/figures/step-length.svg" alt="沿固定方向的函数曲线以及初始步长、回溯步长和一维最优点。"><figcaption>沿 p=4 移动时，α=1 走过头；回溯到 α=0.5 到达最小值。实际算法通常只要求满足下降和曲率条件，不必精确求一维最小点。</figcaption></figure></section>
+<section id="armijo"><h2>Armijo：要求足够下降</h2>
+<p>Armijo 条件也称充分下降条件。它要求新点的函数值至少比起点下降一个与 α 成正比的量。c₁ 通常是很小的正数，且必须满足 0<c₁<1。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Armijo 充分下降条件"><math display="block" aria-label="Armijo 充分下降条件"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><msub><mi>c</mi><mn>1</mn></msub><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>,</mo><mspace width=".4em"/><mn>0</mn><mo>&lt;</mo><msub><mi>c</mi><mn>1</mn></msub><mo>&lt;</mo><mn>1</mn></mrow></math></div></div>
+<p>只满足 Armijo 可能接受非常小的步长。步长虽下降，却可能让算法每次只移动一点点，因此通常还会加入曲率条件来避免过小步长。</p></section>
+<section id="wolfe"><h2>Wolfe 与强 Wolfe：兼顾曲率</h2>
+<p>弱 Wolfe 条件在 Armijo 之外要求新点方向导数不再过于负。这里 φ'(0)<0，故右侧 c₂φ'(0) 仍为负数。常用参数满足 0<c₁<c₂<1。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="弱 Wolfe 曲率条件"><math display="block" aria-label="弱 Wolfe 曲率条件"><mrow><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mi>α</mi><mo>)</mo><mo>≥</mo><msub><mi>c</mi><mn>2</mn></msub><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>,</mo><mspace width=".4em"/><mn>0</mn><mo>&lt;</mo><msub><mi>c</mi><mn>1</mn></msub><mo>&lt;</mo><msub><mi>c</mi><mn>2</mn></msub><mo>&lt;</mo><mn>1</mn></mrow></math></div></div>
+<p>强 Wolfe 条件把曲率要求改为斜率绝对值足够小：|φ'(α)|≤c₂|φ'(0)|。它同时限制方向导数不能过于负，也不能在新点变成过大的正值。</p></section>
+<section id="goldstein"><h2>Goldstein：给函数值下降设上下界</h2>
+<p>Goldstein 条件通过两个不等式夹住新点函数值，既防止下降太少，也避免选择过小步长。参数 0<c<1/2。与 Wolfe 条件相比，它只使用函数值，不直接检查新点方向导数。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Goldstein 条件"><math display="block" aria-label="Goldstein 条件"><mrow><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>c</mi><mo>)</mo><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mi>c</mi><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math></div></div>
+<p>在前面的二次例子里，α=0.5 时 φ=0、φ'(0)=−16。取 c=0.2，Goldstein 的允许区间为 [−2.4,2.4]，所以该步满足条件。</p></section>
+<section id="backtracking"><h2>回溯：从大步长开始逐次缩短</h2>
+<p>回溯线搜索从 α₀>0 开始检查 Armijo 条件。若不满足，就令 α←ρα，其中 0<ρ<1，重复检查。对可微目标和下降方向，在常见连续性条件下，充分小的正步长最终会满足 Armijo，因此回溯可以终止。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="回溯更新"><math display="block" aria-label="回溯更新"><mrow><mi>α</mi><mo>←</mo><mi>ρ</mi><mi>α</mi><mo>,</mo><mspace width=".4em"/><mn>0</mn><mo>&lt;</mo><mi>ρ</mi><mo>&lt;</mo><mn>1</mn></mrow></math></div></div>
+<ul><li>选择初始步长 α₀，常见做法是先尝试 1。</li><li>若 Armijo 不满足，缩短步长 α←ρα。</li><li>重复直到满足条件；记录函数评估次数与最终步长。</li></ul>
+<div class="note"><p>如果 p 不是下降方向，φ'(0)≥0，不能指望足够小的正步长满足通常的 Armijo 下降要求。实际实现还应设置最大回溯次数，避免异常输入导致无限循环。</p></div></section>
+<section id="interactive"><h2>交互：观察 Armijo 与 Wolfe 条件</h2>
+<p>固定 f(x)=(x−2)²、x₀=0、p=4。移动 α，页面计算 φ(α)、Armijo 上界、弱 Wolfe、强 Wolfe 与 Goldstein 是否成立。</p>
+<div class="interactive-panel" data-demo="step-length"><h3>实时计算</h3><p>参数 c₁=10⁻⁴、c₂=0.9、Goldstein c=0.2。</p><div class="demo-controls"><div class="demo-control"><label for="step-length-alpha">候选步长 α<output data-value-for="alpha">0.5</output></label><input id="step-length-alpha" data-key="alpha" type="range" min="0.05" max="1" step="0.05" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：四种条件与有界回溯</h2>
+<p>程序使用解析函数与导数，分别检查 Armijo、弱 Wolfe、强 Wolfe、Goldstein，并将回溯循环限制为最多 100 次。它只用于这个一维示例，后续章节再讨论一般的 Wolfe 搜索算法。</p>
+<pre><code>"""Armijo, weak/strong Wolfe, Goldstein and backtracking on a scalar line."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.1. Step Length</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_3.1._Step_Length</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 00_3.1._Step_Length
-</code></pre>
-<h3>第3.1节 步长</h3>
-<p>在数值优化中的线搜索方法章节中，第3.1节探讨了步长选择的问题。步长选择在优化算法中至关重要，因为它直接影响算法的收敛性和效率。本节内容极为详细，包括步长的定义、常用的步长条件以及具体的步长选择算法。</p>
-<h4>步长的定义</h4>
-<p>步长（Step Length）是指在优化过程中，从当前点沿某个方向前进的距离。其主要目的是在尽可能少的迭代次数内，找到使目标函数值降低的最优点。步长的选择需要权衡计算成本和步长的有效性。</p>
-<h4>Wolfe条件</h4>
-<p>Wolfe条件包括两个主要部分：Armijo条件（或称为充分减小条件）和曲率条件。</p>
-<ol>
-<li>
-<p><strong>Armijo条件</strong>
-Armijo条件确保所选步长足够大，使得目标函数值有显著的减少。具体表达式为：
-$$
-f(x_k + \alpha p_k) \leq f(x_k) + c_1 \alpha \nabla f(x_k)^T p_k
-$$
-其中，$0 &lt; c_1 &lt; 1$ 是一个小常数，通常取值为 $10^{-4}$ 或 $10^{-3}$。</p>
-</li>
-<li>
-<p><strong>曲率条件</strong>
-曲率条件保证步长不会太小，确保在前进方向上有足够的下降速率。具体表达式为：
-$$
-\nabla f(x_k + \alpha p_k)^T p_k \geq c_2 \nabla f(x_k)^T p_k
-$$
-其中，$c_1 &lt; c_2 &lt; 1$。</p>
-</li>
-</ol>
-<p>满足这两个条件的步长即为Wolfe条件步长。Wolfe条件既保证了步长的有效性，又避免了过小的步长导致的收敛速度过慢。</p>
-<h4>Goldstein条件</h4>
-<p>Goldstein条件与Wolfe条件类似，但在步长的选择上更为严格。Goldstein条件的两个不等式如下：
-$$
-f(x_k + \alpha p_k) \leq f(x_k) + c \alpha \nabla f(x_k)^T p_k
-$$
-$$
-f(x_k + \alpha p_k) \geq f(x_k) + (1 - c) \alpha \nabla f(x_k)^T p_k
-$$
-其中，$0 &lt; c &lt; 0.5$。</p>
-<p>这两个不等式确保步长既不会太大也不会太小，从而在每一步中既能有效减少目标函数值，又能避免过小步长带来的效率问题。</p>
-<h4>足够减小与回溯</h4>
-<p>足够减小（Sufficient Decrease）条件是步长选择中最基本的条件。通过回溯法（Backtracking Line Search）来满足足够减小条件，是常见的步长选择方法。步骤如下：</p>
-<ol>
-<li>选择初始步长 $\alpha = \alpha_0$，通常 $\alpha_0 = 1$。</li>
-<li>检查Armijo条件是否满足。</li>
-<li>如果不满足，则将步长乘以一个常数因子 $\rho$（例如 $\rho = 0.5$），重复步骤2，直到条件满足为止。</li>
-</ol>
-<p>这种方法简单且易于实现，广泛应用于各种优化算法中。</p>
-<h4>步长选择算法</h4>
-<p>本节介绍了几种常见的步长选择算法，包括但不限于：</p>
-<ol>
-<li><strong>线性插值与二次插值</strong>：通过构造插值多项式，找到使得目标函数值最小的步长。</li>
-<li><strong>初始步长选择</strong>：在实际应用中，初始步长的选择也非常重要。一些方法通过经验法则或预估来选择合适的初始步长。</li>
-<li><strong>满足Wolfe条件的线搜索算法</strong>：具体实现了前述的Wolfe条件，确保所选步长在保证收敛性的同时，具有足够的计算效率。</li>
-</ol>
-<h3>详细分析</h3>
-<p>在实际应用中，步长的选择不仅影响算法的收敛速度，还可能影响到收敛的稳定性和最终的解的精度。以下是一些深入的分析和讨论：</p>
-<ol>
-<li>
-<p><strong>步长的动态调整</strong>：优化过程中，固定步长可能无法适应目标函数的变化。动态调整步长，例如通过前几次迭代的效果来调整当前步长，可以提高算法的适应性和效率。</p>
-</li>
-<li>
-<p><strong>多种条件的结合</strong>：单一条件可能无法全面评价步长的优劣，结合多种条件（如Wolfe条件与Goldstein条件）可以更全面地评估步长选择的合理性。</p>
-</li>
-<li>
-<p><strong>数值稳定性</strong>：在步长选择过程中，尤其是在接近最优解时，数值误差可能对步长的影响显著。细致的数值分析和高精度计算方法可以提高步长选择的可靠性。</p>
-</li>
-<li>
-<p><strong>应用场景差异</strong>：不同的优化问题可能对步长有不同的要求。例如，在非凸优化问题中，步长的选择可能需要更加谨慎，以避免陷入局部最优。针对不同问题特性，设计适应性更强的步长选择策略是优化算法研究的重要方向。</p>
-</li>
-</ol>
+def f(x: float) -&gt; float:
+    return (x - 2.0) ** 2
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_3.1._Step_Length
+def phi(alpha: float) -&gt; float:
+    # x0=0 and descent direction p=4.
+    return f(4.0 * alpha)
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 00_3.1._Step_Length
-"""
+def phi_prime(alpha: float) -&gt; float:
+    return 32.0 * alpha - 16.0
 
-import numpy as np
+def armijo(alpha: float, c1: float = 1e-4) -&gt; bool:
+    return phi(alpha) &lt;= phi(0.0) + c1 * alpha * phi_prime(0.0)
 
-def armijo_condition(f, xk, pk, alpha, c1=1e-4):
-    """
-    检查是否满足Armijo条件
-    Args:
-        f (callable): 目标函数
-        xk (np.array): 当前点
-        pk (np.array): 搜索方向
-        alpha (float): 步长
-        c1 (float): Armijo条件的参数，默认值为1e-4
-    
-    Returns:
-        bool: 是否满足Armijo条件
-    """
-    return f(xk + alpha * pk) <= f(xk) + c1 * alpha * np.dot(gradient(f, xk), pk)
+def weak_wolfe(alpha: float, c1: float = 1e-4, c2: float = 0.9) -&gt; bool:
+    return armijo(alpha, c1) and phi_prime(alpha) &gt;= c2 * phi_prime(0.0)
 
-def wolfe_conditions(f, xk, pk, alpha, c1=1e-4, c2=0.9):
-    """
-    检查是否满足Wolfe条件
-    Args:
-        f (callable): 目标函数
-        xk (np.array): 当前点
-        pk (np.array): 搜索方向
-        alpha (float): 步长
-        c1 (float): Wolfe条件的参数，默认值为1e-4
-        c2 (float): Wolfe条件的参数，默认值为0.9
-    
-    Returns:
-        bool: 是否满足Wolfe条件
-    """
-    return armijo_condition(f, xk, pk, alpha, c1) and np.dot(gradient(f, xk + alpha * pk), pk) >= c2 * np.dot(gradient(f, xk), pk)
+def strong_wolfe(alpha: float, c1: float = 1e-4, c2: float = 0.9) -&gt; bool:
+    return armijo(alpha, c1) and abs(phi_prime(alpha)) &lt;= c2 * abs(phi_prime(0.0))
 
-def backtracking_line_search(f, xk, pk, alpha=1, rho=0.5, c1=1e-4):
-    """
-    使用回溯法选择步长，满足Armijo条件
-    Args:
-        f (callable): 目标函数
-        xk (np.array): 当前点
-        pk (np.array): 搜索方向
-        alpha (float): 初始步长，默认值为1
-        rho (float): 步长缩减系数，默认值为0.5
-        c1 (float): Armijo条件的参数，默认值为1e-4
-    
-    Returns:
-        float: 选择的步长
-    """
-    while not armijo_condition(f, xk, pk, alpha, c1):
+def goldstein(alpha: float, c: float = 0.2) -&gt; bool:
+    lower = phi(0.0) + (1.0 - c) * alpha * phi_prime(0.0)
+    upper = phi(0.0) + c * alpha * phi_prime(0.0)
+    return lower &lt;= phi(alpha) &lt;= upper
+
+def backtracking(alpha0: float = 1.0, rho: float = 0.5, c1: float = 1e-4) -&gt; float:
+    if alpha0 &lt;= 0.0 or not 0.0 &lt; rho &lt; 1.0 or not 0.0 &lt; c1 &lt; 1.0:
+        raise ValueError("require alpha0&gt;0 and rho,c1 in (0,1)")
+    alpha = alpha0
+    for _ in range(100):
+        if armijo(alpha, c1):
+            return alpha
         alpha *= rho
-    return alpha
+    raise RuntimeError("Armijo backtracking did not terminate within 100 trials")
 
-def gradient(f, x, eps=1e-8):
-    """
-    计算目标函数的梯度
-    Args:
-        f (callable): 目标函数
-        x (np.array): 当前点
-        eps (float): 数值梯度计算的步长，默认值为1e-8
-    
-    Returns:
-        np.array: 梯度向量
-    """
-    grad = np.zeros_like(x)
-    for i in range(len(x)):
-        x1, x2 = np.copy(x), np.copy(x)
-        x1[i] -= eps
-        x2[i] += eps
-        grad[i] = (f(x2) - f(x1)) / (2 * eps)
-    return grad
-
-def test_function(x):
-    """
-    测试用的目标函数
-    Args:
-        x (np.array): 输入向量
-    
-    Returns:
-        float: 目标函数值
-    """
-    return np.sum(x**2)
-
-# 示例使用
-xk = np.array([1.0, 1.0])
-pk = -gradient(test_function, xk)
-alpha = backtracking_line_search(test_function, xk, pk)
-
-print(f"选择的步长: {alpha}")
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    selected = backtracking()
+    print("alpha=1 Armijo:", armijo(1.0))
+    print(f"backtracking selected alpha={selected:.6f}, phi={phi(selected):.6f}")
+    print("weak Wolfe at alpha=0.5:", weak_wolfe(0.5))
+    print("strong Wolfe at alpha=0.5:", strong_wolfe(0.5))
+    print("Goldstein at alpha=0.5:", goldstein(0.5))
+    assert not armijo(1.0)
+    assert isclose(selected, 0.5)
+    assert armijo(selected)
+    assert weak_wolfe(0.5)
+    assert strong_wolfe(0.5)
+    assert goldstein(0.5)</code></pre>
+<p><strong>练习：</strong>证明在 φ'(0)<0 且 φ' 连续的条件下，充分小的 α 会满足 Armijo。为什么仅凭 Armijo 条件无法保证步长不会过小？</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.1 “Step Length”, including Wolfe, Goldstein, sufficient decrease and backtracking, pp. 31–37.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="../02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.html"><small>上一篇 · 2.2</small><strong>无约束优化练习：从条件到可验证答案</strong></a><a href="01_3.1.1._The_Wolfe_Conditions.html"><small>下一篇 · 3.1.1（待重构）</small><strong>Wolfe 条件</strong></a></nav></footer></article></main></div></body></html>

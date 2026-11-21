@@ -1,36 +1,70 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="绝对值函数在尖点处不可微，但它仍有清晰的最优解。次梯度把单个导数扩展成一个集合，使稀疏正则化等问题仍能使用严谨的最优性条件。"><title>非光滑问题：没有梯度，仍然可以优化 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.1 / Nonsmooth Problems · Nonsmooth Problems</span><a href="#kink">尖点为什么让普通梯度失效</a>
+<a href="#subgradient">次梯度：用一个区间替代一个斜率</a>
+<a href="#optimality">凸问题的一阶最优性条件</a>
+<a href="#l1">L1 正则化如何把小系数压到零</a>
+<a href="#interactive">交互：观测值与正则强度</a>
+<a href="#code">Python：次微分与软阈值</a>
+<a href="#limits">边界与常见混淆</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.1 / Nonsmooth Problems · Nonsmooth Problems</div><h1>非光滑问题：没有梯度，仍然可以优化</h1><p class="dek">绝对值函数在尖点处不可微，但它仍有清晰的最优解。次梯度把单个导数扩展成一个集合，使稀疏正则化等问题仍能使用严谨的最优性条件。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="kink"><h2>尖点为什么让普通梯度失效</h2>
+<p>考虑 f(x)=|x|。当 x>0 时导数为 1；当 x<0 时导数为 −1；在 x=0 左右斜率不相等，所以普通导数不存在。可是函数在零点达到全局最小值，且问题并没有因此变得不可求解。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="绝对值函数的左右导数"><math display="block" aria-label="绝对值函数的左右导数"><mrow><msub><msup><mi>f</mi><mo>′</mo></msup><mo>−</mo></msub><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mo>−</mo><mn>1</mn><mo>,</mo><mspace width=".6em"/><msub><msup><mi>f</mi><mo>′</mo></msup><mo>+</mo></msub><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>1</mn></mrow></math></div></div>
+<figure><img src="../assets/figures/nonsmooth-subgradient.svg" alt="绝对值函数在原点的尖点以及可作为支撑斜率的次梯度区间。"><figcaption>在尖点处不存在唯一切线斜率；所有位于 −1 与 1 之间的斜率都构成凸次梯度。</figcaption></figure></section>
+<section id="subgradient"><h2>次梯度：用一个区间替代一个斜率</h2>
+<p>对凸函数 f，向量 g 是 x 处的次梯度，如果对定义域中的每个 y 都满足 f(y)≥f(x)+gᵀ(y−x)。所有这样的 g 组成次微分集合 ∂f(x)。对一元绝对值函数，尖点处的次微分正好是区间 [−1,1]。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="绝对值的凸次微分"><math display="block" aria-label="绝对值的凸次微分"><mrow><mi>∂</mi><mo>|</mo><mi>x</mi><mo>|</mo><mo>=</mo><mo>{</mo><mtable><mtr><mtd><mo>{</mo><mo>−</mo><mn>1</mn><mo>}</mo></mtd><mtd><mi>x</mi><mo>&lt;</mo><mn>0</mn></mtd></mtr><mtr><mtd><mo>[</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>]</mo></mtd><mtd><mi>x</mi><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd><mo>{</mo><mn>1</mn><mo>}</mo></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr></mtable></mrow></math></div></div>
+<p>在可微点，次微分退化为只有一个元素的集合 {∇f(x)}。因此它并不是与普通微积分相互冲突的另一套规则，而是把光滑与尖点情况统一起来。</p></section>
+<section id="optimality"><h2>凸问题的一阶最优性条件</h2>
+<p>若 f 是凸函数，那么 x* 是全局最小点，当且仅当零向量属于 x* 处的次微分。这是凸优化中非常实用的 Fermat 条件。它不要求尖点处存在普通梯度。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="凸函数的次梯度最优性条件"><math display="block" aria-label="凸函数的次梯度最优性条件"><mrow><mn>0</mn><mo>∈</mo><mi>∂</mi><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>⇔</mo><msup><mi>x</mi><mo>*</mo></msup><mo>∈</mo><munder><mi>arg min</mi><mi>x</mi></munder><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></math></div></div>
+<p>注意这个充要结论依赖凸性。对一般非凸、不可微函数，某种广义驻点条件通常只能提供必要性或局部信息，不能直接证明全局最优。</p></section>
+<section id="l1"><h2>L1 正则化如何把小系数压到零</h2>
+<p>考虑标量模型：用参数 x 拟合观测 y，同时对 |x| 收取 λ 倍惩罚。平方项希望 x 接近 y，绝对值惩罚希望 x 接近零；两者竞争产生软阈值解。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="平方误差加 L1 惩罚"><math display="block" aria-label="平方误差加 L1 惩罚"><mrow><munder><mi>min</mi><mi>x</mi></munder><mspace width=".3em"/><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>y</mi><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>λ</mi><mo>|</mo><mi>x</mi><mo>|</mo><mo>,</mo><mspace width=".3em"/><mi>λ</mi><mo>≥</mo><mn>0</mn></mrow></math></div></div>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="软阈值解"><math display="block" aria-label="软阈值解"><mrow><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mi>sign</mi><mo>(</mo><mi>y</mi><mo>)</mo><mi>max</mi><mo>(</mo><mo>|</mo><mi>y</mi><mo>|</mo><mo>−</mo><mi>λ</mi><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math></div></div>
+<p>例如 y=1.5、λ=0.5 时 x*=1.0；若 |y|≤λ，解直接变成零。这个简单标量模型展示了 L1 惩罚产生稀疏性的机制，但多维回归中变量相关性会使各坐标不能总是独立地软阈值化。</p></section>
+<section id="interactive"><h2>交互：观测值与正则强度</h2>
+<p>移动 y 和 λ，查看最优参数如何从零开始、超过阈值后再随观测值线性增长。</p>
+<div class="interactive-panel" data-demo="nonsmooth"><h3>实时计算</h3><p>解为 sign(y)·max(|y|−λ,0)；λ 越大，更多小幅度信号会被压为零。</p><div class="demo-controls"><div class="demo-control"><label for="nonsmooth-y">观测值 y<output data-value-for="y">1.5</output></label><input id="nonsmooth-y" data-key="y" type="range" min="-3" max="3" step="0.1" value="1.5"></div><div class="demo-control"><label for="nonsmooth-lambda">正则强度 λ<output data-value-for="lambda">0.5</output></label><input id="nonsmooth-lambda" data-key="lambda" type="range" min="0" max="2" step="0.05" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：次微分与软阈值</h2>
+<p>代码实现绝对值函数的次微分区间，并直接计算软阈值解。断言在若干候选点附近检查目标值没有更低值；这是有限点检查，解析最优性仍来自凸次梯度条件。</p>
+<pre><code>"""Subgradients and the exact soft-threshold solution of a 1-D L1 model."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.3. Nonsmooth Problems</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_2.3._Nonsmooth_Problems</h1>
-<pre><code>Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 02_2.3._Nonsmooth_Problems
-</code></pre>
+def subgradient_abs(x: float) -&gt; tuple[float, float]:
+    if x &lt; 0.0:
+        return (-1.0, -1.0)
+    if x &gt; 0.0:
+        return (1.0, 1.0)
+    return (-1.0, 1.0)
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_2.3._Nonsmooth_Problems
+def soft_threshold(y: float, lam: float) -&gt; float:
+    if lam &lt; 0.0:
+        raise ValueError("lambda must be nonnegative")
+    if y &gt; lam:
+        return y - lam
+    if y &lt; -lam:
+        return y + lam
+    return 0.0
 
-"""
-Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 02_2.3._Nonsmooth_Problems
-"""
+def objective(x: float, y: float, lam: float) -&gt; float:
+    return 0.5 * (x - y) ** 2 + lam * abs(x)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    lam = 0.5
+    cases = (-2.0, -0.25, 0.25, 2.0)
+    for y in cases:
+        x = soft_threshold(y, lam)
+        print(f"y={y:5.2f} -&gt; x*={x:5.2f}, objective={objective(x, y, lam):.4f}")
+    assert subgradient_abs(0.0) == (-1.0, 1.0)
+    assert isclose(soft_threshold(2.0, 0.5), 1.5)
+    assert isclose(soft_threshold(-2.0, 0.5), -1.5)
+    assert isclose(soft_threshold(0.25, 0.5), 0.0)
+    for y in (-3.0, -1.0, 0.0, 1.0, 3.0):
+        x_star = soft_threshold(y, lam)
+        for candidate in (x_star - 0.1, x_star, x_star + 0.1):
+            assert objective(x_star, y, lam) &lt;= objective(candidate, y, lam) + 1e-12</code></pre>
+<p><strong>练习：</strong>求解 minₓ ½(x+2)²+0.75|x|。先判断解的符号，再写出对应的一阶次梯度方程。</p></section>
+<section id="limits"><h2>边界与常见混淆</h2>
+<ul><li>凸次微分与 Clarke 广义梯度的定义背景不同，不能在所有非凸问题中不加说明地互换。</li><li>L1 正则项不可微，但目标可以是凸的；不可微不等于非凸。</li><li>对非光滑目标直接套用普通梯度下降，可能在尖点附近出现错误的梯度估计。</li><li>实际算法常用近端梯度、坐标下降或 bundle 方法；软阈值是特定模型的近端算子，不是任意非光滑问题的通用解法。</li></ul>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, subsection “Nonsmooth Problems”, pp. 17–18.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_2.2._Recognizing_a_Local_Minimum.html"><small>上一篇 · 2.1</small><strong>如何识别一个局部极小点</strong></a><a href="2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.html"><small>下一篇 · 2.2</small><strong>线搜索与信赖域：两种全局化策略</strong></a></nav></footer></article></main></div></body></html>

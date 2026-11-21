@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">搜索方向与负梯度的夹角决定是否下降</title><desc id="fig-desc">梯度 g 指向局部增长最快方向；方向 p 与负梯度夹角小于九十度时，方向导数为负，函数局部下降。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g stroke="#e7ece7" stroke-width="1"><ellipse cx="430" cy="215" rx="85" ry="55" fill="none"/><ellipse cx="430" cy="215" rx="170" ry="110" fill="none"/><ellipse cx="430" cy="215" rx="255" ry="165" fill="none"/></g>
+<circle cx="430" cy="215" r="8" fill="#233733"/>
+<path d="M430 215L650 215" stroke="#bd633f" stroke-width="5"/>
+<path d="M650 215L628 204L628 226Z" fill="#bd633f"/>
+<text x="660" y="220" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="18" font-weight="700" text-anchor="start">梯度 g</text>
+<path d="M430 215L240 215" stroke="#127164" stroke-width="5"/>
+<path d="M240 215L262 204L262 226Z" fill="#127164"/>
+<text x="140" y="220" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="start">−g</text>
+<path d="M430 215L310 100" stroke="#6e62a6" stroke-width="5"/>
+<path d="M310 100L332 107L317 123Z" fill="#6e62a6"/>
+<text x="275" y="85" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#6e62a6" font-size="17" font-weight="700" text-anchor="start">p：下降方向</text>
+<path d="M430 215L520 90" stroke="#bd633f" stroke-width="4" stroke-dasharray="7 6"/>
+<text x="535" y="83" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="17" font-weight="700" text-anchor="start">q：上升方向</text>
+<path d="M345 215A85 85 0 0 1 370 155" fill="none" stroke="#127164" stroke-width="3"/>
+<text x="430" y="345" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="middle">gᵀp < 0  ⇒  沿 p 的一阶变化为下降</text>
+<text x="430" y="375" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="14" font-weight="400" text-anchor="middle">等高线是示意；箭头方向由当前点的梯度定义</text>
+</svg>

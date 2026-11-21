@@ -1,0 +1,29 @@
+[
+  {
+    "id": "NS1",
+    "claim": "第二章在 What Is a Solution? 主题下包含 Nonsmooth Problems。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, subsection, pp. 17–18",
+    "status": "verified",
+    "notes": "旧文件名 2.3 保留；正文采用原书层级。"
+  },
+  {
+    "id": "NS2",
+    "claim": "凸函数的全局最小点满足且仅当零向量属于该点的凸次微分。",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, nonsmooth optimization discussion",
+    "status": "verified",
+    "notes": "该充要条件依赖凸性。"
+  },
+  {
+    "id": "NS3",
+    "claim": "min 0.5(x-y)^2 + lambda|x| 的解为 sign(y) max(|y|-lambda,0)。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "分段求解次梯度最优性条件；Python 断言",
+    "status": "derived",
+    "notes": "一维标量平方损失加 L1 惩罚。"
+  }
+]

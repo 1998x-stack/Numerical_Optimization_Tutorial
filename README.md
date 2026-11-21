@@ -12,13 +12,14 @@
 
 | 范围 | 状态 | 本次处理 |
 |---|---|---|
-| 第一章 1.1–1.5 | 已重构 | 第一批：独立文章、公式、SVG、交互、Python、证据 |
-| 第一章 1.6–1.9 | 已重构 | 第二批：随机性、凸性、算法与参考方法 |
-| 第二章 2.1 | 已重构 | 第二批：解的存在性、驻点与最优性证据 |
-| 第二章 2.2 至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第一章 1.1–1.9 | 已重构 | 前两批：九篇独立文章、公式、SVG、交互、Python 与证据 |
+| 第二章 2.1：解、局部极小、非光滑 | 已重构 | 解的概念、Hessian 判别、次梯度与 L1 模型 |
+| 第二章 2.2：算法概览与练习 | 已重构 | 线搜索、信赖域、方向、局部模型、尺度与原创练习 |
+| 第三章 3.1：步长选择 | 已重构 | Armijo、弱/强 Wolfe、Goldstein 与回溯 |
+| 第三章 3.1.1 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9 与第二章 2.1 共十篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1 共十八篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -40,7 +41,22 @@
 4. [1.9 注释与参考](01._Introduction/08_1.9._Notes_and_References.html)：独立导数检查、误差来源与可复现记录。
 5. [2.1 什么才算解](02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution%3F.html)：驻点、下确界、最优值与存在性。
 
-**阅读边界：**这五篇中的教学数据和程序均为独立构造，不代表教材原始数值实验。下一批建议从 2.2 开始。
+**阅读边界：**本批中的教学数据和程序均为独立构造，不代表教材原始数值实验。
+
+## 第三批：第二章补充与第三章 3.1
+
+本批八篇都包含完整 HTML、同步 Markdown、可运行 Python、独立 SVG、交互演示与证据账本：
+
+1. [识别局部极小点](02._Fundamentals_of_Unconstrained_Optimization/01_2.2._Recognizing_a_Local_Minimum.html)：梯度必要条件、Hessian 半正定与正定充分条件。
+2. [非光滑问题](02._Fundamentals_of_Unconstrained_Optimization/02_2.3._Nonsmooth_Problems.html)：凸次微分、Fermat 条件与 L1 软阈值。
+3. [线搜索与信赖域](02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.html)：两种全局化策略的机制与差异。
+4. [搜索方向](02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/01_2.4.2._Search_Directions_for_Line_Search_Methods.html)：方向导数、最速下降与 Newton 方向。
+5. [信赖域模型](02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/02_2.4.3._Models_for_Trust_Region_Methods.html)：二次模型、信赖域子问题与实际/预测下降比。
+6. [尺度变换](02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/03_2.4.4._Scaling.html)：坐标变换、Hessian 条件数与数值尺度。
+7. [综合练习](02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.html)：五道原创题及可展开的完整解答。
+8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
+
+**目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
 
 ## 学习路线
 

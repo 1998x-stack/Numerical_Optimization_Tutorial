@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">五道练习把局部最优性与算法框架连起来</title><desc id="fig-desc">练习从 Hessian 分类开始，依次检查非光滑最优性、方向导数、信赖域模型和变量缩放。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g fill="#fff" stroke="#dfe6df" stroke-width="2">
+<rect x="45" y="130" width="145" height="130" rx="14"/><rect x="215" y="130" width="145" height="130" rx="14"/><rect x="385" y="130" width="145" height="130" rx="14"/><rect x="555" y="130" width="145" height="130" rx="14"/><rect x="725" y="130" width="145" height="130" rx="14"/>
+</g>
+<g fill="#127164" font-family="Arial,sans-serif" font-size="25" font-weight="700" text-anchor="middle">
+<text x="117" y="180">01</text><text x="287" y="180">02</text><text x="457" y="180">03</text><text x="627" y="180">04</text><text x="797" y="180">05</text>
+</g>
+<text x="117" y="215" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">Hessian</text>
+<text x="287" y="215" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">次梯度</text>
+<text x="457" y="215" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">方向导数</text>
+<text x="627" y="215" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">模型比率</text>
+<text x="797" y="215" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">尺度</text>
+<g stroke="#bd633f" stroke-width="3" fill="none"><path d="M190 195H215M360 195H385M530 195H555M700 195H725"/></g>
+<g fill="#bd633f"><path d="M209 187L220 195L209 203Z"/><path d="M379 187L390 195L379 203Z"/><path d="M549 187L560 195L549 203Z"/><path d="M719 187L730 195L719 203Z"/></g>
+<text x="450" y="315" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="17" font-weight="400" text-anchor="middle">每题先写清假设，再给出可复核的计算或最优性证书</text>
+</svg>

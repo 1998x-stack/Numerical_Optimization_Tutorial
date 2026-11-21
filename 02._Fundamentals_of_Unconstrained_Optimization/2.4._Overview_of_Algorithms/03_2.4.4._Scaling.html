@@ -1,36 +1,48 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="当变量的单位和典型数量级差异很大时，等高线会变得狭长，算法容易走出锯齿路径。合理的变量缩放能改善几何条件，但不能替代模型本身的分析。"><title>尺度变换：让优化问题更容易数值求解 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.2 / Overview of Algorithms · Scaling</span><a href="#units">同一问题中的变量可能有不同单位</a>
+<a href="#transform">变量变换怎样影响梯度与 Hessian</a>
+<a href="#condition">一个把椭圆变成圆的例子</a>
+<a href="#objective">变量缩放与目标缩放不是一回事</a>
+<a href="#interactive">交互：改变第一维的缩放因子</a>
+<a href="#code">Python：直接计算条件数变化</a><a href="../../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.2 / Overview of Algorithms · Scaling</div><h1>尺度变换：让优化问题更容易数值求解</h1><p class="dek">当变量的单位和典型数量级差异很大时，等高线会变得狭长，算法容易走出锯齿路径。合理的变量缩放能改善几何条件，但不能替代模型本身的分析。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="units"><h2>同一问题中的变量可能有不同单位</h2>
+<p>假设 x₁ 表示以米计的距离，x₂ 表示以微秒计的时间。直接用欧氏距离比较两个变量的变化，隐含了单位可以互换的假设。数值优化算法会因此把某个变量的巨大数值尺度误当成几何上的重要性。</p>
+<p>缩放先选择一组无量纲或典型量级接近的坐标 z，再通过 x=Dz 映射回原变量。若 D 是可逆的正对角矩阵，这只是一个坐标变换，不改变原问题的最优决策。</p></section>
+<section id="transform"><h2>变量变换怎样影响梯度与 Hessian</h2>
+<p>令 x=Dz，并定义新坐标下的目标 F(z)=f(Dz)。链式法则说明梯度和 Hessian 都会被 D 左右变换。若 D 为对角缩放矩阵，尺度选择就会改变二阶曲率的特征值分布。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="坐标变换下的导数"><math display="block" aria-label="坐标变换下的导数"><mrow><msub><mi>∇</mi><mi>z</mi></msub><mi>F</mi><mo>(</mo><mi>z</mi><mo>)</mo><mo>=</mo><msup><mi>D</mi><mo>⊤</mo></msup><msub><mi>∇</mi><mi>x</mi></msub><mi>f</mi><mo>(</mo><mi>D</mi><mi>z</mi><mo>)</mo><mo>,</mo><mspace width=".8em"/><msubsup><mi>∇</mi><mi>z</mi><mn>2</mn></msubsup><mi>F</mi><mo>(</mo><mi>z</mi><mo>)</mo><mo>=</mo><msup><mi>D</mi><mo>⊤</mo></msup><msubsup><mi>∇</mi><mi>x</mi><mn>2</mn></msubsup><mi>f</mi><mo>(</mo><mi>D</mi><mi>z</mi><mo>)</mo><mi>D</mi></mrow></math></div></div>
+<p>正比例缩放不会改变最优点在原空间中的含义，却可能显著改变 Hessian 的条件数、线搜索步长以及信赖域球在原变量中的形状。</p></section>
+<section id="condition"><h2>一个把椭圆变成圆的例子</h2>
+<p>考虑 f(x)=½(100x₁²+x₂²)，其 Hessian 为 diag(100,1)，二范数条件数为 100。取 x₁=0.1z₁、x₂=z₂，即 D=diag(0.1,1)，新 Hessian 变成单位矩阵，条件数降为 1。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="原始与缩放后的 Hessian"><math display="block" aria-label="原始与缩放后的 Hessian"><mrow><mi>H</mi><mo>=</mo><mrow><mo>[</mo><mtable><mtr><mtd><mn>100</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>]</mo></mrow><mo>,</mo><mspace width=".4em"/><mi>D</mi><mo>=</mo><mrow><mo>[</mo><mtable><mtr><mtd><mn>0.1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>]</mo></mrow><mo>,</mo><mspace width=".4em"/><msup><mi>D</mi><mo>⊤</mo></msup><mi>H</mi><mi>D</mi><mo>=</mo><mi>I</mi></mrow></math></div></div>
+<figure><img src="../../assets/figures/scaling-contours.svg" alt="变量缩放前后的二次函数等高线对照。"><figcaption>在这个对角二次例子里，缩放把狭长椭圆等高线变为圆；条件数从 100 变成 1。</figcaption></figure>
+<p>这是一个经过精确设计的教学例子，不意味着任意问题都能用单一对角缩放消除病态。若 Hessian 有强烈变量耦合，可能需要更一般的预条件或线性变换。</p></section>
+<section id="objective"><h2>变量缩放与目标缩放不是一回事</h2>
+<p>若将目标改成 c f(x)，其中 c>0，最优点不变，梯度和 Hessian 同时乘以 c，Hessian 的条件数也不变。但是绝对梯度容差、函数值容差和数值溢出风险会变化。变量缩放改变坐标几何；目标缩放改变函数值单位。</p>
+<div class="note"><p>不要把“梯度很小”作为唯一停止标准。目标整体乘上很小的常数，也会让梯度范数变小，却没有让解更接近最优。</p></div></section>
+<section id="interactive"><h2>交互：改变第一维的缩放因子</h2>
+<p>固定原 Hessian H=diag(100,1)，移动 s 使 x₁=s z₁。观察新 Hessian diag(100s²,1) 的条件数。</p>
+<div class="interactive-panel" data-demo="scaling"><h3>实时计算</h3><p>缩放后的条件数为 max(100s²,1)/min(100s²,1)。</p><div class="demo-controls"><div class="demo-control"><label for="scaling-scale">第一维缩放因子 s<output data-value-for="scale">0.1</output></label><input id="scaling-scale" data-key="scale" type="range" min="0.05" max="1" step="0.05" value="0.1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：直接计算条件数变化</h2>
+<p>程序使用对角矩阵特征值的精确比值，不需要 NumPy。对一般非对角矩阵，应计算谱条件数或使用稳定的线性代数库，而不能只看对角元素。</p>
+<pre><code>"""Show how diagonal variable scaling changes a quadratic condition number."""
+from math import isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.4.4. Scaling</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_2.4.4._Scaling</h1>
-<pre><code>Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 03_2.4.4._Scaling
-</code></pre>
+def condition_number_diagonal(a: float, b: float) -&gt; float:
+    if a &lt;= 0.0 or b &lt;= 0.0:
+        raise ValueError("this example requires positive eigenvalues")
+    return max(a, b) / min(a, b)
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_2.4.4._Scaling
+def scaled_condition(scale_x: float) -&gt; float:
+    # x = D z, D = diag(scale_x, 1), H = diag(100, 1).
+    return condition_number_diagonal(100.0 * scale_x ** 2, 1.0)
 
-"""
-Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 03_2.4.4._Scaling
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    print("original condition number:", condition_number_diagonal(100.0, 1.0))
+    for scale in (1.0, 0.5, 0.2, 0.1, 0.05):
+        print(f"scale_x={scale:.2f} -&gt; condition={scaled_condition(scale):.3f}")
+    assert isclose(condition_number_diagonal(100.0, 1.0), 100.0)
+    assert isclose(scaled_condition(0.1), 1.0)
+    assert isclose(scaled_condition(0.2), 4.0)</code></pre>
+<p><strong>练习：</strong>若 H=diag(25,1)，选择哪一个 x₁=s z₁ 可以使缩放后的 Hessian 成为单位矩阵？讨论变量缩放后，原空间中的球形信赖域会变成什么形状。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, “Overview of Algorithms”, subsection “Scaling”, p. 26.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_2.4.3._Models_for_Trust_Region_Methods.html"><small>上一篇 · 2.2</small><strong>信赖域模型：局部近似与实际改进</strong></a><a href="../04_2.5._Exercises.html"><small>下一篇 · 2.2</small><strong>无约束优化练习：从条件到可验证答案</strong></a></nav></footer></article></main></div></body></html>

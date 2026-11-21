@@ -1,0 +1,20 @@
+[
+  {
+    "id": "TR1",
+    "claim": "第二章 Overview of Algorithms 比较线搜索和信赖域两种算法策略。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, Overview of Algorithms, pp. 18–20",
+    "status": "verified",
+    "notes": "原书子标题不独立编号；仓库中的 2.4.1 文件名保留。"
+  },
+  {
+    "id": "TR2",
+    "claim": "线搜索沿方向 p 选择标量 alpha；信赖域在范数半径约束内选择步向量。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "一维二次目标 f(x)=4x^2 的解析对照和 Python 断言",
+    "status": "derived",
+    "notes": "教学例子；不比较通用算法效率。"
+  }
+]

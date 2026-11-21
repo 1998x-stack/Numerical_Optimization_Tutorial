@@ -1,36 +1,62 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="二阶 Taylor 模型可以快速预测目标变化，但预测只在一定范围内可信。信赖域方法用实际下降与预测下降的比值，决定接受步子还是调整半径。"><title>信赖域模型：局部近似与实际改进 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.2 / Overview of Algorithms · Models for Trust-Region Methods</span><a href="#local-model">从 Taylor 展开得到局部模型</a>
+<a href="#subproblem">把模型限制在可信半径内</a>
+<a href="#ratio">用实际下降与预测下降比较模型</a>
+<a href="#worked">指数函数上的一个可复核例子</a>
+<a href="#interactive">交互：调整信赖域半径</a>
+<a href="#code">Python：计算实际/预测下降比</a><a href="../../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.2 / Overview of Algorithms · Models for Trust-Region Methods</div><h1>信赖域模型：局部近似与实际改进</h1><p class="dek">二阶 Taylor 模型可以快速预测目标变化，但预测只在一定范围内可信。信赖域方法用实际下降与预测下降的比值，决定接受步子还是调整半径。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="local-model"><h2>从 Taylor 展开得到局部模型</h2>
+<p>在当前点 xₖ，设 f 二次连续可微。对小步 s，二阶 Taylor 展开给出 f(xₖ+s)≈f(xₖ)+gₖᵀs+½sᵀBₖs，其中 gₖ 是梯度，Bₖ 常取 Hessian 或其近似。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="二次局部模型"><math display="block" aria-label="二次局部模型"><mrow><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><mi>s</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo><mo>+</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>s</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>s</mi><mo>⊤</mo></msup><msub><mi>B</mi><mi>k</mi></msub><mi>s</mi></mrow></math></div></div>
+<p>若 Bₖ=∇²f(xₖ)，模型在当前点匹配函数值、一阶导数与二阶导数；但离开当前点越远，高阶余项通常越大。若 Bₖ 是近似矩阵，还会叠加模型构造误差。</p></section>
+<section id="subproblem"><h2>把模型限制在可信半径内</h2>
+<p>信赖域子问题是在球形或其他范数球内最小化 mₖ(s)。半径 Δₖ>0 限定算法愿意相信当前模型的最大步长；半径并非问题本身的约束，而是算法内部的控制参数。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="信赖域子问题"><math display="block" aria-label="信赖域子问题"><mrow><munder><mi>min</mi><mi>s</mi></munder><mspace width=".3em"/><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><mi>s</mi><mo>)</mo><mspace width=".6em"/><mtext>s.t.</mtext><mspace width=".4em"/><msub><mrow><mo>‖</mo><mi>s</mi><mo>‖</mo></mrow><mn>2</mn></msub><mo>≤</mo><msub><mi>Δ</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>即使 Bₖ 不定，受限子问题仍然有最优解（连续二次函数在紧致球上取到最小值）。但精确求解子问题可能很贵，因此常见算法只求近似步，例如 Cauchy 点、Dogleg 或截断共轭梯度。</p></section>
+<section id="ratio"><h2>用实际下降与预测下降比较模型</h2>
+<p>令 sₖ 是候选步。模型预测的下降量是 mₖ(0)−mₖ(sₖ)，真实目标下降量是 f(xₖ)−f(xₖ+sₖ)。两者的比值 ρₖ 用来评价模型对这一步的预测是否可信。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="实际/预测下降比"><math display="block" aria-label="实际/预测下降比"><mrow><msub><mi>ρ</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo><mo>−</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><msub><mi>s</mi><mi>k</mi></msub><mo>)</mo></mrow><mrow><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><msub><mi>s</mi><mi>k</mi></msub><mo>)</mo></mrow></mfrac></mrow></math></div></div>
+<ul><li>ρₖ 很小或为负：实际下降比预测差，通常拒绝步子并缩小 Δₖ。</li><li>ρₖ 处于中间区间：模型尚可，接受或保留半径。</li><li>ρₖ 接近 1 且步子触及边界：模型预测准确，可考虑扩大 Δₖ。</li></ul>
+<div class="note"><p>上面的更新策略是常见的阈值规则，不是唯一参数化。若预测下降非正，ρₖ 不应直接计算；应先检查模型步是否有效。</p></div></section>
+<section id="worked"><h2>指数函数上的一个可复核例子</h2>
+<p>取 f(x)=eˣ，当前点 xₖ=0。此时 f(0)=1、f'(0)=1、f''(0)=1，所以二阶模型 m(p)=1+p+½p²。若 Δ=0.5，模型在区间内的最小点为 p=−0.5。</p>
+<figure><img src="../../assets/figures/trust-region-model.svg" alt="指数函数与当前点的二阶 Taylor 模型在信赖域范围内的比较。"><figcaption>绿色曲线是真实指数函数，橙色虚线是二阶模型；阴影表示当前模型被信赖的局部区域。</figcaption></figure>
+<p>真实下降为 1−e⁻⁰·⁵≈0.3935，预测下降为 1−(1−0.5+0.125)=0.375，因此 ρ≈1.049。比值大于一说明真实目标比模型预测下降得更多，并不违反信赖域条件。</p></section>
+<section id="interactive"><h2>交互：调整信赖域半径</h2>
+<p>改变 Δ。模型的无约束最小步为 −1，因此受限步为 p=−min(Δ,1)。页面会显示预测下降、实际下降与 ρ。</p>
+<div class="interactive-panel" data-demo="trust-model"><h3>实时计算</h3><p>示例固定 f(x)=eˣ、xₖ=0，二阶模型 m(p)=1+p+½p²。</p><div class="demo-controls"><div class="demo-control"><label for="trust-model-delta">信赖域半径 Δ<output data-value-for="delta">0.5</output></label><input id="trust-model-delta" data-key="delta" type="range" min="0.05" max="1.5" step="0.05" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：计算实际/预测下降比</h2>
+<p>程序对不同半径计算模型步和 ρ，并检查步长始终在信赖域内、预测下降为正。它是一个一维解析例子，不是通用的信赖域子问题算法。</p>
+<pre><code>"""Evaluate a trust-region quadratic model and its actual/predicted ratio."""
+from math import exp, isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.4.3. Models for Trust Region Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_2.4.3._Models_for_Trust-Region_Methods</h1>
-<pre><code>Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 02_2.4.3._Models_for_Trust-Region_Methods
-</code></pre>
+def objective(x: float) -&gt; float:
+    return exp(x)
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_2.4.3._Models_for_Trust-Region_Methods
+def model(p: float) -&gt; float:
+    # Second-order Taylor model at x=0: f(0) + f'(0)p + 1/2 f''(0)p^2.
+    return 1.0 + p + 0.5 * p * p
 
-"""
-Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 02_2.4.3._Models_for_Trust-Region_Methods
-"""
+def trust_step(radius: float) -&gt; float:
+    # The unconstrained model minimizer is -1; project it onto [-radius, radius].
+    return -min(radius, 1.0)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def reduction_ratio(radius: float) -&gt; float:
+    p = trust_step(radius)
+    predicted = model(0.0) - model(p)
+    actual = objective(0.0) - objective(p)
+    if predicted &lt;= 0.0:
+        raise ValueError("the model step must predict positive reduction")
+    return actual / predicted
+
+if __name__ == "__main__":
+    for radius in (0.1, 0.25, 0.5, 1.0, 1.5):
+        p = trust_step(radius)
+        print(f"Delta={radius:.2f}, p={p:.2f}, rho={reduction_ratio(radius):.6f}")
+        assert abs(p) &lt;= radius
+        assert reduction_ratio(radius) &gt; 0.0
+    assert isclose(trust_step(0.25), -0.25)
+    assert isclose(trust_step(1.5), -1.0)
+    assert reduction_ratio(0.5) &gt; 1.0</code></pre>
+<p><strong>练习：</strong>解释为什么当 ρ<0 时应该拒绝这一步；如果 ρ>1，是否意味着模型一定在整个信赖域内准确？</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, “Overview of Algorithms”, subsection “Models for Trust-Region Methods”, pp. 25–26.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_2.4.2._Search_Directions_for_Line_Search_Methods.html"><small>上一篇 · 2.2</small><strong>搜索方向：什么方向真的会下降</strong></a><a href="03_2.4.4._Scaling.html"><small>下一篇 · 2.2</small><strong>尺度变换：让优化问题更容易数值求解</strong></a></nav></footer></article></main></div></body></html>
