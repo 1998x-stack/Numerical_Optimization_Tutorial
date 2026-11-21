@@ -13,6 +13,6 @@
 <path d="M430 215L520 90" stroke="#bd633f" stroke-width="4" stroke-dasharray="7 6"/>
 <text x="535" y="83" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="17" font-weight="700" text-anchor="start">q：上升方向</text>
 <path d="M345 215A85 85 0 0 1 370 155" fill="none" stroke="#127164" stroke-width="3"/>
-<text x="430" y="345" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="middle">gᵀp < 0  ⇒  沿 p 的一阶变化为下降</text>
+<text x="430" y="345" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="middle">gᵀp &lt; 0  ⇒  沿 p 的一阶变化为下降</text>
 <text x="430" y="375" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="14" font-weight="400" text-anchor="middle">等高线是示意；箭头方向由当前点的梯度定义</text>
 </svg>
