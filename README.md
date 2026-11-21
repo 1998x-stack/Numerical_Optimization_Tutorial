@@ -54,7 +54,7 @@
 ├── README.md                     # 项目说明、进度与阅读路线
 ├── README.html                   # HTML 版入口说明
 ├── AGENTS.md                     # 内容工程与验收规范
-├── main.py                       # 原章节目录数据（保留以兼容现有结构）
+├── main.py                       # 安全兼容入口；旧的破坏性脚手架已退役
 ├── assets/
 │   ├── course.css                # 新页面共享设计系统
 │   ├── course.js                 # 搜索与教学交互
@@ -77,6 +77,8 @@
 ~~~~
 
 原有 markdown.css、markdown.js 和 style.css 暂时保留，以免影响尚未迁移的旧页面。新页面统一使用 assets/course.css 与 assets/course.js。
+
+**安全说明：**旧版 main.py 会重新生成目录、覆盖 README.md，并把既有 Markdown/Python 文章重置成占位文件。该破坏性脚手架已经替换为只读提示入口；不要恢复会覆盖人工内容的递归生成逻辑。
 
 ## 本地阅读
 

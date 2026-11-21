@@ -32,6 +32,7 @@ This repository is a numerical optimization learning course. Treat the Olah-styl
 - Preserve existing chapter paths unless a migration plan updates every inbound link.
 - Keep HTML, Markdown, and Python versions aligned: headings, symbols, worked-example values, conclusions, and code must agree.
 - Update the course homepage and README when adding a batch. Keep completion status precise; directory entries are not evidence that an article is complete.
+- The old recursive main.py scaffold generator is retired because it overwrote authored README, Markdown, and Python files. Do not reintroduce destructive generation; update curated files explicitly and validate them.
 - Run python scripts/validate_course.py, python -m unittest discover -s tests -v, and python scripts/browser_check.py --output reports/course after relevant changes.
 - Browser QA must cover 1440, 768, 390, and 360 pixel widths, print mode, console/page errors, local links, MathML geometry, and at least one meaningful interaction per interactive article.
 - Use a topic branch and Pull Request. Inspect the diff and CI results before merging. Verify the Pages deployment and actual site before claiming that it is live.
