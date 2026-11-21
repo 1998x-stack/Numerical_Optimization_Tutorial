@@ -1,36 +1,60 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="一个正确的数学叙述应该能追溯到假设与推导；一个可信的数值结果应该能独立复现。用中心差分检查导数，并建立区分理论、示例与实验的阅读习惯。"><title>1.9 注释与参考：怎样独立核对一个优化结论 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 01 / Notes and References</span><a href="#why">什么样的结论可以相信</a>
+<a href="#primary">把资料分成来源与推导</a>
+<a href="#example">用中心差分核对导数</a>
+<a href="#error">误差不是只由公式决定</a>
+<a href="#interactive">改变差分步长的数量级</a>
+<a href="#repro">复现记录的最小清单</a>
+<a href="#code">Python：可重复的导数检查</a><a href="../index.html#chapter-01">课程导读</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.9 / Notes and References</div><h1>注释与参考：怎样独立核对一个优化结论</h1><p class="dek">一个正确的数学叙述应该能追溯到假设与推导；一个可信的数值结果应该能独立复现。用中心差分检查导数，并建立区分理论、示例与实验的阅读习惯。</p><div class="article-meta"><span>数值优化</span><span>定义 · 推导 · 验证</span><span>可运行示例</span></div></header><section id="why"><h2>什么样的结论可以相信</h2>
+<p>数值优化同时包含定义、定理、算法、数值误差和工程实现。它们的证据标准不同：定义需要精确符号，定理需要完整假设，算法实现需要可执行检查，实验数字则需要版本、环境、随机种子和对照条件。</p>
+<p>例如“梯度下降每步都下降”并不是普遍真理；要说明目标光滑性、步长范围和梯度精度。又如“这个优化器很快”只有在数据集、硬件、停止阈值及基线公平时才有可比较意义。</p></section>
+<section id="primary"><h2>把资料分成来源与推导</h2>
+<p>本课程的章节骨架以 Jorge Nocedal 和 Stephen J. Wright 的 <em>Numerical Optimization</em> 第二版为主要参考。出版信息与目录应核对出版社版本，而不能把其他版本的页码、证明或实验结果直接混用。</p>
+<p>阅读任何数值结论时，至少把证据分成三类：<strong>来自文献的原始主张</strong>、<strong>可以手算推导的结果</strong>、<strong>来自一次运行的观察</strong>。本文的数值实验是独立构造的教学例子，不声称复现书中的实验表。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="对照表"><table><thead><tr><th>证据类型</th><th>应当记录什么</th><th>最容易出现的错误</th></tr></thead><tbody><tr><td>定义 / 定理</td><td>原始来源、章节、符号、前提</td><td>省略光滑性或凸性条件</td></tr><tr><td>解析推导</td><td>关键代数步骤、边界条件、极值候选</td><td>把必要条件当成充分条件</td></tr><tr><td>数值实验</td><td>代码版本、输入、随机种子、环境、误差阈值</td><td>只报告一次有利的运行</td></tr></tbody></table></div></section>
+<section id="example"><h2>用中心差分核对导数</h2>
+<p>假设推导得到 f(x)=(x−2)²+1，导数应为 f'(x)=2(x−2)。如果实现中把负号写错，优化更新方向就可能完全错误。可以用在 x 两侧取样的中心差分做独立数值检查：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="中心差分用函数左右两点计算导数近似"><math display="block" aria-label="中心差分用函数左右两点计算导数近似"><mrow><msub><mi>D</mi><mi>h</mi></msub><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo>)</mo><mo>−</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo>)</mo></mrow><mrow><mn>2</mn><mi>h</mi></mrow></mfrac><mo>≈</mo><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo></mrow></math></div></div>
+<figure><img src="../assets/figures/finite-difference.svg" alt="目标函数在 x-h 与 x+h 处取样并连成割线，以估计中点导数。"><figcaption>中心差分用左右等距的两个函数值构造割线斜率。图是几何示意；实验在 x=1.25 处计算。</figcaption></figure>
+<p>对这个特定二次函数，代入公式后所有 h² 项在实数精确运算中抵消，因此中心差分在数学上恰好等于 2(x−2)。但<strong>浮点实现不等于精确实数运算</strong>；h 极小时，两个近似相等的函数值相减会损失有效数字。</p></section>
+<section id="error"><h2>误差不是只由公式决定</h2>
+<p>对一般三次连续可微的函数，中心差分的截断误差通常为 O(h²)。但计算机还存在浮点舍入，差商中的除法会放大部分舍入影响，常见的总误差行为可粗略理解为截断项 O(h²) 与舍入项 O(ε/h) 的竞争。</p>
+<p>因此“h 越小越准确”并不总成立。误差阈值应结合输入尺度、函数评估精度和机器浮点类型选择；特别不能直接把差分检查当作严格的导数证明。</p></section>
+<section id="interactive"><h2>改变差分步长的数量级</h2>
+<p>固定 x=1.25，此时解析导数为 −1.5。拖动 k，使用 h=10⁻ᵏ 计算中心差分，并观察绝对误差的变化。不同浏览器/硬件的最后几位结果可能略有不同。</p>
+<div class="interactive-panel" data-demo="references"><h3>实时计算</h3><p>数值计算使用 JavaScript Number（IEEE 754 双精度）。</p><div class="demo-control"><label for="references-control">步长指数 k（h=10⁻ᵏ）</label><input id="references-control" data-key="k" type="range" min="1" max="9" step="1" value="3"></div><div class="demo-output" data-output aria-live="polite">数值输出由当前参数计算。</div></div></section>
+<section id="repro"><h2>复现记录的最小清单</h2>
+<ul><li><strong>确定输入：</strong>记录模型、单位、数据、约束和目标函数。</li><li><strong>固定计算：</strong>注明初始化、随机种子、迭代次数、线搜索或步长、容差。</li><li><strong>独立检查：</strong>至少检查目标值、约束违反程度、解析导数与数值差分的一致性。</li><li><strong>保留反例：</strong>若在某些输入上失败，把前提和失败条件写出，而不是只挑成功的截图。</li></ul>
+<p>本仓库为每个重构模块提供 Python 示例与证据账本。理论依据、解析推导和有限样本观察会分别标记，避免一张图同时承载多种不相干的事实主张。</p></section>
+<section id="code"><h2>Python：可重复的导数检查</h2>
+<p>程序检查 h=10⁻¹ 到 10⁻¹¹ 的中心差分。由于二次函数的代数截断误差为零，误差主要来自浮点运算；输出是一组<strong>可复现实验值</strong>，不是对所有函数的普遍误差曲线。</p>
+<pre><code>"""Independent derivative check with a central finite difference.
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.9. Notes and References</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>08_1.9._Notes_and_References</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 08_1.9._Notes_and_References
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 08_1.9._Notes_and_References
-
+Demonstrates the tradeoff between truncation and floating-point error.
 """
-Lecture: /01._Introduction
-Content: 08_1.9._Notes_and_References
-"""
+from math import isclose
 
+def f(x: float) -&gt; float:
+    return (x - 2.0) ** 2 + 1.0
+
+def analytic_derivative(x: float) -&gt; float:
+    return 2.0 * (x - 2.0)
+
+def central_difference(x: float, h: float) -&gt; float:
+    return (f(x + h) - f(x - h)) / (2.0 * h)
+
+if __name__ == "__main__":
+    x = 1.25
+    exact = analytic_derivative(x)
+    print(f"analytic derivative = {exact:.12f}")
+    for k in (1, 3, 5, 7, 9, 11):
+        h = 10.0 ** (-k)
+        estimate = central_difference(x, h)
+        print(f"h=1e-{k:02d}: estimate={estimate:.12f}, abs_error={abs(estimate-exact):.3e}")
+    assert isclose(exact, -1.5)
+    assert abs(central_difference(x, 1e-3) - exact) &lt; 1e-9
+    assert abs(central_difference(x, 1e-1) - exact) &lt; 1e-12
 </code></pre>
-  </div>
-</body>
-</html>
-  
+<p><strong>练习：</strong>将 f(x) 改为 exp(x)，在 x=0 处重复计算。其中心差分为 sinh(h)/h=1+h²/6+O(h⁴)，在 h 不太小时能看到 O(h²) 截断误差，极小 h 时仍受舍入影响。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization（第二版）</a>，第 1 章。本文所有公式示例、图形与程序为独立构造；上述数值结果可由页面中的代数和代码核对。参考 ISBN 978-0-387-40065-5。</div></section><footer class="article-footer"><p class="references">数学结论需在文中给出的定义域和假设下理解；程序用于小规模教学验证。</p><nav class="prev-next" aria-label="相邻内容"><a href="07_1.8._Optimization_Algorithms.html"><small>上一篇 · 1.8</small><strong>优化算法：从局部信息走向更好的决策</strong></a><a href="../02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution%3F.html"><small>下一篇 · 2.1</small><strong>什么才算优化问题的解？</strong></a></nav></footer></article></main></div></body></html>

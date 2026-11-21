@@ -31,6 +31,26 @@ ARTICLES = [
      "01._Introduction/04_1.5._Global_and_Local_Optimization.md",
      "01._Introduction/04_1.5._Global_and_Local_Optimization.py",
      "evidence/chapter-01-1-5.json"),
+    ("01._Introduction/05_1.6._Stochastic_and_Deterministic_Optimization.html",
+     "01._Introduction/05_1.6._Stochastic_and_Deterministic_Optimization.md",
+     "01._Introduction/05_1.6._Stochastic_and_Deterministic_Optimization.py",
+     "evidence/chapter-01-1-6.json"),
+    ("01._Introduction/06_1.7._Convexity.html",
+     "01._Introduction/06_1.7._Convexity.md",
+     "01._Introduction/06_1.7._Convexity.py",
+     "evidence/chapter-01-1-7.json"),
+    ("01._Introduction/07_1.8._Optimization_Algorithms.html",
+     "01._Introduction/07_1.8._Optimization_Algorithms.md",
+     "01._Introduction/07_1.8._Optimization_Algorithms.py",
+     "evidence/chapter-01-1-8.json"),
+    ("01._Introduction/08_1.9._Notes_and_References.html",
+     "01._Introduction/08_1.9._Notes_and_References.md",
+     "01._Introduction/08_1.9._Notes_and_References.py",
+     "evidence/chapter-01-1-9.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.py",
+     "evidence/chapter-02-2-1.json"),
 ]
 
 
@@ -189,13 +209,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "本次只将第一章前五篇标记为已重构" not in readme:
+    if "第一章 1.1–1.9 与第二章 2.1 共十篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 5:
-        errors.append("index.html: expected exactly five featured first-batch modules")
+    if index.count('class="featured-card"') != 10:
+        errors.append("index.html: expected exactly ten featured modules (two batches)")
     return errors
 
 

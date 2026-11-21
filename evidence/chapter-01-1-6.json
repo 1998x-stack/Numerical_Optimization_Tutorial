@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "claim": "教材目录包含 Stochastic and Deterministic Optimization 小节。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, table of contents",
+    "status": "verified",
+    "notes": "只核验小节归属；文章为独立编写，不引用教材实验数据。"
+  },
+  {
+    "id": "S2",
+    "claim": "对于等权场景 (1,2,4)，平方损失平均风险在 7/3 处最小，最小风险为 14/9。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "文章解析求导及对应 Python 文件",
+    "status": "derived",
+    "notes": "样例自行设计；固定情景分布，不是来自教材。"
+  }
+]

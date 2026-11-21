@@ -1,36 +1,64 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="最小点、目标最小值、下确界与驻点不是同一个概念。只有把存在性、必要条件与充分条件分开，才能判断一次算法返回的数字究竟意味着什么。"><title>2.1 什么才算优化问题的解？ | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 / What Is a Solution?</span><a href="#meaning">目标值与决策点是两件事</a>
+<a href="#examples">三个看起来相似、结论却不同的图</a>
+<a href="#stationary">一阶必要条件不是充分条件</a>
+<a href="#exist">解何时存在</a>
+<a href="#certificate">一个数值答案需要哪些检查</a>
+<a href="#interactive">检查一个二次函数候选点</a>
+<a href="#code">Python：三个相互独立的判断</a><a href="../index.html#chapter-01">课程导读</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.1 / What Is a Solution?</div><h1>什么才算优化问题的解？</h1><p class="dek">最小点、目标最小值、下确界与驻点不是同一个概念。只有把存在性、必要条件与充分条件分开，才能判断一次算法返回的数字究竟意味着什么。</p><div class="article-meta"><span>数值优化</span><span>定义 · 推导 · 验证</span><span>可运行示例</span></div></header><section id="meaning"><h2>目标值与决策点是两件事</h2>
+<p>考虑无约束最小化 minₓ f(x)，定义域通常为实数空间。<strong>最优点</strong> x* 是达到最低函数值的决策；<strong>最优值</strong> f* 是该点的函数值。不同最优点可能得到相同最优值，而且有些问题压根没有任何能达到最低值的点。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="最优点属于使目标最小的点集，最优值是该点函数值"><math display="block" aria-label="最优点属于使目标最小的点集，最优值是该点函数值"><mrow><msup><mi>x</mi><mo>*</mo></msup><mo>∈</mo><munder><mi>arg min</mi><mrow><mi>x</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>n</mi></msup></mrow></munder><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>,</mo><mspace width=".7em"/><msup><mi>f</mi><mo>*</mo></msup><mo>=</mo><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo></mrow></math></div></div>
+<p>局部最优只要求在某个邻域里没有更小值；全局最优则必须和整个可行域的所有点比较。数值算法通常先求一个可检查的近似候选，再通过定理或界证明其最优性。</p></section>
+<section id="examples"><h2>三个看起来相似、结论却不同的图</h2>
+<figure><img src="../assets/figures/meaning-of-solution.svg" alt="左图抛物线取到最小值，中央指数函数只有下确界，右图三次函数的驻点不是最小点。"><figcaption>左图的二次函数有唯一全局最小点；中图 eˣ 在实数域无限接近零但从不达到零；右图 x³ 在零处导数为零，却不是局部极小点。</figcaption></figure>
+<p><strong>能取到：</strong>f(x)=(x−2)²+0.5 对所有实数 x 都至少为 0.5，且在 x=2 达到它。故最优点 x*=2，最优值 f*=0.5。</p>
+<p><strong>只有下确界：</strong>f(x)=eˣ 对任意有限 x 都大于零，但当 x→−∞ 时趋近零。因而 infₓ eˣ=0，却不存在最优点 x*。写“最小值为 0”不严谨，应该说“下确界为 0”。</p>
+<p><strong>驻点非极小：</strong>f(x)=x³ 在 x=0 时导数为零，但左边的函数值更小、右边更大，因此零点不是局部极小点。</p></section>
+<section id="stationary"><h2>一阶必要条件不是充分条件</h2>
+<p>若 f 在内点 x* 可微，x* 是局部极小点，则梯度为零。这是一阶<strong>必要条件</strong>；它不保证 x* 真是极小点，更不保证全局最优。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="可微无约束局部极小点的一阶必要条件是梯度为零"><math display="block" aria-label="可微无约束局部极小点的一阶必要条件是梯度为零"><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>=</mo><mn>0</mn><mspace width=".6em"/><mtext>可微局部最小的必要条件</mtext></mrow></math></div></div>
+<p>对一元二次可微函数，若 f'(x*)=0 且 f''(x*)>0，则 x* 是严格局部极小点。如果 f''(x*)<0 则是严格局部极大点；如果 f''(x*)=0，二阶检验无法直接定论。多维对应 Hessian 的正定性判断，但严格局部最小也可能出现在 Hessian 不正定的边界情况。</p></section>
+<section id="exist"><h2>解何时存在</h2>
+<p>存在性与最优性是不同问题。若 f 在<strong>非空紧集</strong>（例如闭且有界的实数域可行集合）上连续，Weierstrass 极值定理保证至少存在一个最小点。无约束实数空间不是紧集，不能直接套用这一结论。</p>
+<p>在整个实数空间上，如果 f 连续且强制性增长，即当 ||x||→∞ 时 f(x)→∞，也能保证最小点存在。这个条件是充分条件，不是必要条件；非强制性增长的函数也可能有最小点。</p>
+<div class="note"><p>“求解器停止了”不等于“数学上存在一个全局最小点”。必须先确认求解目标有意义，再解释停止原因。</p></div></section>
+<section id="certificate"><h2>一个数值答案需要哪些检查</h2>
+<ul><li><strong>可行性：</strong>无约束问题没有额外约束，但仍需在定义域内且函数有定义。</li><li><strong>一阶残差：</strong>检查 ||∇f(x)|| 是否足够小；这通常只是驻点证据。</li><li><strong>曲率信息：</strong>用 Hessian、方向导数或邻域比较排查鞍点和局部极大点。</li><li><strong>全局证明：</strong>若目标凸，局部最优可升格为全局最优；若有下界证书，还需核对上下界差。</li></ul>
+<p>实际计算会遇到有限精度、数据噪声和停止容差。因此通常报告“近似最优点、目标值、残差和停止理由”，而不是只给一个没有上下文的 x。</p></section>
+<section id="interactive"><h2>检查一个二次函数候选点</h2>
+<p>移动 x，观察 f(x)=(x−2)²+0.5 的目标值、导数和与真实最优点的距离。只有 x=2 同时达到解析最小值和零梯度。</p>
+<div class="interactive-panel" data-demo="solution"><h3>实时计算</h3><p>当前函数在整个实数域严格凸并且能取到最小值。</p><div class="demo-control"><label for="solution-control">候选点 x</label><input id="solution-control" data-key="x" type="range" min="-1" max="5" step="0.1" value="2"></div><div class="demo-output" data-output aria-live="polite">数值输出由当前参数计算。</div></div></section>
+<section id="code"><h2>Python：三个相互独立的判断</h2>
+<p>程序同时检查：二次函数的可达到最小值、三次函数的零导数反例、指数函数始终为正却可以无限逼近零。这三件事不能互相替代。</p>
+<pre><code>"""Separate an attained minimum, a stationary non-minimum, and an infimum."""
+from math import exp, isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.1. What Is a Solution?</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_2.1._What_Is_a_Solution?</h1>
-<pre><code>Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 00_2.1._What_Is_a_Solution?
+def quadratic(x: float) -&gt; float:
+    return (x - 2.0) ** 2 + 0.5
+
+def quadratic_gradient(x: float) -&gt; float:
+    return 2.0 * (x - 2.0)
+
+def cubic(x: float) -&gt; float:
+    return x ** 3
+
+def cubic_gradient(x: float) -&gt; float:
+    return 3.0 * x ** 2
+
+if __name__ == "__main__":
+    minimizer = 2.0
+    print("quadratic minimizer:", minimizer, "minimum value:", quadratic(minimizer))
+    print("cubic stationary derivative at zero:", cubic_gradient(0.0))
+    print("exp(-1), exp(-5), exp(-10):", exp(-1), exp(-5), exp(-10))
+    assert isclose(quadratic(minimizer), 0.5)
+    for x in (-3.0, 0.0, 1.0, 2.0, 3.5):
+        assert quadratic(x) &gt;= quadratic(minimizer)
+    assert isclose(quadratic_gradient(minimizer), 0.0)
+    assert isclose(cubic_gradient(0.0), 0.0)
+    assert cubic(-0.1) &lt; cubic(0.0) &lt; cubic(0.1)
+    assert exp(-10) &lt; exp(-5) &lt; exp(-1)
+    assert exp(-10) &gt; 0.0
 </code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 00_2.1._What_Is_a_Solution?
-
-"""
-Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 00_2.1._What_Is_a_Solution?
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<p><strong>练习：</strong>令 f(x)=x⁴。它在 x=0 时一阶、二阶导数都为零，但 f(x)≥0 且只有在 x=0 取零，因此 x=0 仍是严格全局最小点。此例说明二阶导数等于零时需要其他论证。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization（第二版）</a>，第 2 章。本文所有公式示例、图形与程序为独立构造；上述数值结果可由页面中的代数和代码核对。参考 ISBN 978-0-387-40065-5。</div></section><footer class="article-footer"><p class="references">数学结论需在文中给出的定义域和假设下理解；程序用于小规模教学验证。</p><nav class="prev-next" aria-label="相邻内容"><a href="../01._Introduction/08_1.9._Notes_and_References.html"><small>上一篇 · 1.9</small><strong>注释与参考：怎样独立核对一个优化结论</strong></a><a href="01_2.2._Recognizing_a_Local_Minimum.html"><small>下一篇 · 2.2</small><strong>识别一个局部极小点</strong></a></nav></footer></article></main></div></body></html>

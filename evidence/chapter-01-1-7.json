@@ -1,0 +1,20 @@
+[
+  {
+    "id": "V1",
+    "claim": "教材第一章包含 Convexity 小节。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 1, table of contents",
+    "status": "verified",
+    "notes": ""
+  },
+  {
+    "id": "V2",
+    "claim": "函数 (x−1)^2 在 [0,4] 上满足凸性不等式；θ=1/4 时曲线值 4、弦值 7。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析代数和 Python 枚举校验",
+    "status": "derived",
+    "notes": "教学自构造例子。"
+  }
+]

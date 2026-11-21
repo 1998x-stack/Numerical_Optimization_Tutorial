@@ -1,36 +1,67 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="同一个决策，在固定数据与不确定需求下可能产生不同的最优选择。关键不是随机算法是否“靠运气”，而是目标或约束是否依赖未知的随机结果。"><title>1.6 随机优化与确定性优化 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 01 / Stochastic and Deterministic Optimization</span><a href="#problem">一个发货决策，三种可能的需求</a>
+<a href="#model">把不确定性写进目标函数</a>
+<a href="#derive">为什么最优值是 7/3</a>
+<a href="#sample">样本平均近似与 Monte Carlo</a>
+<a href="#interactive">观察候选决策的风险</a>
+<a href="#code">用 Python 独立验证</a>
+<a href="#limits">模型边界与练习</a><a href="../index.html#chapter-01">课程导读</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 01 · 1.6 / Stochastic and Deterministic Optimization</div><h1>随机优化与确定性优化</h1><p class="dek">同一个决策，在固定数据与不确定需求下可能产生不同的最优选择。关键不是随机算法是否“靠运气”，而是目标或约束是否依赖未知的随机结果。</p><div class="article-meta"><span>数值优化</span><span>定义 · 推导 · 验证</span><span>可运行示例</span></div></header><section id="problem"><h2>一个发货决策，三种可能的需求</h2>
+<p>假设企业必须在真实需求揭晓前决定发货量 x。若实际需求为 D，暂以平方偏差 L(x,D)=(x−D)² 表示损失：发多和发少被对称惩罚。这是<strong>为了展示数学结构而设计的玩具成本</strong>，并非通用物流成本函数。</p>
+<p>确定性优化把需求当成已知数。例如采用固定预测 D=2 时，最小化 (x−2)² 的答案就是 x=2。随机优化则把 D 看成有分布的随机变量，在决策时无法知道哪一个场景会发生。</p>
+<figure><img src="../assets/figures/stochastic-vs-deterministic.svg" alt="三条情景平方损失曲线及它们的平均曲线，平均风险最小点位于 x=7/3。"><figcaption>单个场景的低点不同；对同一个预先作出的决策，三种场景平均损失在 x=7/3 达到最小。</figcaption></figure></section>
+<section id="model"><h2>把不确定性写进目标函数</h2>
+<p>若场景 D∈{1,2,4} 各以 1/3 的概率发生，那么在不知道 D 时，合理的风险中性目标是最小化<strong>期望损失</strong> R(x)。决策 x 必须在场景揭晓前固定，不能对每个场景事后分别选择自己的最优值。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="最小化三个等概率情景的平方损失平均值"><math display="block" aria-label="最小化三个等概率情景的平方损失平均值"><mrow><munder><mo>min</mo><mi>x</mi></munder><mi>R</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>𝔼</mi><mo>[</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>D</mi><mo>)</mo></mrow><mn>2</mn></msup><mo>]</mo><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>[</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mn>4</mn><mo>)</mo></mrow><mn>2</mn></msup><mo>]</mo></mrow></math></div></div>
+<p>确定性与随机问题都可以使用确定性的数值算法求解。这里“随机”描述的是数据模型，不等于必须使用随机梯度下降；“确定性”也不保证问题简单。</p></section>
+<section id="derive"><h2>为什么最优值是 7/3</h2>
+<p>平方损失有一个有用的恒等式：期望平方误差等于<strong>对期望的偏差平方</strong>加上<strong>需求方差</strong>。只要二阶矩有限，这个分解成立。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="平方损失期望等于决策与需求期望的偏差平方加需求方差"><math display="block" aria-label="平方损失期望等于决策与需求期望的偏差平方加需求方差"><mrow><mi>𝔼</mi><mo>[</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>D</mi><mo>)</mo></mrow><mn>2</mn></msup><mo>]</mo><mo>=</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>𝔼</mi><mo>[</mo><mi>D</mi><mo>]</mo><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>Var</mi><mo>(</mo><mi>D</mi><mo>)</mo></mrow></math></div></div>
+<p>在三个等概率场景里，E[D]=(1+2+4)/3=7/3，Var(D)=14/9。因此 x*=7/3≈2.3333，最优平均损失 R*=14/9≈1.5556。若只用固定预测 D=2 选 x=2，再放进三场景里检验，其期望损失为 5/3≈1.6667，比随机模型的最优值高 1/9。</p>
+<p>这个差异来自<strong>建模时使用的信息不同</strong>，不是比较了两种算法的优劣。</p></section>
+<section id="sample"><h2>样本平均近似与 Monte Carlo</h2>
+<p>真实分布可能未知。若我们能从相同分布独立采样 D₁,…,Dₙ，可以用样本平均近似（SAA）构造 Rₙ(x)=Σ L(x,Dᵢ)/n。对当前平方损失，SAA 最优决策是样本均值。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="样本平均目标及其最优决策为需求样本均值"><math display="block" aria-label="样本平均目标及其最优决策为需求样本均值"><mrow><msub><mi>R</mi><mi>n</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><msub><mi>D</mi><mi>i</mi></msub><mo>)</mo></mrow><mn>2</mn></msup><mo>,</mo><mspace width=".7em"/><msubsup><mi>x</mi><mi>n</mi><mo>*</mo></msubsup><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>D</mi><mi>i</mi></msub></mrow></math></div></div>
+<p>有限样本均值不一定等于真实期望。独立同分布、有限期望等条件下，样本均值会随样本量增加而收敛；但若场景本身有偏、极端风险重要，或约束必须对每个情景都成立，仅靠最小期望可能不够。</p></section>
+<section id="interactive"><h2>观察候选决策的风险</h2>
+<p>移动 x，比较固定场景的损失、三场景的平均损失，以及理论最优值。初始显示 x=2，便于直接看到确定性预测带来的决策。</p>
+<div class="interactive-panel" data-demo="stochastic"><h3>实时计算</h3><p>三种可能需求分别为 1、2、4，各占三分之一概率。</p><div class="demo-control"><label for="stochastic-control">预先决定的发货量 x</label><input id="stochastic-control" data-key="x" type="range" min="0" max="5" step="0.1" value="2"></div><div class="demo-output" data-output aria-live="polite">数值输出由当前参数计算。</div></div></section>
+<section id="code"><h2>用 Python 独立验证</h2>
+<p>下面的 Python 程序既验证有限场景期望的解析最优解，也使用固定随机种子给出 Monte Carlo 样本均值。它<strong>不是</strong>概率约束求解器，也不把一次随机结果写成可靠的统计结论。</p>
+<pre><code>"""Compare a deterministic forecast with a finite-scenario stochastic objective.
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>1.6. Stochastic and Deterministic Optimization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>05_1.6._Stochastic_and_Deterministic_Optimization</h1>
-<pre><code>Lecture: /01._Introduction
-Content: 05_1.6._Stochastic_and_Deterministic_Optimization
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 05_1.6._Stochastic_and_Deterministic_Optimization
-
+Uses the exact three equally likely scenarios (1, 2, 4); no external solver.
 """
-Lecture: /01._Introduction
-Content: 05_1.6._Stochastic_and_Deterministic_Optimization
-"""
+from math import isclose
+from random import Random
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+SCENARIOS = (1.0, 2.0, 4.0)
+
+def loss(x: float, demand: float) -&gt; float:
+    return (x - demand) ** 2
+
+def scenario_risk(x: float) -&gt; float:
+    return sum(loss(x, d) for d in SCENARIOS) / len(SCENARIOS)
+
+def monte_carlo_mean(seed: int = 2026, size: int = 1000) -&gt; float:
+    rng = Random(seed)
+    return sum(rng.choice(SCENARIOS) for _ in range(size)) / size
+
+if __name__ == "__main__":
+    deterministic = 2.0
+    stochastic = sum(SCENARIOS) / len(SCENARIOS)
+    theoretical_risk = 14.0 / 9.0
+    print(f"fixed forecast decision: {deterministic:.6f}")
+    print(f"mean-squared-loss decision: {stochastic:.6f}")
+    print(f"minimum scenario risk: {scenario_risk(stochastic):.6f}")
+    print(f"fixed-seed Monte Carlo sample mean: {monte_carlo_mean():.6f}")
+    assert isclose(stochastic, 7.0 / 3.0)
+    assert isclose(scenario_risk(stochastic), theoretical_risk)
+    assert scenario_risk(stochastic) &lt;= scenario_risk(deterministic)
+    assert scenario_risk(stochastic) &lt;= scenario_risk(stochastic + 0.5)
+    assert 1.0 &lt;= monte_carlo_mean() &lt;= 4.0
+</code></pre></section>
+<section id="limits"><h2>模型边界与练习</h2>
+<ul><li><strong>风险偏好：</strong>最小期望平方损失不保证最差情景可接受。风险厌恶可以使用分位数、CVaR 或鲁棒目标。</li><li><strong>两阶段决策：</strong>若需求揭晓后还允许补货或调拨，必须显式建模事后决策与成本。</li><li><strong>变量约束：</strong>如果只能整箱发货，连续最优 x=7/3 还需要求解整数版本。</li></ul>
+<p><strong>练习：</strong>将场景概率改为 P(D=1)=1/2，P(D=2)=1/4，P(D=4)=1/4。在平方损失下，新的最优发货量为 E[D]=2，最优期望损失为 3/2。</p>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization（第二版）</a>，第 1 章。本文所有公式示例、图形与程序为独立构造；上述数值结果可由页面中的代数和代码核对。参考 ISBN 978-0-387-40065-5。</div></section><footer class="article-footer"><p class="references">数学结论需在文中给出的定义域和假设下理解；程序用于小规模教学验证。</p><nav class="prev-next" aria-label="相邻内容"><a href="04_1.5._Global_and_Local_Optimization.html"><small>上一篇 · 1.5</small><strong>全局最优与局部最优</strong></a><a href="06_1.7._Convexity.html"><small>下一篇 · 1.7</small><strong>凸性：为什么局部最优可以变成全局最优</strong></a></nav></footer></article></main></div></body></html>

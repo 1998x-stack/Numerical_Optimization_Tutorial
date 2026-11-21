@@ -63,6 +63,41 @@
         fmt(x,4) + '，f(x) ≈ ' + fmt(value,4) + '。当前轨迹落在：' + basin +
         '。这是固定步长梯度下降的示意，不是全局最优性证明。';
     });
+    if (kind === "stochastic") bind(root, el => {
+      const x = read(el, "x");
+      const risk = ((x - 1) ** 2 + (x - 2) ** 2 + (x - 4) ** 2) / 3;
+      output.innerHTML = '<strong>R(x) = ' + fmt(risk, 4) + '</strong> · 固定预测 D=2 的损失 ' +
+        fmt((x - 2) ** 2, 4) + ' · 三场景最优 x*=7/3，R*=14/9 ≈ 1.5556';
+    });
+    if (kind === "convexity") bind(root, el => {
+      const theta = read(el, "theta");
+      const x = 4 * (1 - theta), curve = (x - 1) ** 2;
+      const chord = theta * 1 + (1 - theta) * 9;
+      output.innerHTML = '<strong>x = ' + fmt(x) + '，f(x) = ' + fmt(curve) + '</strong> · 弦高 ' +
+        fmt(chord) + ' · 凸性差值 ' + fmt(chord - curve);
+    });
+    if (kind === "algorithm") bind(root, el => {
+      const alpha = read(el, "alpha"), x1 = 6 * alpha;
+      const contraction = Math.abs(1 - 2 * alpha);
+      output.innerHTML = '<strong>梯度一步 x₁ = ' + fmt(x1) + '</strong> · f(x₁) = ' +
+        fmt((x1 - 3) ** 2 + 1, 4) + ' · 误差因子 |1−2α| = ' + fmt(contraction) +
+        '（' + (contraction < 1 ? "收缩" : contraction === 1 ? "不收缩" : "放大") +
+        '）。牛顿一步 x₁ = 3。';
+    });
+    if (kind === "references") bind(root, el => {
+      const k = read(el, "k"), h = 10 ** (-k), x = 1.25;
+      const f = value => (value - 2) ** 2 + 1;
+      const estimate = (f(x + h) - f(x - h)) / (2 * h);
+      output.innerHTML = '<strong>h = 10⁻' + k + ' · 差分 = ' + fmt(estimate, 9) +
+        '</strong> · 精确导数 −1.5 · 绝对误差 ' + Math.abs(estimate + 1.5).toExponential(3);
+    });
+    if (kind === "solution") bind(root, el => {
+      const x = read(el, "x");
+      output.innerHTML = '<strong>f(x) = ' + fmt((x - 2) ** 2 + 0.5, 4) +
+        '</strong> · f′(x) = ' + fmt(2 * (x - 2), 4) +
+        ' · 距离最优点 |x−2| = ' + fmt(Math.abs(x - 2), 4) +
+        ' · 最优值 f*=0.5';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

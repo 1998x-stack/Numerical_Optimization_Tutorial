@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the new course portal and five standalone articles."""
+"""Playwright QA for the new course portal and ten standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -14,6 +14,11 @@ ARTICLES = [
     "01._Introduction/02_1.3._Continuous_vs._Discrete_Optimization.html",
     "01._Introduction/03_1.4._Constrained_and_Unconstrained_Optimization.html",
     "01._Introduction/04_1.5._Global_and_Local_Optimization.html",
+    "01._Introduction/05_1.6._Stochastic_and_Deterministic_Optimization.html",
+    "01._Introduction/06_1.7._Convexity.html",
+    "01._Introduction/07_1.8._Optimization_Algorithms.html",
+    "01._Introduction/08_1.9._Notes_and_References.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -124,7 +129,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, five article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, ten article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 
