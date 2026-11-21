@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,8 +82,8 @@ def main() -> int:
                     failures.append(f"{relative}: figure image missing, unloaded, or has no alt text")
 
                 if width in (1440, 390):
-                    name = Path(relative).stem
-                    page.screenshot(path=str(output / f"{name}-{width}.png"), full_page=True)
+                    safe_name = re.sub(r"[^A-Za-z0-9._-]+", "-", Path(relative).stem).strip("-")
+                    page.screenshot(path=str(output / f"{safe_name}-{width}.png"), full_page=True)
 
             demo = page.locator("[data-demo] input").first
             before = page.locator("[data-output]").inner_text()
@@ -97,6 +97,8 @@ def main() -> int:
                 failures.append(f"{relative}: interaction did not change the accessible output")
                 report["summary"]["interaction_failures"] += 1
 
+            # Print media represents a paper-sized viewport, not the last 360 px mobile viewport.
+            page.set_viewport_size({"width": 1024, "height": 768})
             page.emulate_media(media="print")
             print_overflow = page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth + 1")
             if print_overflow:
@@ -122,7 +124,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, five article interactions, 1440/768/390/360 viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, five article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 
