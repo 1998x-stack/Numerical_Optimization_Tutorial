@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">变量缩放让狭长等高线变得更均衡</title><desc id="fig-desc">原始二次目标的等高线是长椭圆，变量缩放后 Hessian 从对角矩阵一百和一变成单位矩阵，等高线成为圆。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g stroke="#e7ece7" stroke-width="1"><path d="M70 205H400M235 55V355M500 205H830M665 55V355"/></g>
+<g fill="none" stroke="#bd633f" stroke-width="3"><ellipse cx="235" cy="205" rx="15" ry="145"/><ellipse cx="235" cy="205" rx="11" ry="110"/><ellipse cx="235" cy="205" rx="7" ry="65"/></g>
+<g fill="none" stroke="#127164" stroke-width="3"><circle cx="665" cy="205" r="145"/><circle cx="665" cy="205" r="105"/><circle cx="665" cy="205" r="65"/></g>
+<text x="235" y="35" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="19" font-weight="700" text-anchor="middle">原始坐标 x</text>
+<text x="665" y="35" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="19" font-weight="700" text-anchor="middle">缩放坐标 z</text>
+<text x="235" y="390" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">H = diag(100, 1)</text>
+<text x="665" y="390" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="middle">D = diag(0.1, 1)，DᵀHD = I</text>
+<text x="450" y="425" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="16" font-weight="700" text-anchor="middle">条件数从 100 降为 1（此例的精确二次模型）</text>
+</svg>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "EX1",
+    "claim": "第二章包含无约束优化练习。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, Exercises, pp. 27–29",
+    "status": "verified",
+    "notes": "本页面五道题均为原创，不复制教材习题。"
+  },
+  {
+    "id": "EX2",
+    "claim": "题一的唯一驻点为 (8/3,-4/3)，Hessian 特征值为 1 和 3，最优值为 -16/3。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "线性方程求解、正定性和目标值代入；Python 断言",
+    "status": "derived",
+    "notes": "原创严格凸二次函数。"
+  },
+  {
+    "id": "EX3",
+    "claim": "题二至题五的软阈值、方向导数、信赖域比率和缩放条件数均由给定参数直接计算。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "题面公式和 tests/test_cross_verification.py",
+    "status": "derived",
+    "notes": "练习答案不依赖教材答案手册。"
+  }
+]

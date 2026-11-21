@@ -1,0 +1,20 @@
+[
+  {
+    "id": "SD1",
+    "claim": "第二章 Overview of Algorithms 包含 Search Directions for Line Search Methods。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, subsection, pp. 20–24",
+    "status": "verified",
+    "notes": "旧文件名 2.4.2 保留；可见标题按原目录。"
+  },
+  {
+    "id": "SD2",
+    "claim": "对于可微目标，g^T p < 0 是 p 为严格下降方向的充分局部判据；H 正定时精确 Newton 方向为下降方向。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "方向导数定义及正定二次型推导；Python 点积断言",
+    "status": "derived",
+    "notes": "方向下降性不保证任意大步长都会下降。"
+  }
+]

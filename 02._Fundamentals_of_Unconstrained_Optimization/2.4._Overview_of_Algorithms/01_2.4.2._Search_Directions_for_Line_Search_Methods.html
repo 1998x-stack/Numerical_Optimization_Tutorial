@@ -1,36 +1,58 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="搜索方向不是任意的箭头。方向导数 gᵀp 决定当前点附近的变化趋势；负梯度、Newton 与拟 Newton 方向的共同目标，是构造有理论保证的下降移动。"><title>搜索方向：什么方向真的会下降 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.2 / Overview of Algorithms · Search Directions for Line Search Methods</span><a href="#directional">方向导数决定局部趋势</a>
+<a href="#steepest">最速下降：依赖你怎样度量距离</a>
+<a href="#newton">Newton 与拟 Newton 方向</a>
+<a href="#angle">角度越接近负梯度，下降分量越大</a>
+<a href="#interactive">交互：改变方向角</a>
+<a href="#code">Python：方向导数与 Newton 方向</a>
+<a href="#pitfalls">方向质量与步长策略必须配合</a><a href="../../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.2 / Overview of Algorithms · Search Directions for Line Search Methods</div><h1>搜索方向：什么方向真的会下降</h1><p class="dek">搜索方向不是任意的箭头。方向导数 gᵀp 决定当前点附近的变化趋势；负梯度、Newton 与拟 Newton 方向的共同目标，是构造有理论保证的下降移动。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="directional"><h2>方向导数决定局部趋势</h2>
+<p>设 f 可微，当前点梯度 g=∇f(x)。沿方向 p 移动很小的 α>0 时，函数值的一阶变化约为 αgᵀp。因此，gᵀp<0 是 p 为严格下降方向的判据；gᵀp>0 则局部上升；等于零时一阶信息无法判断。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="方向导数"><math display="block" aria-label="方向导数"><mrow><mi>D</mi><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>[</mo><mi>p</mi><mo>]</mo><mo>=</mo><msup><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>⊤</mo></msup><mi>p</mi></mrow></math></div></div>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="严格下降方向"><math display="block" aria-label="严格下降方向"><mrow><msup><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>⊤</mo></msup><mi>p</mi><mo>&lt;</mo><mn>0</mn></mrow></math></div></div></section>
+<section id="steepest"><h2>最速下降：依赖你怎样度量距离</h2>
+<p>在欧氏范数下，单位长度方向中使 gᵀp 最小的方向是 p=−g/||g||；若不限制单位长度，通常直接取 p=−g。它是当前点的一阶局部下降最快方向，但不代表整个迭代过程最快。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="欧氏范数下的最速下降方向"><math display="block" aria-label="欧氏范数下的最速下降方向"><mrow><msub><mi>p</mi><mtext>SD</mtext></msub><mo>=</mo><mo>−</mo><mi>∇</mi><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></math></div></div>
+<p>“最速”取决于所选范数。如果变量具有不同单位或尺度，欧氏距离可能不合适；改变度量会改变最速方向。这也是预条件与变量缩放的重要动机。</p></section>
+<section id="newton"><h2>Newton 与拟 Newton 方向</h2>
+<p>Newton 方向通过局部二次模型考虑曲率，求解 H p=−g。若 Hessian H 正定，则 gᵀp=−gᵀH⁻¹g<0，方向必为下降方向。若 H 不定或奇异，Newton 方程得到的方向可能不是下降方向，甚至无法稳定求解。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Newton 方向与下降性"><math display="block" aria-label="Newton 方向与下降性"><mrow><mi>H</mi><mi>p</mi><mo>=</mo><mo>−</mo><mi>g</mi><mo>,</mo><mspace width=".5em"/><mi>H</mi><mo>≻</mo><mn>0</mn><mo>⇒</mo><msup><mi>g</mi><mo>⊤</mo></msup><mi>p</mi><mo>=</mo><mo>−</mo><msup><mi>g</mi><mo>⊤</mo></msup><msup><mi>H</mi><mo>−</mo></msup><mi>g</mi><mo>&lt;</mo><mn>0</mn></mrow></math></div></div>
+<p>拟 Newton 方法用近似 Hessian 或其逆矩阵构造方向。若近似矩阵保持正定，方向仍然下降；如果更新破坏正定性，算法通常需要重置、修正或改用信赖域策略。</p></section>
+<section id="angle"><h2>角度越接近负梯度，下降分量越大</h2>
+<figure><img src="../../assets/figures/descent-directions.svg" alt="梯度、负梯度、一个下降方向和一个上升方向的几何示意。"><figcaption>等高线的法向由梯度给出。只要方向与负梯度夹角小于九十度，方向导数就是负数。</figcaption></figure>
+<p>若将方向 p 与负梯度 −g 的夹角记为 θ，且 p、g 均非零，则 gᵀp=−||g||||p||cosθ。因而 |θ|<90° 时严格下降，θ=90° 时一阶变化为零，超过九十度则上升。</p></section>
+<section id="interactive"><h2>交互：改变方向角</h2>
+<p>把梯度固定为 g=(1,0)，令单位方向 p=(-cosθ,sinθ)。拖动 θ，实时观察方向导数的符号。</p>
+<div class="interactive-panel" data-demo="direction"><h3>实时计算</h3><p>θ 处于 −90° 到 90° 之间时，方向是一阶下降方向。</p><div class="demo-controls"><div class="demo-control"><label for="direction-theta">相对负梯度的夹角 θ（度）<output data-value-for="theta">60</output></label><input id="direction-theta" data-key="theta" type="range" min="-120" max="120" step="5" value="60"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：方向导数与 Newton 方向</h2>
+<p>程序用点积检查多个方向角，并验证正定 Hessian 下的 Newton 方向具有负方向导数。代码没有实现线搜索；它只回答方向是否值得尝试。</p>
+<pre><code>"""Check descent directions using the directional derivative g^T p."""
+from math import cos, sin, radians, isclose
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.4.2. Search Directions for Line Search Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_2.4.2._Search_Directions_for_Line_Search_Methods</h1>
-<pre><code>Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 01_2.4.2._Search_Directions_for_Line_Search_Methods
-</code></pre>
+def directional_derivative(gradient: tuple[float, float], direction: tuple[float, float]) -&gt; float:
+    return sum(g * p for g, p in zip(gradient, direction))
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_2.4.2._Search_Directions_for_Line_Search_Methods
+def direction_at_angle(degrees: float) -&gt; tuple[float, float]:
+    # Gradient is (1, 0); angle is measured from the negative-gradient axis.
+    theta = radians(degrees)
+    return (-cos(theta), sin(theta))
 
-"""
-Lecture: 02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms
-Content: 01_2.4.2._Search_Directions_for_Line_Search_Methods
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    gradient = (1.0, 0.0)
+    for angle in (0.0, 30.0, 60.0, 90.0, 120.0):
+        direction = direction_at_angle(angle)
+        slope = directional_derivative(gradient, direction)
+        print(f"angle={angle:5.1f}°, g^T p={slope: .4f}, descent={slope &lt; 0}")
+    assert directional_derivative(gradient, direction_at_angle(0.0)) == -1.0
+    assert directional_derivative(gradient, direction_at_angle(60.0)) &lt; 0.0
+    assert isclose(directional_derivative(gradient, direction_at_angle(90.0)), 0.0, abs_tol=1e-12)
+    assert directional_derivative(gradient, direction_at_angle(120.0)) &gt; 0.0
+    # For H positive definite, the exact Newton direction is a descent direction.
+    g = (2.0, -1.0)
+    h_diag = (2.0, 4.0)
+    p_newton = (-g[0] / h_diag[0], -g[1] / h_diag[1])
+    assert directional_derivative(g, p_newton) &lt; 0.0</code></pre>
+<p><strong>练习：</strong>给定 g=(2,−1)，判断 p₁=(−1,−1) 与 p₂=(1,2) 是否为下降方向。再说明 gᵀp=0 是否意味着沿该方向函数值完全不变。</p></section>
+<section id="pitfalls"><h2>方向质量与步长策略必须配合</h2>
+<ul><li>下降方向只保证足够小的正步长会下降，不保证任意大步长都下降。</li><li>方向导数接近零时，理论上下降但数值上可能非常缓慢。</li><li>Newton 方向只有在 Hessian 正定等条件下才自动下降；非凸问题需修正或全局化。</li><li>预条件矩阵会改变方向，也会改变“单位步长”所代表的几何尺度。</li></ul>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, “Overview of Algorithms”, subsection “Search Directions for Line Search Methods”, pp. 20–24.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.html"><small>上一篇 · 2.2</small><strong>线搜索与信赖域：两种全局化策略</strong></a><a href="02_2.4.3._Models_for_Trust_Region_Methods.html"><small>下一篇 · 2.2</small><strong>信赖域模型：局部近似与实际改进</strong></a></nav></footer></article></main></div></body></html>

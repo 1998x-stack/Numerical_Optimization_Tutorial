@@ -1,0 +1,29 @@
+[
+  {
+    "id": "LM1",
+    "claim": "第二章将 Recognizing a Local Minimum 作为 What Is a Solution? 下的主题。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, subsection, pp. 14–16",
+    "status": "verified",
+    "notes": "可见页标题沿用原目录层级；旧文件名 2.2 保留以兼容现有路径。"
+  },
+  {
+    "id": "LM2",
+    "claim": "可微无约束局部极小点满足梯度为零；二阶必要条件要求 Hessian 半正定，正定 Hessian 是严格局部极小的充分条件。",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, local-minimum optimality conditions",
+    "status": "verified",
+    "notes": "假设点为定义域内点且函数二次连续可微。"
+  },
+  {
+    "id": "LM3",
+    "claim": "f(x,y)=x^4+y^2 在原点严格局部极小，但 Hessian 在原点仅半正定。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "偏导、Hessian 与高阶项的直接计算；Python 示例断言",
+    "status": "derived",
+    "notes": "原创教学反例。"
+  }
+]

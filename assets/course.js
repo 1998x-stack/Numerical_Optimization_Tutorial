@@ -4,7 +4,13 @@
   const read = (root, key) => Number(root.querySelector('[data-key="' + key + '"]').value);
   const bind = (root, render) => {
     const controls = root.querySelectorAll("input[data-key]");
-    const update = () => render(root);
+    const update = () => {
+      controls.forEach(control => {
+        const value = root.querySelector('[data-value-for="' + control.dataset.key + '"]');
+        if (value) value.textContent = control.value;
+      });
+      render(root);
+    };
     controls.forEach(control => control.addEventListener("input", update));
     update();
   };
@@ -97,6 +103,75 @@
         '</strong> · f′(x) = ' + fmt(2 * (x - 2), 4) +
         ' · 距离最优点 |x−2| = ' + fmt(Math.abs(x - 2), 4) +
         ' · 最优值 f*=0.5';
+    });
+    if (kind === "local-minimum") bind(root, el => {
+      const a = read(el, "l1"), b = read(el, "l2"), tol = 1e-8;
+      let result;
+      if (a > tol && b > tol) result = "正定 Hessian：二阶充分条件，严格局部极小";
+      else if (a < -tol && b < -tol) result = "负定 Hessian：严格局部极大";
+      else if (a < -tol && b > tol || b < -tol && a > tol) result = "特征值异号：Hessian 不定，驻点为鞍点";
+      else if (a >= -tol && b >= -tol) result = "Hessian 半正定：二阶必要条件通过，但仍需高阶信息";
+      else if (a <= tol && b <= tol) result = "Hessian 半负定：二阶检验不能单独确定结论";
+      else result = "至少一个曲率方向需要进一步分析";
+      output.innerHTML = '<strong>λ₁=' + fmt(a, 2) + '，λ₂=' + fmt(b, 2) + '</strong> · ' + result;
+    });
+    if (kind === "nonsmooth") bind(root, el => {
+      const y = read(el, "y"), lam = read(el, "lambda");
+      const x = Math.sign(y) * Math.max(Math.abs(y) - lam, 0);
+      const value = 0.5 * (x - y) ** 2 + lam * Math.abs(x);
+      output.innerHTML = '<strong>x* = ' + fmt(x, 3) + '</strong> · 目标值 ' + fmt(value, 4) +
+        ' · ' + (x === 0 ? '零落在次梯度区间内，系数被阈值化' : '最优系数保留了观测信号的符号');
+    });
+    if (kind === "strategies") bind(root, el => {
+      const alpha = read(el, "alpha"), delta = read(el, "delta");
+      const xLine = 1 - 8 * alpha, pTrust = -Math.min(delta, 1), xTrust = 1 + pTrust;
+      output.innerHTML = '<strong>线搜索：</strong>α=' + fmt(alpha, 3) + '，x₁=' + fmt(xLine, 3) +
+        '，f=' + fmt(4 * xLine * xLine, 4) + ' · <strong>信赖域：</strong>Δ=' + fmt(delta, 2) +
+        '，x₁=' + fmt(xTrust, 3) + '，f=' + fmt(4 * xTrust * xTrust, 4);
+    });
+    if (kind === "direction") bind(root, el => {
+      const angle = read(el, "theta"), slope = -Math.cos(angle * Math.PI / 180);
+      output.innerHTML = '<strong>gᵀp = ' + fmt(slope, 4) + '</strong> · ' +
+        (slope < -1e-8 ? '严格下降方向' : slope > 1e-8 ? '上升方向' : '一阶方向导数为零，不能据此判断');
+    });
+    if (kind === "trust-model") bind(root, el => {
+      const delta = read(el, "delta"), p = -Math.min(delta, 1);
+      const predicted = 1 - (1 + p + 0.5 * p * p);
+      const actual = 1 - Math.exp(p);
+      const rho = actual / predicted;
+      output.innerHTML = '<strong>步 p=' + fmt(p, 3) + '</strong> · 预测下降 ' + fmt(predicted, 5) +
+        ' · 实际下降 ' + fmt(actual, 5) + ' · ρ=' + fmt(rho, 5) +
+        ' · ' + (rho > 0.75 ? '模型预测较准确，可考虑扩大半径（若步子触及边界）' : '继续评估模型与半径');
+    });
+    if (kind === "scaling") bind(root, el => {
+      const scale = read(el, "scale"), eig = 100 * scale * scale;
+      const condition = Math.max(eig, 1) / Math.min(eig, 1);
+      output.innerHTML = '<strong>缩放后 Hessian = diag(' + fmt(eig, 4) + ', 1)</strong> · 条件数 κ₂ = ' +
+        fmt(condition, 4) + (Math.abs(condition - 1) < 1e-8 ? ' · 本例已变为单位矩阵' : '');
+    });
+    if (kind === "exercises") bind(root, el => {
+      const n = Math.round(read(el, "problem"));
+      const answers = {
+        1: "x*=8/3，y*=−4/3；H 特征值 1、3；f*=−16/3。",
+        2: "软阈值解 x*=1；此时次梯度为 {1}，一阶条件成立。",
+        3: "gᵀp₁=−1：下降；gᵀp₂=0：不是严格下降方向。",
+        4: "预测下降 0.21875，实际下降约 0.221199，ρ≈1.0112。",
+        5: "取 s=0.2，缩放后 Hessian 为 I，条件数由 25 降至 1。"
+      };
+      output.textContent = '题 ' + n + '：' + answers[n];
+    });
+    if (kind === "step-length") bind(root, el => {
+      const alpha = read(el, "alpha");
+      const phi = (4 * alpha - 2) ** 2, slope0 = -16, slope = 32 * alpha - 16;
+      const armijoBound = 4 + 1e-4 * alpha * slope0;
+      const c = 0.2, goldLower = 4 + (1-c) * alpha * slope0, goldUpper = 4 + c * alpha * slope0;
+      const armijo = phi <= armijoBound + 1e-12;
+      const weak = armijo && slope >= 0.9 * slope0;
+      const strong = armijo && Math.abs(slope) <= 0.9 * Math.abs(slope0);
+      const gold = phi >= goldLower - 1e-12 && phi <= goldUpper + 1e-12;
+      output.innerHTML = '<strong>φ(α)=' + fmt(phi, 4) + '</strong> · Armijo ' + (armijo ? '通过' : '未通过') +
+        ' · 弱 Wolfe ' + (weak ? '通过' : '未通过') + ' · 强 Wolfe ' + (strong ? '通过' : '未通过') +
+        ' · Goldstein ' + (gold ? '通过' : '未通过');
     });
   });
   const search = document.querySelector("[data-course-search]");

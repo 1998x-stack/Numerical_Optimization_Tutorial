@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">绝对值函数的尖点与次梯度</title><desc id="fig-desc">绝对值函数在原点有尖点，左右导数分别为负一和正一；原点的凸次微分是闭区间负一到正一。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g stroke="#e7ece7" stroke-width="1"><path d="M80 330H820M450 55V345M160 90H740M160 170H740M160 250H740"/></g>
+<path d="M150 305L450 80L750 305" fill="none" stroke="#127164" stroke-width="5"/>
+<circle cx="450" cy="80" r="8" fill="#127164"/>
+<text x="470" y="74" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="start">尖点 x=0</text>
+<text x="755" y="310" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="17" font-weight="400" text-anchor="start">|x|</text>
+<path d="M270 170L630 -10" stroke="#bd633f" stroke-width="3" stroke-dasharray="7 6"/>
+<path d="M270 -10L630 170" stroke="#bd633f" stroke-width="3" stroke-dasharray="7 6"/>
+<text x="95" y="44" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="start">左导数 −1</text>
+<text x="685" y="44" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="16" font-weight="400" text-anchor="start">右导数 +1</text>
+<rect x="160" y="350" width="580" height="52" rx="12" fill="#f5faf7" stroke="#cdded5"/>
+<text x="450" y="383" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="18" font-weight="700" text-anchor="middle">∂|x|(0) = [−1, 1]：所有支撑斜率构成一个区间</text>
+</svg>

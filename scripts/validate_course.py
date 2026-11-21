@@ -51,6 +51,38 @@ ARTICLES = [
      "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.md",
      "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.py",
      "evidence/chapter-02-2-1.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/01_2.2._Recognizing_a_Local_Minimum.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/01_2.2._Recognizing_a_Local_Minimum.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/01_2.2._Recognizing_a_Local_Minimum.py",
+     "evidence/chapter-02-local-minimum.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/02_2.3._Nonsmooth_Problems.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/02_2.3._Nonsmooth_Problems.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/02_2.3._Nonsmooth_Problems.py",
+     "evidence/chapter-02-nonsmooth.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.py",
+     "evidence/chapter-02-line-search-trust-region.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/01_2.4.2._Search_Directions_for_Line_Search_Methods.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/01_2.4.2._Search_Directions_for_Line_Search_Methods.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/01_2.4.2._Search_Directions_for_Line_Search_Methods.py",
+     "evidence/chapter-02-search-directions.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/02_2.4.3._Models_for_Trust_Region_Methods.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/02_2.4.3._Models_for_Trust_Region_Methods.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/02_2.4.3._Models_for_Trust_Region_Methods.py",
+     "evidence/chapter-02-trust-model.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/03_2.4.4._Scaling.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/03_2.4.4._Scaling.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/03_2.4.4._Scaling.py",
+     "evidence/chapter-02-scaling.json"),
+    ("02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.html",
+     "02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.md",
+     "02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.py",
+     "evidence/chapter-02-exercises.json"),
+    ("03._Line_Search_Methods/00_3.1._Step_Length.html",
+     "03._Line_Search_Methods/00_3.1._Step_Length.md",
+     "03._Line_Search_Methods/00_3.1._Step_Length.py",
+     "evidence/chapter-03-step-length.json"),
 ]
 
 
@@ -209,13 +241,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9 与第二章 2.1 共十篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1 共十八篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 10:
-        errors.append("index.html: expected exactly ten featured modules (two batches)")
+    if index.count('class="featured-card"') != 18:
+        errors.append("index.html: expected exactly eighteen featured modules (three batches)")
     return errors
 
 

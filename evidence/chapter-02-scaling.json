@@ -1,0 +1,29 @@
+[
+  {
+    "id": "SC1",
+    "claim": "第二章 Overview of Algorithms 包含 Scaling 小节。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, subsection, p. 26",
+    "status": "verified",
+    "notes": "旧文件名 2.4.4 保留；可见标题按原目录。"
+  },
+  {
+    "id": "SC2",
+    "claim": "在变量变换 x=Dz 下，梯度与 Hessian 分别变为 D^T grad f(Dz) 与 D^T Hessian f(Dz) D。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "多元链式法则",
+    "status": "derived",
+    "notes": "D 为可逆常数矩阵。"
+  },
+  {
+    "id": "SC3",
+    "claim": "对 H=diag(100,1)，D=diag(0.1,1) 将缩放 Hessian 变为 I，二范数条件数由 100 变为 1。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "对角矩阵特征值直接计算；Python 断言",
+    "status": "derived",
+    "notes": "精确设计的二次教学例子。"
+  }
+]

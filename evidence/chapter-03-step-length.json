@@ -1,0 +1,29 @@
+[
+  {
+    "id": "SL1",
+    "claim": "第三章包含 Step Length，并在后续小节讨论 Wolfe、Goldstein、充分下降与回溯。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.1, pp. 31–37",
+    "status": "verified",
+    "notes": "章节标题和页码已与 Springer 书目及目录交叉核对。"
+  },
+  {
+    "id": "SL2",
+    "claim": "弱 Wolfe 曲率条件使用 phi'(alpha) >= c2 phi'(0)；强 Wolfe 条件使用绝对值上界；Goldstein 条件使用函数值上下界。",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.1, pp. 33–37",
+    "status": "verified",
+    "notes": "假设初始方向是下降方向，参数满足相应区间。"
+  },
+  {
+    "id": "SL3",
+    "claim": "对 f(x)=(x-2)^2、x0=0、p=4，alpha=0.5 满足 Armijo、弱/强 Wolfe 与 c=0.2 的 Goldstein 条件。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析 phi(alpha)、phi'(alpha) 计算；Python 断言",
+    "status": "derived",
+    "notes": "原创一维教学例子。"
+  }
+]

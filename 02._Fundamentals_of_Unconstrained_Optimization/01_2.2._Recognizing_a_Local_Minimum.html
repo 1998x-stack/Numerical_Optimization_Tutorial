@@ -1,36 +1,69 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="梯度为零并不代表已经找到极小值。要判断一个驻点究竟是极小、极大还是鞍点，需要把一阶条件、Hessian 曲率与更高阶反例放在一起看。"><title>如何识别一个局部极小点 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 02 · 2.1 / Recognizing a Local Minimum · Recognizing a Local Minimum</span><a href="#question">一个驻点为什么还不够</a>
+<a href="#first-order">一阶必要条件：梯度必须为零</a>
+<a href="#second-order">二阶条件：Hessian 告诉我们曲率</a>
+<a href="#examples">四种曲率结构，四种结论</a>
+<a href="#eigen-demo">交互：改变 Hessian 的两个特征值</a>
+<a href="#code">Python：用特征值检查二维 Hessian</a>
+<a href="#limits">使用这些条件时要留意什么</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 02 · 2.1 / Recognizing a Local Minimum · Recognizing a Local Minimum</div><h1>如何识别一个局部极小点</h1><p class="dek">梯度为零并不代表已经找到极小值。要判断一个驻点究竟是极小、极大还是鞍点，需要把一阶条件、Hessian 曲率与更高阶反例放在一起看。</p><div class="article-meta"><span>定义与推导</span><span>数值例子</span><span>可运行实验</span></div></header><section id="question"><h2>一个驻点为什么还不够</h2>
+<p>设目标函数 f:ℝⁿ→ℝ。点 x* 是局部极小点，意思是存在半径 r>0，使得所有满足 ||x−x*||<r 的点都不比 x* 更好。这个定义只比较一个邻域，不要求它是全空间最好的点。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="局部极小点在某个邻域内不劣于任何可行点"><math display="block" aria-label="局部极小点在某个邻域内不劣于任何可行点"><mrow><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>≤</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mspace width=".6em"/><mtext>只要</mtext><mspace width=".3em"/><mo>‖</mo><mi>x</mi><mo>−</mo><msup><mi>x</mi><mo>*</mo></msup><mo>‖</mo><mo>&lt;</mo><mi>r</mi></mrow></math></div></div>
+<p>若邻域内除 x* 外都严格更差，则称严格局部极小。若比较范围扩大到整个定义域，才是全局极小。无约束问题中的“局部”也默认 x* 是定义域的内点；边界点需要改用可行方向条件。</p></section>
+<section id="first-order"><h2>一阶必要条件：梯度必须为零</h2>
+<p>如果 f 在内点 x* 可微，而且 x* 是局部极小点，那么沿任意方向 v 的一维函数 φ(t)=f(x*+tv) 在 t=0 处有局部极小，因此 φ'(0)=∇f(x*)ᵀv=0。由于 v 任意，得到梯度为零。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="可微无约束局部极小点的一阶必要条件"><math display="block" aria-label="可微无约束局部极小点的一阶必要条件"><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math></div></div>
+<p>这个条件只排除了仍能沿某个方向一阶下降的点。它同样可能出现在局部极大点、鞍点，甚至平坦的高阶极小点。</p></section>
+<section id="second-order"><h2>二阶条件：Hessian 告诉我们曲率</h2>
+<p>若 f 二次连续可微，Hessian ∇²f(x*) 汇总了所有方向的二阶曲率。对局部极小点，任意方向 v 的二阶方向导数不能为负；因此 Hessian 必须半正定。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="二阶必要条件"><math display="block" aria-label="二阶必要条件"><mrow><msup><mi>v</mi><mo>⊤</mo></msup><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mi>v</mi><mo>≥</mo><mn>0</mn><mspace width=".5em"/><mtext>对所有向量</mtext><mspace width=".2em"/><mi>v</mi></mrow></math></div></div>
+<p>反过来，如果 Hessian 正定，所有非零方向的二阶曲率都为正，那么在足够小的邻域里，二阶项压过高阶余项，x* 是严格局部极小点。半正定只是一条必要条件，不能直接当作充分条件。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="二阶充分条件"><math display="block" aria-label="二阶充分条件"><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mspace width=".4em"/><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>≻</mo><mn>0</mn><mo>⇒</mo><mtext>严格局部极小</mtext></mrow></math></div></div></section>
+<section id="examples"><h2>四种曲率结构，四种结论</h2>
+<figure><img src="../assets/figures/local-minimum-tests.svg" alt="正定、半正定、不定和负定 Hessian 对应的曲率示意图。"><figcaption>正定 Hessian 给出严格局部极小的充分条件；半正定还需检查高阶项；不定 Hessian 产生鞍点；负定 Hessian 对应严格局部极大。</figcaption></figure>
+<ul><li><strong>正定：</strong> f(x,y)=x²+y² 在原点有唯一严格全局极小点。</li><li><strong>半正定但结论不明：</strong> f(x,y)=x⁴+y² 在原点仍是严格极小，但 Hessian 在原点有一个零特征值；仅凭二阶检验无法证明。</li><li><strong>不定：</strong> f(x,y)=x²−y² 在原点沿 x 轴上升、沿 y 轴下降，是鞍点。</li><li><strong>负定：</strong> f(x,y)=−x²−y² 在原点有严格局部极大。</li></ul>
+<div class="note"><p>Hessian 正定只保证严格局部极小，不自动保证全局最优。只有再加入凸性等全局结构，才能把局部结论升级为全局结论。</p></div></section>
+<section id="eigen-demo"><h2>交互：改变 Hessian 的两个特征值</h2>
+<p>把两个滑块看作某个驻点 Hessian 的两个特征值。它们只描述二阶曲率，不包含三阶、四阶项。拖动两个值，观察二阶判别结果；若出现零特征值，仍须检查更高阶项。</p>
+<div class="interactive-panel" data-demo="local-minimum"><h3>实时计算</h3><p>半正定或半负定且含零特征值时，二阶判别本身不作最终结论。</p><div class="demo-controls"><div class="demo-control"><label for="local-minimum-l1">特征值 λ₁<output data-value-for="l1">1</output></label><input id="local-minimum-l1" data-key="l1" type="range" min="-2" max="2" step="0.1" value="1"></div><div class="demo-control"><label for="local-minimum-l2">特征值 λ₂<output data-value-for="l2">1</output></label><input id="local-minimum-l2" data-key="l2" type="range" min="-2" max="2" step="0.1" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：用特征值检查二维 Hessian</h2>
+<p>下面的程序直接计算对称 2×2 Hessian 的两个特征值，并把正定、负定、不定和半正定/近奇异情形区分开。它是二维教学检查，不是任意维数的特征值求解器。</p>
+<pre><code>"""Classify stationary points with exact 2x2 Hessian eigenvalues.
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>2.2. Recognizing a Local Minimum</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_2.2._Recognizing_a_Local_Minimum</h1>
-<pre><code>Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 01_2.2._Recognizing_a_Local_Minimum
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 01_2.2._Recognizing_a_Local_Minimum
-
+A Hessian test is a local test. A semidefinite Hessian alone is inconclusive.
 """
-Lecture: /02._Fundamentals_of_Unconstrained_Optimization
-Content: 01_2.2._Recognizing_a_Local_Minimum
-"""
+from math import sqrt, isclose
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def eigenvalues_symmetric_2x2(a: float, b: float, c: float) -&gt; tuple[float, float]:
+    """Eigenvalues of [[a,b],[b,c]], returned in ascending order."""
+    radius = sqrt((a - c) ** 2 + 4.0 * b ** 2)
+    return ((a + c - radius) / 2.0, (a + c + radius) / 2.0)
+
+def classify_hessian(a: float, b: float, c: float, tol: float = 1e-10) -&gt; str:
+    lo, hi = eigenvalues_symmetric_2x2(a, b, c)
+    if lo &gt; tol:
+        return "positive definite: strict local minimum is certified"
+    if hi &lt; -tol:
+        return "negative definite: strict local maximum is certified"
+    if lo &lt; -tol and hi &gt; tol:
+        return "indefinite: saddle point is certified"
+    return "semidefinite or nearly singular: second-order test is inconclusive"
+
+if __name__ == "__main__":
+    cases = {
+        "x^2+y^2": (2.0, 0.0, 2.0),
+        "x^4+y^2 at the origin": (0.0, 0.0, 2.0),
+        "x^2-y^2": (2.0, 0.0, -2.0),
+        "-x^2-y^2": (-2.0, 0.0, -2.0),
+    }
+    for name, hessian in cases.items():
+        print(name, "-&gt;", classify_hessian(*hessian))
+    assert classify_hessian(2.0, 0.0, 2.0).startswith("positive definite")
+    assert classify_hessian(0.0, 0.0, 2.0).startswith("semidefinite")
+    assert classify_hessian(2.0, 0.0, -2.0).startswith("indefinite")
+    assert classify_hessian(-2.0, 0.0, -2.0).startswith("negative definite")
+    assert isclose(eigenvalues_symmetric_2x2(2.0, 1.0, 2.0)[0], 1.0)</code></pre>
+<p><strong>练习：</strong>证明 f(x,y)=x⁴+y² 在原点有严格局部极小值，但 Hessian 仅半正定。指出哪一个方向的二阶项消失，以及哪个更高阶项仍保证函数上升。</p></section>
+<section id="limits"><h2>使用这些条件时要留意什么</h2>
+<ul><li>若函数不可微，一阶梯度条件不适用，需要使用次梯度或方向导数。</li><li>若 x* 位于约束边界，不能沿所有方向任意移动，应只检查可行方向。</li><li>若 Hessian 半正定但不正定，结论可能是极小、极大、鞍点或更复杂的高阶平坦结构。</li><li>数值计算中，特征值接近零时分类会对容差和舍入误差敏感。</li></ul>
+<div class="references"><strong>出处与阅读延伸：</strong> <a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 2, subsection “Recognizing a Local Minimum”, pp. 14–16.。本文中的演示数据、图形与 Python 代码为独立构造。</div></section><footer class="article-footer"><p class="references">结论应在文中给出的定义域、光滑性、凸性与数值假设下理解。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_2.1._What_Is_a_Solution%3F.html"><small>上一篇 · 2.1</small><strong>什么才算优化问题的解？</strong></a><a href="02_2.3._Nonsmooth_Problems.html"><small>下一篇 · 2.1</small><strong>非光滑问题：没有梯度，仍然可以优化</strong></a></nav></footer></article></main></div></body></html>

@@ -130,3 +130,9 @@ img,svg{max-width:100%}
   .math-scroll math[display="block"]{width:100%;min-width:0;max-width:100%;font-size:9pt;zoom:.9}
   .article pre{white-space:pre-wrap;overflow:visible;background:#f1f1f1;color:#111;border:1px solid #ddd}
 }
+
+.solution-box{margin:1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+.solution-box summary{padding:.8rem 1rem;color:var(--accent);font-weight:750;cursor:pointer}
+.solution-box[open] summary{border-bottom:1px solid var(--line)}
+.solution-body{padding:.15rem 1rem .8rem}
+.solution-body p{margin:.65rem 0}

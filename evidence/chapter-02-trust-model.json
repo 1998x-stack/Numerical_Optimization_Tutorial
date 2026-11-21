@@ -1,0 +1,29 @@
+[
+  {
+    "id": "TM1",
+    "claim": "第二章 Overview of Algorithms 包含 Models for Trust-Region Methods。",
+    "kind": "bibliography",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 2, subsection, p. 25",
+    "status": "verified",
+    "notes": "旧文件名 2.4.3 保留；可见标题按原目录。"
+  },
+  {
+    "id": "TM2",
+    "claim": "rho 定义为实际目标下降除以模型预测下降，用于判断局部模型在候选步上的可信度。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "信赖域模型的实际/预测下降定义",
+    "status": "derived",
+    "notes": "需保证预测下降为正才计算该比率。"
+  },
+  {
+    "id": "TM3",
+    "claim": "对 f(x)=e^x、x=0、Delta=0.5 的教学模型步 p=-0.5，rho 约为 1.049。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "指数函数值与二阶 Taylor 模型的直接计算；Python 示例",
+    "status": "derived",
+    "notes": "原创一维例子。"
+  }
+]

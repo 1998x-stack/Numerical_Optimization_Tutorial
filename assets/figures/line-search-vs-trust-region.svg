@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="fig-title fig-desc"><title id="fig-title">线搜索与信赖域限制步子的方式不同</title><desc id="fig-desc">在线搜索中先选定方向再选择步长；在信赖域中直接在半径约束内寻找局部模型的步长向量。</desc><rect width="900" height="430" rx="18" fill="#fffdf9"/>
+<g stroke="#e7ece7" stroke-width="1"><path d="M80 330H820M450 55V340"/></g>
+<path d="M120 70 Q450 410 780 70" fill="none" stroke="#127164" stroke-width="5"/>
+<circle cx="450" cy="240" r="9" fill="#233733"/>
+<text x="465" y="235" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#233733" font-size="17" font-weight="400" text-anchor="start">当前点 xₖ</text>
+<path d="M450 240L220 95" stroke="#127164" stroke-width="5" fill="none"/>
+<path d="M220 95L242 102L231 119Z" fill="#127164"/>
+<text x="150" y="78" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#127164" font-size="17" font-weight="700" text-anchor="start">线搜索：固定 pₖ</text>
+<text x="150" y="103" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="15" font-weight="400" text-anchor="start">沿方向调 αₖ</text>
+<path d="M450 240L390 203" stroke="#bd633f" stroke-width="5" fill="none"/>
+<path d="M390 203L412 204L402 222Z" fill="#bd633f"/>
+<circle cx="450" cy="240" r="72" fill="none" stroke="#bd633f" stroke-width="2.5" stroke-dasharray="8 6"/>
+<text x="555" y="170" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#bd633f" font-size="17" font-weight="700" text-anchor="start">信赖域：||p|| ≤ Δ</text>
+<text x="555" y="195" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="15" font-weight="400" text-anchor="start">在可信半径内选步向量</text>
+<text x="450" y="365" font-family="Arial,'Microsoft YaHei',sans-serif" fill="#53676d" font-size="15" font-weight="400" text-anchor="middle">同一目标地形；一个限制方向上的距离，一个限制局部模型的搜索半径</text>
+</svg>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the new course portal and ten standalone articles."""
+"""Playwright QA for the new course portal and eighteen standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -19,6 +19,14 @@ ARTICLES = [
     "01._Introduction/07_1.8._Optimization_Algorithms.html",
     "01._Introduction/08_1.9._Notes_and_References.html",
     "02._Fundamentals_of_Unconstrained_Optimization/00_2.1._What_Is_a_Solution?.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/01_2.2._Recognizing_a_Local_Minimum.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/02_2.3._Nonsmooth_Problems.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/00_2.4.1._Two_Strategies:_Line_Search_and_Trust_Region.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/01_2.4.2._Search_Directions_for_Line_Search_Methods.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/02_2.4.3._Models_for_Trust_Region_Methods.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/2.4._Overview_of_Algorithms/03_2.4.4._Scaling.html",
+    "02._Fundamentals_of_Unconstrained_Optimization/04_2.5._Exercises.html",
+    "03._Line_Search_Methods/00_3.1._Step_Length.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -129,7 +137,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, ten article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, eighteen article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 
