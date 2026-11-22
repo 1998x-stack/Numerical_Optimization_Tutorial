@@ -1,36 +1,48 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="在能量范数下，共轭梯度的误差被 2·((√κ−1)/(√κ+1))^k 控制，κ 是 Q 的谱条件数；若 Q 只有 N 个不同特征值，精确算术下至多 N 步终止。"><title>5.1.4 共轭梯度法的收敛速度：条件数与特征值 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.4</span><a href="#section-1">用什么度量误差</a><a href="#section-2">条件数给出的收敛界</a><a href="#section-3">从 κ 看收敛速度</a><a href="#section-4">特征值聚集与有限终止</a><a href="#section-5">多项式观点</a><a href="#section-6">数值验证与边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.4</div><h1>5.1.4 共轭梯度法的收敛速度：条件数与特征值</h1><p class="dek">在能量范数下，CG 的误差被 2·((√κ−1)/(√κ+1))^k 控制，κ 是 Q 的谱条件数；若 Q 只有 N 个不同特征值，精确算术下至多 N 步终止。收敛速度取决于谱的分布，而不只是问题规模。</p><div class="article-meta"><span>收敛定理</span><span>谱与条件数</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>用什么度量误差</h2><p>讨论 CG 的收敛速度时，合适的误差尺度不是欧氏距离，而是能量范数 ‖e‖_Q=√(eᵀQe)。它把不同方向的曲率纳入考虑：在曲率大的方向，同样的坐标偏差对应更大的能量误差。</p><p>由梯度关系 g_k=Q(x_k−x*)=−Qe_k，能量范数误差恰好等于梯度的 Q⁻¹ 范数：‖e_k‖_Q²=g_kᵀQ⁻¹g_k。因此下降 ‖g_k‖ 与下降能量误差是等价的，这是把停止准则建立在梯度范数上的依据。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="能量范数误差"><math display="block" aria-label="能量范数误差"><mrow><msub><mi>e</mi><mi>k</mi></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msub><mi>x</mi><mo>*</mo></msub><mo>,</mo><mspace width="1em"/><msubsup><mrow><mo>‖</mo><msub><mi>e</mi><mi>k</mi></msub><mo>‖</mo></mrow><mi>Q</mi><mn>2</mn></msubsup><mo>=</mo><msubsup><mi>e</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>e</mi><mi>k</mi></msub><mo>=</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msup><mi>Q</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><msub><mi>g</mi><mi>k</mi></msub><mo>.</mo></mrow></math></div></div></section>
+<section id="section-2"><h2>条件数给出的收敛界</h2><p>定理 5.3（Nocedal &amp; Wright）。设 Q 对称正定，κ=λ_max/λ_min 是其谱条件数。则共轭梯度的能量范数误差满足下面的界，其中 ρ=(√κ−1)/(√κ+1)＜1。</p><p>这个界说明：条件数越接近 1，收缩因子 ρ 越小，收敛越快；当 κ=1（Q 是单位阵的倍数）时 ρ=0，一次迭代即精确终止。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="共轭梯度收敛界"><math display="block" aria-label="共轭梯度收敛界"><mrow><msub><mrow><mo>‖</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msub><mi>x</mi><mo>*</mo></msub><mo>‖</mo></mrow><mi>Q</mi></msub><mo>≤</mo><mn>2</mn><msup><mrow><mo>(</mo><mfrac><mrow><msqrt><mi>κ</mi></msqrt><mo>−</mo><mn>1</mn></mrow><mrow><msqrt><mi>κ</mi></msqrt><mo>+</mo><mn>1</mn></mrow></mfrac><mo>)</mo></mrow><mi>k</mi></msup><msub><mrow><mo>‖</mo><msub><mi>x</mi><mn>0</mn></msub><mo>−</mo><msub><mi>x</mi><mo>*</mo></msub><mo>‖</mo></mrow><mi>Q</mi></msub><mo>.</mo></mrow></math></div></div><figure><img src="../../assets/figures/cg-convergence-rate.svg" alt="三条下降曲线给出不同条件数下上界系数 2·ρ^k 随迭代步数 k 的收缩；条件数越大曲线越平缓。"><figcaption>定理 5.3 的上界系数随迭代步数收缩。纵轴是 2ρ^k（k=0 时统一为 2），横轴是迭代步数；κ 越大，曲线越靠近上方的平缓线。</figcaption></figure></section>
+<section id="section-3"><h2>从 κ 看收敛速度</h2><p>把收缩因子 ρ=(√κ−1)/(√κ+1) 作为 κ 的函数，可以直观看到它的行为：κ=1 时 ρ=0；κ=2 时 ρ≈0.172；κ=10 时 ρ≈0.519；κ=100 时 ρ≈0.818，已经接近 1，收缩变得很慢。当 κ→∞ 时 ρ→1，界退化为无信息。</p><p>这提醒我们：CG 对于良态问题很快，但一个谱很宽的问题仍然可能需要很多步。改进的思路不是改变 CG，而是改变谱——这就是预条件（5.1.5）的动机。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" style="width:100%;height:auto;display:block" role="img" aria-labelledby="cgr-title cgr-desc"><title id="cgr-title">收缩因子随条件数增大而趋于 1</title><desc id="cgr-desc">横轴为对数尺度的条件数 κ（1 到 100），纵轴为 ρ=(√κ−1)/(√κ+1)。曲线从 0 单调上升到约 0.82。</desc><rect width="640" height="300" rx="16" fill="#f7f4ee"/><g stroke="#e6dfd2" stroke-width="1"><line x1="70" y1="40" x2="560" y2="40"/><line x1="70" y1="145" x2="560" y2="145"/><line x1="70" y1="250" x2="560" y2="250"/></g><line x1="70" y1="40" x2="70" y2="250" stroke="#263a33" stroke-width="1.5"/><line x1="70" y1="250" x2="560" y2="250" stroke="#263a33" stroke-width="1.5"/><polyline fill="none" stroke="#126e66" stroke-width="3" points="70.0,250.0 113.1,228.8 143.8,214.0 186.9,193.7 241.2,169.8 291.3,149.7 334.4,134.1 388.8,116.8 448.3,100.7 505.6,88.0 560.0,78.2"/><g font-size="13" font-family="system-ui, sans-serif" fill="#5b6b64"><text x="60" y="254" text-anchor="end">0</text><text x="60" y="149" text-anchor="end">0.5</text><text x="60" y="44" text-anchor="end">1.0</text><text x="70" y="270" text-anchor="middle">1</text><text x="315" y="270" text-anchor="middle">10</text><text x="560" y="270" text-anchor="middle">100</text></g><text x="315" y="292" text-anchor="middle" font-size="14" font-family="system-ui, sans-serif" fill="#263a33">条件数 κ（对数刻度）</text><text x="330" y="60" font-size="14" font-family="system-ui, sans-serif" fill="#126e66">ρ(κ) —— κ→∞ 时趋于 1</text></svg><p class="caption">收缩因子 ρ 随条件数单调上升。横轴是幂律刻度的 κ，纵轴是 ρ；κ=2、10、100 处分别约为 0.172、0.519、0.818。谱越宽，界预测的收缩越慢。</p></div></section>
+<section id="section-4"><h2>特征值聚集与有限终止</h2><p>定理 5.4（Nocedal &amp; Wright）。若 Q 只有 N 个不同的特征值，则精确算术下 CG 至多 N 步终止。原因是误差多项式可以在这些特征值处为零，从而一次清除对应分量。</p><p>这是一个比“迭代 n 步”更强的结论。它解释了为什么特征值聚集的问题收敛很快：几个相距很远的边缘特征值会在早期迭代中被“扣除”，剩下紧密聚集的特征值等价于一个更小的有效条件数。预条件的思路正是把谱往一起压。</p></section>
+<section id="section-5"><h2>多项式观点</h2><p>从 Krylov 性质可以推出：第 k 步误差可以写成 e_k=p_k(Q)e_0，其中 p_k 是次数不超过 k、且 p_k(0)=1 的多项式。于是在谱区间上取最小最大（Chebyshev）即可得上界，定理 5.3 正是取区间 [λ_min,λ_max] 的最小最大多项式得到。</p><p>这个观点把收敛速度归结为“能否找到一个在 [λ_min,λ_max] 上除 0 点外都小的多项式”，直接从谱的分布而不是矩阵规模读出速度。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="误差多项式"><math display="block" aria-label="误差多项式"><mrow><msub><mi>e</mi><mi>k</mi></msub><mo>=</mo><msub><mi>p</mi><mi>k</mi></msub><mo>(</mo><mi>Q</mi><mo>)</mo><msub><mi>e</mi><mn>0</mn></msub><mo>,</mo><mspace width="1em"/><msub><mrow><mo>‖</mo><msub><mi>e</mi><mi>k</mi></msub><mo>‖</mo></mrow><mi>Q</mi></msub><mo>≤</mo><munder><mo>min</mo><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>∈</mo><msub><mi>P</mi><mi>k</mi></msub><mo>,</mo><msub><mi>p</mi><mi>k</mi></msub><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>1</mn></mrow></munder><munder><mo>max</mo><mrow><mi>λ</mi><mo>∈</mo><mo>[</mo><msub><mi>λ</mi><mi>min</mi></msub><mo>,</mo><msub><mi>λ</mi><mi>max</mi></msub><mo>]</mo></mrow></munder><mo>|</mo><msub><mi>p</mi><mi>k</mi></msub><mo>(</mo><mi>λ</mi><mo>)</mo><mo>|</mo><mo>·</mo><msub><mrow><mo>‖</mo><msub><mi>e</mi><mn>0</mn></msub><mo>‖</mo></mrow><mi>Q</mi></msub><mo>.</mo></mrow></math></div></div></section>
+<section id="section-6"><h2>数值验证与边界</h2><p>取 Q=[[3,1],[1,3]]，特征值为 2 与 4，所以 κ=2，ρ≈0.1716。定理 5.3 给出 ‖e₁‖_Q≤0.343‖e₀‖_Q、‖e₂‖_Q≤0.0589‖e₀‖_Q。但这个二维例子实际上在第 2 步精确终止，误差为零：因为 Q 只有 2 个不同特征值，定理 5.4 给出的是 N=2 的有限终止，比 κ-界更紧。这说明 κ-界是保守的。</p><p>边界：这两个定理都在精确算术下成立。浮点环境下，谱聚集带来的有限终止会被舍入误差破坏，κ-界也可能不再严格成立；实际算法依靠重启与预条件。本页程序用双精度在一系列条件数上对比实际能量范数误差与定理 5.3 的上界，用来观察界的保守程度，而不是声称某个收敛速度。</p></section>
+<section id="interactive"><h2>交互：条件数与实际误差</h2><p>选择一个条件数 κ，程序构造一个对角正定矩阵（特征值在 [1,κ] 上均匀分布，规模 n=20），运行 5 步 CG，输出实际能量范数误差与定理 5.3 的上界。</p><div class="interactive-panel" data-demo="cg-rate"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgr-kappa">谱条件数 κ <output data-value-for="kappa">10</output></label><input id="cgr-kappa" type="range" data-key="kappa" min="2" max="100" step="1" value="10"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：实际误差与上界的对比</h2><p>程序只依赖标准库。它在一个特征值均匀分布于 [1,κ]、规模 n=20 的对角正定问题上跑 5 步 CG，断言实际能量范数误差不超过定理 5.3 的上界，且确实下降。</p><pre><code>&quot;&quot;&quot;Compare CG energy-norm error with the kappa bound (Theorem 5.3).&quot;&quot;&quot;
+from math import sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.4. Rate of Convergence</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_5.1.4._Rate_of_Convergence</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 03_5.1.4._Rate_of_Convergence
-</code></pre>
+def diag_problem(kappa, n=20):
+    lam = [1.0 + (kappa - 1.0)*i/(n - 1) for i in range(n)]
+    return lam, list(lam)               # x* = ones, so b = Q x* = eigenvalues
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_5.1.4._Rate_of_Convergence
+def energy_error(lam, x):
+    return sqrt(sum(lam[i]*(x[i] - 1.0)**2 for i in range(len(lam))))
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 03_5.1.4._Rate_of_Convergence
-"""
+def run(lam, b, steps):
+    n = len(lam)
+    x = [0.0]*n
+    g = [-b[i] for i in range(n)]
+    p = [-g[i] for i in range(n)]
+    gn = sum(v*v for v in g)
+    hist = [energy_error(lam, x)]
+    for _ in range(steps):
+        if sqrt(gn) &lt;= 1e-14:
+            break
+        Qp = [lam[i]*p[i] for i in range(n)]
+        alpha = gn / sum(p[i]*Qp[i] for i in range(n))
+        x = [x[i] + alpha*p[i] for i in range(n)]
+        g = [g[i] + alpha*Qp[i] for i in range(n)]
+        gn_new = sum(v*v for v in g)
+        beta = gn_new / gn
+        p = [-g[i] + beta*p[i] for i in range(n)]
+        gn = gn_new
+        hist.append(energy_error(lam, x))
+    return hist
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    lam, b = diag_problem(10)
+    hist = run(lam, b, 5)
+    rho = (sqrt(10) - 1)/(sqrt(10) + 1)
+    bound = 2*rho**5*hist[0]
+    assert hist[-1] &lt;= bound
+    assert hist[-1] &lt; hist[0]
+    print(&quot;rho =&quot;, round(rho, 4), &quot;| bound =&quot;, round(bound, 6), &quot;| actual =&quot;, round(hist[-1], 6))</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1, Theorem 5.3 与 Theorem 5.4, pp. 112–115。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">κ-界与特征值有限终止均以精确算术为前提；浮点环境下谱聚集带来的快速终止会被舍入误差侵蚀。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.html"><small>上一篇</small><strong>CG 的实用形式</strong></a><a href="04_5.1.5._Preconditioning.html"><small>下一篇</small><strong>预条件</strong></a></nav></footer></article></main></div></body></html>
+

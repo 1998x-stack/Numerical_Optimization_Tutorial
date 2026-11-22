@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.1.4-1",
+    "claim": "共轭梯度满足 ‖x_k−x*‖_Q ≤ 2((√κ−1)/(√κ+1))^k ‖x_0−x*‖_Q（Theorem 5.3）",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, Theorem 5.3, pp. 112–114",
+    "status": "verified",
+    "notes": "核对原书定理编号、条件数定义与界的形式。"
+  },
+  {
+    "id": "5.1.4-2",
+    "claim": "若 Q 只有 N 个不同特征值，精确算术下 CG 至多 N 步终止（Theorem 5.4）",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, Theorem 5.4, pp. 114–115",
+    "status": "verified",
+    "notes": "核对原书定理编号与 N 步终止结论。"
+  },
+  {
+    "id": "5.1.4-3",
+    "claim": "能量范数误差满足 ‖e_k‖_Q^2=g_k^T Q^{-1} g_k，与梯度范数等价",
+    "kind": "derived",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1",
+    "status": "derived",
+    "notes": "由 g=Q(x−x*) 与能量范数定义直接得到。"
+  },
+  {
+    "id": "5.1.4-4",
+    "claim": "κ=2 时 ρ≈0.1716，κ 界在 k=1,2 给出 0.343 与 0.0589 的系数，而二维问题第 2 步精确终止",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 数值对比",
+    "status": "derived",
+    "notes": "独立计算的代数与数值结果；说明 κ 界是保守的。"
+  }
+]

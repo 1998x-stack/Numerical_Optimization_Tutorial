@@ -621,6 +621,37 @@
         rows.join('<br>') + '<br>结束时 ‖g‖=' + Math.sqrt(gn).toExponential(2) +
         '，x≈(' + fmt(x[0],4) + ', ' + fmt(x[1],4) + ')';
     });
+    if (kind === "cg-rate") bind(root, el => {
+      const kappa = read(el, "kappa"), n = 20;
+      const lam = Array.from({length:n}, (_, i) => 1 + (kappa-1)*i/(n-1));
+      const dot = (u, v) => u.reduce((s, x, i) => s + x*v[i], 0);
+      const mulQ = v => v.map((x, i) => lam[i]*x);
+      let x = new Array(n).fill(0);
+      let g = lam.map(l => -l);
+      let p = g.map(v => -v);
+      let gn = dot(g, g);
+      const energy = () => Math.sqrt(lam.reduce((s, l, i) => s + l*(x[i]-1)**2, 0));
+      const target = 5;
+      let actual = energy();
+      for (let k = 0; k < target; k++) {
+        if (Math.sqrt(gn) <= 1e-14) break;
+        const Qp = mulQ(p);
+        const alpha = gn / dot(p, Qp);
+        x = x.map((v, i) => v + alpha*p[i]);
+        g = g.map((v, i) => v + alpha*Qp[i]);
+        const gnNew = dot(g, g), beta = gnNew/gn;
+        p = p.map((v, i) => -g[i] + beta*v);
+        gn = gnNew;
+        actual = energy();
+      }
+      const rho = (Math.sqrt(kappa)-1)/(Math.sqrt(kappa)+1);
+      const e0 = Math.sqrt(lam.reduce((s, l) => s + l, 0));
+      const bound = 2*Math.pow(rho, target)*e0;
+      output.innerHTML = '<strong>κ=' + fmt(kappa,1) + '，ρ=' + fmt(rho,4) + '</strong><br>' +
+        '5 步后实际能量范数误差 ' + actual.toExponential(2) +
+        '<br>定理 5.3 上界 ' + bound.toExponential(2) + '（初始误差 ' + e0.toFixed(3) + '）' +
+        (actual <= bound + 1e-12 ? ' · 满足上界' : ' · 超出上界');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
