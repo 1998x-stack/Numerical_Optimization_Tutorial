@@ -1,36 +1,31 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="当梯度正交于 Hessian 的最负特征子空间，一维 secular 方程可能永远找不到要求的半径。恰当的解不是放弃负曲率方向，而是在临界乘子处沿零空间补足边界长度。"><title>4.3.1 Hard Case：最小特征子空间没有梯度分量时怎么办 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">课程目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.3.1</span><a href="#s1">为什么通用的乘子求根步骤失灵</a><a href="#s2">二维不定模型的精确反例</a><a href="#s3">临界乘子与零空间补偿</a><a href="#s4">为什么补充的分量确实改善模型</a><a href="#s5">Hard Case 与数值稳定性的边界</a><a href="#interactive">互动推演</a><a href="#code">Python 数值复核</a><a href="../index.html#chapters">返回完整目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.3.1</div><h1>4.3.1 Hard Case：最小特征子空间没有梯度分量时怎么办</h1><p class="dek">当梯度正交于 Hessian 的最负特征子空间，一维 secular 方程可能永远找不到要求的半径。恰当的解不是放弃负曲率方向，而是在临界乘子处沿零空间补足边界长度。</p><div class="article-meta"><span>问题与模型</span><span>独立推导</span><span>边界检查</span></div></header><section id="s1"><h2>为什么通用的乘子求根步骤失灵</h2><p>考虑 q(p)=gᵀp+½pᵀBp，限制 ‖p‖≤Δ。假设 B 的最小特征值 μ_min＜0，且 g 完全正交于对应最小特征子空间。</p><p>对于 λ＞−μ_min，B+λI 正定，p(λ)=−(B+λI)⁻¹g。因为 g 在最小特征子空间上没有分量，临界 λ 附近的范数不一定发散。若它的临界极限小于 Δ，则 ‖p(λ)‖=Δ 在此开区间没有根。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="Hard Case 的关键正交条件"><math display="block" aria-label="Hard Case 的关键正交条件"><mrow><msubsup><mi>Q</mi><mi>min</mi><mo>⊤</mo></msubsup><mi>g</mi><mo>=</mo><mn>0</mn><mo>,</mo><mspace width='.5em'/><mi>λ</mi><mo>↓</mo><mo>−</mo><msub><mi>μ</mi><mi>min</mi></msub></mrow></math></div></div></section>
+<section id="s2"><h2>二维不定模型的精确反例</h2><p>构造 B=diag(−2,1)、g=(0,1)，Δ=2。最负特征方向是 x 轴，梯度只在 y 轴，因此 g 与负特征子空间正交。</p><p>对任意 λ＞2，p(λ)=(0,−1/(1+λ))，其范数小于 1/3，远小于 Δ=2。即便 λ 无限接近 2，范数也只趋近 1/3；所以直接二分 ‖p(λ)‖−2 必定失败。</p><figure><img src="../assets/figures/trust-hard-case.svg" alt="模型具有负曲率 x 方向，但梯度只沿 y 方向。临界乘子下先求出 y 分量，再用零空间 x 分量走到圆周，从而利用负曲率取得更低模型值。"><figcaption>模型具有负曲率 x 方向，但梯度只沿 y 方向。临界乘子下先求出 y 分量，再用零空间 x 分量走到圆周，从而利用负曲率取得更低模型值。</figcaption></figure></section>
+<section id="s3"><h2>临界乘子与零空间补偿</h2><p>取 λ*=−μ_min=2，此时 B+2I=diag(0,3) 是半正定奇异矩阵。方程 (B+2I)p=−g 只要求 p_y=−1/3，p_x 可以为任意实数。</p><p>要满足边界范数 ‖p‖=2，必须取 p_x=±√(4−1/9)=±√35/3。这样得到两个不同但同为全局最优的解。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="Hard Case 的零空间补充"><math display="block" aria-label="Hard Case 的零空间补充"><mrow><mi>p</mi><mo>=</mo><mo>(</mo><mo>±</mo><mfrac><msqrt><mn>35</mn></msqrt><mn>3</mn></mfrac><mo>,</mo><mo>−</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>)</mo></mrow></math></div></div></section>
+<section id="s4"><h2>为什么补充的分量确实改善模型</h2><p>把 p_y=−1/3 与 p_x²=35/9 代入 q，可得 q(p)=−25/6≈−4.16667；只使用最小范数解 p=(0,−1/3) 时 q=−5/18≈−0.27778。</p><p>负曲率项 −p_x² 使边界补充分量显著降低模型值。单靠最小范数伪逆解会错失这个机会。补充的两个符号都可行且目标相同，因此全局最小解不必唯一。</p></section>
+<section id="s5"><h2>Hard Case 与数值稳定性的边界</h2><p>对于多重最小特征值，必须使用相应整个特征子空间而不是只考虑一个指定的特征向量。若 g 投影只是接近零而非严格零，浮点数会产生 near-hard case，需要阈值与稳健的特征/分解处理。</p><p>本页用已知二维对角矩阵给出封闭形式解，并未实现任意大小的不定矩阵分解。程序验证全局性所用的是标准乘子证书。</p></section><section id="interactive"><h2>交互：调整参数，核查结论</h2><p>调节 Δ＞1/3，观察为什么最优步的 y 分量固定为 −1/3，而 x 方向的绝对值随半径增加。</p><div class="interactive-panel" data-demo="tr-hardcase"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="tr-hardcase-input">信赖域半径 Δ <output data-value-for="delta">2</output></label><input id="tr-hardcase-input" type="range" data-key="delta" min="0.5" max="3" step="0.25" value="2"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：复现结果与断言</h2><p>以下代码只依赖 Python 标准库；它复核本页算例，并对假设不满足的输入进行明确处理。</p><pre><code>&quot;&quot;&quot;An exact hard-case trust-region minimizer using the null space.&quot;&quot;&quot;
+from math import sqrt,hypot
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.3.1. The Hard Case</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_4.3.1._The_Hard_Case</h1>
-<pre><code>Lecture: /04._Trust-Region_Methods
-Content: 03_4.3.1._The_Hard_Case
-</code></pre>
+def solution(radius):
+    if radius &lt;= 1/3:
+        raise ValueError(&quot;the pictured hard case requires radius &gt; 1/3&quot;)
+    x=sqrt(radius**2-1/9)
+    return (x,-1/3),2.0
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_4.3.1._The_Hard_Case
+def model(p):
+    x,y=p
+    return y-x*x+0.5*y*y
 
-"""
-Lecture: /04._Trust-Region_Methods
-Content: 03_4.3.1._The_Hard_Case
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__==&quot;__main__&quot;:
+    p,lam=solution(2.0)
+    other=(-p[0],p[1])
+    print(p,other,model(p))
+    assert abs(hypot(*p)-2.0)&lt;1e-12
+    assert lam==2.0
+    assert abs(model(p)+25/6)&lt;1e-12
+    assert abs(model(other)-model(p))&lt;1e-12
+    # Stationarity and positive semidefiniteness:
+    # B+2I = diag(0,3), (B+2I)p = (0,-1) = -g.
+    assert abs(3*p[1]+1)&lt;1e-12
+    for candidate in ((0,0),(0,-2),(1,-1),(-1,-1)):
+        if hypot(*candidate)&lt;=2:
+            assert model(candidate)&gt;=model(p)-1e-12</code></pre><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 4.3, The Hard Case, equations (4.41) and (4.45), pp. 87–88。本文数值、图形和解释独立构造。</div></section><footer class="article-footer"><p class="references">Hard Case 的核心是梯度在最小特征子空间上的投影为零且临界范数不足；一般问题必须考虑多个特征值及舍入误差。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_4.3._Iterative_Solution_of_the_Subproblem.html"><small>上一篇</small><strong>信赖域子问题迭代解</strong></a><a href="04_4.3.2._Proof_of_Theorem_4.1.html"><small>下一篇</small><strong>信赖域最优解定理的证明</strong></a></nav></footer></article></main></div></body></html>

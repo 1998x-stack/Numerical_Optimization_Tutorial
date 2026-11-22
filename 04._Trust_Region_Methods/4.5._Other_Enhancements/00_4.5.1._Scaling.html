@@ -1,36 +1,36 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="若不同变量的典型变化尺度相差百倍，以一个圆形半径限制它们可能很不合理。正对角尺度矩阵 D 把敏感方向缩短、不敏感方向放宽，并将原坐标的椭球变成新坐标下的标准欧氏球。"><title>4.5.1 尺度变换：把原坐标中的椭球变成可计算的球 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">完整目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.5.1</span><a href="#s1">同样的绝对步长对不同变量不一定公平</a><a href="#s2">换元时必须同时变换梯度和 Hessian</a><a href="#s3">二维各向异性模型的完全算例</a><a href="#s4">缩放矩阵如何影响数值求解</a><a href="#s5">理论和实践的边界</a><a href="#interactive">实时实验</a><a href="#code">Python 断言</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.5.1</div><h1>4.5.1 尺度变换：把原坐标中的椭球变成可计算的球</h1><p class="dek">若不同变量的典型变化尺度相差百倍，以一个圆形半径限制它们可能很不合理。正对角尺度矩阵 D 把敏感方向缩短、不敏感方向放宽，并将原坐标的椭球变成新坐标下的标准欧氏球。</p></header><section id="s1"><h2>同样的绝对步长对不同变量不一定公平</h2><p>假设一个模型对 x₁ 的小变化十分敏感，对 x₂ 的较大变化才有同等反应。采用 Euclidean 球 ‖p‖₂≤Δ，会允许两个方向相同的绝对位移，但这可能使一条方向上的局部二次近似明显更差。</p><p>选正对角矩阵 D=diag(d₁,…,dₙ)，dᵢ＞0，使用 ‖Dp‖₂≤Δ。较大的 dᵢ 意味着在第 i 个原始坐标上允许更短的移动。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="缩放信赖域"><math display="block" aria-label="缩放信赖域"><mrow><mo>‖</mo><mi>D</mi><mi>p</mi><mo>‖</mo><mo>≤</mo><mi>Δ</mi><mo>,</mo><mspace width=".6em"/><mi>q</mi><mo>=</mo><mi>D</mi><mi>p</mi></mrow></math></div></div></section><section id="s2"><h2>换元时必须同时变换梯度和 Hessian</h2><p>定义缩放坐标 q=Dp，即 p=D⁻¹q。此时 ‖Dp‖≤Δ 变成标准球 ‖q‖≤Δ；但原二次模型 m(p)=fₖ+gᵀp+½pᵀBp 也必须变换为 fₖ+(D⁻¹g)ᵀq+½qᵀ(D⁻¹BD⁻¹)q。</p><p>由于这里 D 为正对角矩阵，D⁻ᵀ=D⁻¹。若只把信赖域画成圆而保留旧梯度和旧 Hessian，将求解不同的优化问题。</p><figure><img src="../../assets/figures/trust-scaling-ellipse.svg" alt="当 D=diag(10,1)，原坐标中的信赖域是水平方向短、竖直方向长的椭圆。换元 q=Dp 后，同一组可行点在新坐标中构成圆。两个图示并未按精确比例标注坐标轴单位。"><figcaption>当 D=diag(10,1)，原坐标中的信赖域是水平方向短、竖直方向长的椭圆。换元 q=Dp 后，同一组可行点在新坐标中构成圆。两个图示并未按精确比例标注坐标轴单位。</figcaption></figure></section><section id="s3"><h2>二维各向异性模型的完全算例</h2><p>考虑 g=(10,1)、B=diag(100,1)，以及 D=diag(10,1)。原模型第一个方向的曲率是第二个的 100 倍，而新坐标的梯度 ĝ=D⁻¹g=(1,1)、Hessian B̃=D⁻¹BD⁻¹=I。</p><p>当 Δ=1，圆内最优点是 q*=(-1/√2,-1/√2)，原坐标步长 p*=(-1/(10√2),-1/√2)。它满足 ‖Dp*‖=1，预测下降为 √2−½≈0.914214。</p></section><section id="s4"><h2>缩放矩阵如何影响数值求解</h2><p>在正定模型中，选择与曲率尺度匹配的 D 可以使变换后的 Hessian 条件数更接近 1，减少不同方向的悬殊惩罚。交互例子让第一坐标的 d₁ 在 1 至 10 之间变化，并直接解对应变换后的正定球约束问题。</p><p>缩放本身不会把不定 Hessian 变成正定矩阵，也不能保证任何固定规则都改善实际优化效率。若 D 依赖 Hessian 对角线，必须考虑非正数、零元素和不同变量单位。</p></section><section id="s5"><h2>理论和实践的边界</h2><p>正对角缩放改变的不是原目标函数本身，而是算法在当前点相信二次模型的区域形状。缩放后的候选仍应通过真实/预测下降比决定是否接受。</p><p>本页只处理两个变量、对角正定 B 的独立例子，不提供适合一般高维非凸问题的自适应尺度选取方法。</p></section><section id="interactive"><h2>交互：改变尺度矩阵</h2><p>固定 Δ=1、g=(10,1)、B=diag(100,1)，调节 D 的第一对角元素，直接计算缩放后的球约束最优步。</p><div class="interactive-panel" data-demo="tr-scaling"><div class="demo-controls"><div class="demo-control"><label for="tr-scaling-input">第一坐标尺度 d₁ <output data-value-for="scale">10</output></label><input id="tr-scaling-input" data-key="scale" type="range" min="1" max="10" step="1" value="10"></div></div><div class="demo-output" data-output aria-live="polite">计算中…</div></div></section><section id="code"><h2>Python：变换模型与解的交叉验证</h2><p>仅使用 Python 标准库，逐项检查坐标换元、半径及预测下降。</p><pre><code>&quot;&quot;&quot;Scale a 2D SPD trust-region model using q=D*p.&quot;&quot;&quot;
+from math import hypot,sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.5.1. Scaling</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_4.5.1._Scaling</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.5._Other_Enhancements
-Content: 00_4.5.1._Scaling
-</code></pre>
+def solve(d,delta=1.0):
+    if d&lt;=0 or delta&lt;=0: raise ValueError(&quot;positive scale and radius&quot;)
+    grad=(10.0/d,1.0)
+    curv=(100.0/d**2,1.0)
+    def scaled(lam):
+        return (-grad[0]/(curv[0]+lam),-grad[1]/(curv[1]+lam))
+    if hypot(*scaled(0))&lt;=delta:
+        lam=0.0
+    else:
+        lo,hi=0.,1.
+        while hypot(*scaled(hi))&gt;delta: hi*=2
+        for _ in range(80):
+            mid=(lo+hi)/2
+            if hypot(*scaled(mid))&gt;delta: lo=mid
+            else: hi=mid
+        lam=(lo+hi)/2
+    q=scaled(lam)
+    p=(q[0]/d,q[1])
+    drop=-(10*p[0]+p[1]+.5*(100*p[0]**2+p[1]**2))
+    return q,p,drop,lam
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_4.5.1._Scaling
-
-"""
-Lecture: 04._Trust-Region_Methods/4.5._Other_Enhancements
-Content: 00_4.5.1._Scaling
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__==&quot;__main__&quot;:
+    q,p,drop,lam=solve(10)
+    print(q,p,drop,lam)
+    assert abs(q[0]+1/sqrt(2))&lt;1e-12
+    assert abs(q[1]+1/sqrt(2))&lt;1e-12
+    assert abs(hypot(10*p[0],p[1])-1)&lt;1e-12
+    assert abs(drop-(sqrt(2)-.5))&lt;1e-12
+    assert abs(lam-(sqrt(2)-1))&lt;1e-12
+    for d in (1,2,5,10):
+        _,p,drop,_=solve(d)
+        assert hypot(d*p[0],p[1])&lt;=1+1e-10
+        assert drop&gt;0</code></pre><div class="references"><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Section 4.5, Scaling, equations (4.56)–(4.61), pp. 95–97。</div></section><footer class="article-footer"><p>若 B 不定，尺度变换不保证曲率正定；本页仅检验正定对角算例。</p><nav class="prev-next"><a href="../06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html"><small>上一篇</small><strong>信赖域 Newton 局部收敛</strong></a><a href="01_4.5.2._Trust_Regions_in_Other_Norms.html"><small>下一篇</small><strong>其他范数</strong></a></nav></footer></article></main></div></body></html>

@@ -1,36 +1,26 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.5.2. Trust Regions in Other Norms</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_4.5.2._Trust_Regions_in_Other_Norms</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.5._Other_Enhancements
-Content: 01_4.5.2._Trust_Regions_in_Other_Norms
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 01_4.5.2._Trust_Regions_in_Other_Norms
-
-"""
-Lecture: 04._Trust-Region_Methods/4.5._Other_Enhancements
-Content: 01_4.5.2._Trust_Regions_in_Other_Norms
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="相同半径下，L1 范数限定菱形、L2 限定圆形、L∞ 限定方框。它们允许的候选步不同；若目标带非负变量界，L∞ 的盒状区域还可与变量边界直接形成逐坐标上下界。"><title>4.5.2 其他范数的信赖域：圆、菱形、方框为什么影响可行步 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">完整目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.5.2</span><a href="#s1">三种范数的定义与集合包含关系</a><a href="#s2">为什么盒状信赖域容易和简单变量界结合</a><a href="#s3">一个同时满足非负性但不满足欧氏半径的角落步</a><a href="#s4">带对角二次模型的盒约束最优值</a><a href="#s5">使用不同范数的选择并无统一赢家</a><a href="#interactive">实时实验</a><a href="#code">Python 断言</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.5.2</div><h1>4.5.2 其他范数的信赖域：圆、菱形、方框为什么影响可行步</h1><p class="dek">相同半径下，L1 范数限定菱形、L2 限定圆形、L∞ 限定方框。它们允许的候选步不同；若目标带非负变量界，L∞ 的盒状区域还可与变量边界直接形成逐坐标上下界。</p></header><section id="s1"><h2>三种范数的定义与集合包含关系</h2><p>对二维 p=(p₁,p₂)，‖p‖₁=|p₁|+|p₂|，‖p‖₂=√(p₁²+p₂²)，‖p‖∞=max(|p₁|,|p₂|)。由于 ‖p‖∞≤‖p‖₂≤‖p‖₁，固定同一个 Δ 时，L1 球包含于 L2 球，后者又包含于 L∞ 球。</p><p>因此换范数不仅改变图形，还改变优化时可测试的步长集合。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="三种范数"><math display="block" aria-label="三种范数"><mrow><mo>‖</mo><mi>p</mi><mo>‖</mo><msub><mspace width=".1em"/><mn>1</mn></msub><mo>=</mo><mo>|</mo><msub><mi>p</mi><mn>1</mn></msub><mo>|</mo><mo>+</mo><mo>|</mo><msub><mi>p</mi><mn>2</mn></msub><mo>|</mo><mo>,</mo><mspace width=".5em"/><mo>‖</mo><mi>p</mi><mo>‖</mo><msub><mspace width=".1em"/><mi>∞</mi></msub><mo>=</mo><mi>max</mi><mo>(</mo><mo>|</mo><msub><mi>p</mi><mn>1</mn></msub><mo>|</mo><mo>,</mo><mo>|</mo><msub><mi>p</mi><mn>2</mn></msub><mo>|</mo><mo>)</mo></mrow></math></div></div></section><section id="s2"><h2>为什么盒状信赖域容易和简单变量界结合</h2><p>若要求 x≥0，当前点 xₖ 上的合法更新满足 xₖ+p≥0，即 pᵢ≥−xₖᵢ。再施加 ‖p‖∞≤Δ 就得到每坐标 −Δ≤pᵢ≤Δ。</p><p>合并两个条件可写成 max(−xₖᵢ,−Δ)≤pᵢ≤Δ，是直接的盒约束。L2 圆与非负正交象限相交则是圆弧边界，不再只是各坐标独立区间。</p><figure><img src="../../assets/figures/trust-norm-geometry.svg" alt="固定半径下，L1 的菱形球嵌于 L2 圆，L2 圆又嵌于 L∞ 方框。对有坐标界的变量，方框的每一条边界都有直接的逐坐标约束解释。"><figcaption>固定半径下，L1 的菱形球嵌于 L2 圆，L2 圆又嵌于 L∞ 方框。对有坐标界的变量，方框的每一条边界都有直接的逐坐标约束解释。</figcaption></figure></section><section id="s3"><h2>一个同时满足非负性但不满足欧氏半径的角落步</h2><p>令 xₖ=(0.2,0.3)、Δ=0.3，并选 p=(−0.2,−0.3)。新点 xₖ+p=(0,0)，满足非负约束。p 的 L∞ 范数为 0.3，在盒内；L2 范数是 √0.13≈0.36056，超过半径；L1 范数是 0.5，也超过半径。</p><p>这说明同一半径下，一个角落候选可以被 L∞ 接受，却被 L1 和 L2 拒绝。</p></section><section id="s4"><h2>带对角二次模型的盒约束最优值</h2><p>考虑 q(p)=gᵀp+½pᵀBp，g=(1,2)、B=diag(2,4)。无约束最优步为 (−0.5,−0.5)，但 xₖ=(0.2,0.3) 与 Δ=0.3 给出盒约束 p₁∈[−0.2,0.3]、p₂∈[−0.3,0.3]。</p><p>由于该 B 对角正定，分别截断无约束分量即可得到最优步 p*=(-0.2,-0.3)。其模型值为 −0.58，因此预测下降为 0.58。这是特殊的分离二次目标，不代表所有盒约束 QP 都能逐坐标截断。</p></section><section id="s5"><h2>使用不同范数的选择并无统一赢家</h2><p>对于没有界约束的小中规模问题，L2 球便于推导正交谱与 Hessian 乘子条件；遇到简单变量界或高维结构性约束时，L∞ 方框可能更加自然。</p><p>若 B 含非零交叉项或负曲率，独立截断不再保证求解正确。任何近似子问题仍需检查充分模型下降与外层实际/预测比。</p></section><section id="interactive"><h2>交互：改变半径并计算盒内最优步</h2><p>令当前 x=(0.2,0.3)，二次模型 g=(1,2)、B=diag(2,4)；调整 Δ，观察 L∞ 盒内最优步与三种范数。</p><div class="interactive-panel" data-demo="tr-norms"><div class="demo-controls"><div class="demo-control"><label for="tr-norms-input">信赖域半径 Δ <output data-value-for="delta">0.3</output></label><input id="tr-norms-input" data-key="delta" type="range" min="0.1" max="1" step="0.1" value="0.3"></div></div><div class="demo-output" data-output aria-live="polite">计算中…</div></div></section><section id="code"><h2>Python：几何判据与盒约束模型下降</h2><p>本程序仅求解对角正定二次模型的逐坐标盒最小值，并交叉核对范数关系。</p><pre><code>&quot;&quot;&quot;Compare L1/L2/Linf radii with a nonnegative-variable box QP.&quot;&quot;&quot;
+from math import hypot,sqrt
+X=(0.2,0.3)
+P=(-0.2,-0.3)
+def norms(p):
+    return abs(p[0])+abs(p[1]),hypot(*p),max(abs(p[0]),abs(p[1]))
+def boxed(delta):
+    if delta&lt;=0: raise ValueError(&quot;radius must be positive&quot;)
+    low=(-min(X[0],delta),-min(X[1],delta))
+    unconstrained=(-0.5,-0.5)
+    p=tuple(max(low[i],min(delta,unconstrained[i])) for i in range(2))
+    model=p[0]+2*p[1]+p[0]**2+2*p[1]**2
+    return p,-model
+if __name__==&quot;__main__&quot;:
+    n1,n2,ninf=norms(P)
+    print(&quot;norms&quot;,n1,n2,ninf)
+    assert abs(n1-0.5)&lt;1e-12
+    assert abs(n2-sqrt(.13))&lt;1e-12
+    assert ninf==.3 and n2&gt;.3 and n1&gt;.3
+    p,drop=boxed(.3)
+    assert p==P and abs(drop-.58)&lt;1e-12
+    for delta in (.1,.3,.6):
+        p,drop=boxed(delta)
+        assert max(abs(z) for z in p)&lt;=delta+1e-12
+        assert all(X[i]+p[i]&gt;=-1e-12 for i in (0,1))
+        assert drop&gt;0</code></pre><div class="references"><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Section 4.5, Trust Regions in Other Norms, equation (4.62), pp. 97–98。</div></section><footer class="article-footer"><p>带交叉项或不定 Hessian 的盒约束 QP 不得直接使用这里的坐标截断算法。</p><nav class="prev-next"><a href="00_4.5.1._Scaling.html"><small>上一篇</small><strong>尺度变换</strong></a><a href="../08_4.6._Notes_and_References.html"><small>下一篇</small><strong>注释与参考（待重构）</strong></a></nav></footer></article></main></div></body></html>

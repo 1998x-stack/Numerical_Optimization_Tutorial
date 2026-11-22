@@ -1,36 +1,37 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="二次模型最小化受球形信赖域约束时，解通常满足一个带对角平移的线性方程。通过调节单一乘子 λ，让解的范数匹配给定半径，可以把高维约束问题压缩成一维求根。"><title>4.3 信赖域子问题求解：为什么把半径约束变成 λ 的根问题 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">课程目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.3</span><a href="#s1">从受约束二次模型到乘子条件</a><a href="#s2">为何 λ 足够大时出现单调的范数曲线</a><a href="#s3">二维例子：乘子的数值位置</a><a href="#s4">稳定求根与原始公式的区别</a><a href="#s5">何时一维求根失效</a><a href="#interactive">互动推演</a><a href="#code">Python 数值复核</a><a href="../index.html#chapters">返回完整目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.3</div><h1>4.3 信赖域子问题求解：为什么把半径约束变成 λ 的根问题</h1><p class="dek">二次模型最小化受球形信赖域约束时，解通常满足一个带对角平移的线性方程。通过调节单一乘子 λ，让解的范数匹配给定半径，可以把高维约束问题压缩成一维求根。</p><div class="article-meta"><span>问题与模型</span><span>独立推导</span><span>边界检查</span></div></header><section id="s1"><h2>从受约束二次模型到乘子条件</h2><p>考虑 min q(p)=gᵀp+½pᵀBp，满足 ‖p‖₂≤Δ，B 是实对称矩阵。全局最优解 p* 存在 λ≥0，使 (B+λI)p*=−g、B+λI 半正定、‖p*‖≤Δ、λ(Δ−‖p*‖)=0。</p><p>若 B 正定且无约束 Newton 步 pᴺ=−B⁻¹g 已在球内，λ=0，直接取 pᴺ。否则大多需要 λ＞0 和 ‖p(λ)‖=Δ。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="信赖域最优性条件"><math display="block" aria-label="信赖域最优性条件"><mrow><mo>(</mo><mi>B</mi><mo>+</mo><mi>λ</mi><mi>I</mi><mo>)</mo><mi>p</mi><mo>=</mo><mo>−</mo><mi>g</mi><mo>,</mo><mspace width='.7em'/><mi>λ</mi><mo>(</mo><mi>Δ</mi><mo>−</mo><mo>‖</mo><mi>p</mi><mo>‖</mo><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math></div></div></section>
+<section id="s2"><h2>为何 λ 足够大时出现单调的范数曲线</h2><p>对称矩阵可以谱分解 B=Q diag(μᵢ)Qᵀ。在 B+λI 正定的区域 λ＞−μ_min，p(λ)=−(B+λI)⁻¹g，由此 ‖p(λ)‖²=Σ(qᵢᵀg)²/(μᵢ+λ)²。</p><p>每个分母随 λ 增大，因而范数连续且非增，并在 λ→∞ 时趋向 0。若梯度在最负特征子空间上有非零投影，λ 接近 −μ_min 时范数趋于无穷，便能通过一维根搜索匹配球半径。</p><figure><img src="../assets/figures/trust-secular-equation.svg" alt="当 λ 增大，‖(B+λI)⁻¹g‖ 下降；如果 Newton 点落在球外，连续曲线与指定半径相交，交点确定球面最优步。此图采用正定示例。"><figcaption>当 λ 增大，‖(B+λI)⁻¹g‖ 下降；如果 Newton 点落在球外，连续曲线与指定半径相交，交点确定球面最优步。此图采用正定示例。</figcaption></figure></section>
+<section id="s3"><h2>二维例子：乘子的数值位置</h2><p>取 B=diag(4,1)、g=(2,2)、Δ=1.3。无约束步为 pᴺ=(−0.5,−2)，范数约为 2.06155，超出信赖域。</p><p>求解 (2/(4+λ))²+(2/(1+λ))²=1.3²，可得 λ≈0.63109456；对应 p≈(−0.43186335,−1.22617048)，恰好在球面上，模型下降约 2.19130873。</p></section>
+<section id="s4"><h2>稳定求根与原始公式的区别</h2><p>可以先找到一个 λ_hi，使 ‖p(λ_hi)‖≤Δ，再在 [0,λ_hi] 上二分；当 B 不定时，必须把左端提升至 −μ_min 之上，不能试图 Cholesky 分解不正定的 B+λI。</p><p>经典方法还可利用 Cholesky 分解及对 1/‖p(λ)‖ 的 Newton 迭代快速更新 λ，但需要保护起点、步长范围、因子分解失败及浮点极端情况。</p></section>
+<section id="s5"><h2>何时一维求根失效</h2><p>若 g 与最小特征子空间正交，即使 λ→−μ_min 的极限，‖p(λ)‖ 也可能小于 Δ；这时在开区间内找不到范数等于 Δ 的 λ。</p><p>这就是 Hard Case：须取边界值 λ=−μ_min，再沿最小特征值的零空间补一个分量，使步长范数等于 Δ。下方程序限定 B 正定；不应将它套用于 Hard Case。</p></section><section id="interactive"><h2>交互：调整参数，核查结论</h2><p>调整 Δ，观察 λ 从正数回到零的临界半径；若 Hessian 出现负特征值，为什么二分搜索的左端点需要更严格的限制？</p><div class="interactive-panel" data-demo="tr-secular"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="tr-secular-input">信赖域半径 Δ <output data-value-for="delta">1.3</output></label><input id="tr-secular-input" type="range" data-key="delta" min="0.5" max="2.5" step="0.1" value="1.3"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：复现结果与断言</h2><p>以下代码只依赖 Python 标准库；它复核本页算例，并对假设不满足的输入进行明确处理。</p><pre><code>&quot;&quot;&quot;Secular-equation bisection for a symmetric positive definite 2-D B.&quot;&quot;&quot;
+from math import hypot
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.3. Iterative Solution of the Subproblem</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_4.3._Iterative_Solution_of_the_Subproblem</h1>
-<pre><code>Lecture: /04._Trust-Region_Methods
-Content: 02_4.3._Iterative_Solution_of_the_Subproblem
-</code></pre>
+def step(lam):
+    return (-2.0/(4.0+lam),-2.0/(1.0+lam))
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_4.3._Iterative_Solution_of_the_Subproblem
+def solve(radius):
+    if radius&lt;=0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    if hypot(*step(0))&lt;=radius:
+        return 0.0,step(0)
+    lo,hi=0.0,1.0
+    while hypot(*step(hi))&gt;radius:
+        hi*=2.0
+    for _ in range(80):
+        mid=(lo+hi)/2
+        if hypot(*step(mid))&gt;radius:
+            lo=mid
+        else:
+            hi=mid
+    lam=(lo+hi)/2
+    return lam,step(lam)
 
-"""
-Lecture: /04._Trust-Region_Methods
-Content: 02_4.3._Iterative_Solution_of_the_Subproblem
-"""
+def drop(p):
+    return -(2*p[0]+2*p[1]+.5*(4*p[0]**2+p[1]**2))
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__==&quot;__main__&quot;:
+    lam,p=solve(1.3)
+    print(lam,p,drop(p))
+    assert abs(lam-0.6310945588223069)&lt;1e-9
+    assert abs(hypot(*p)-1.3)&lt;1e-10
+    assert abs(drop(p)-2.1913087311268886)&lt;1e-9
+    assert solve(2.5)[0]==0</code></pre><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 4.3, Iterative Solution of the Subproblem, Algorithm 4.3 and equations (4.37)–(4.44), pp. 83–87。本文数值、图形和解释独立构造。</div></section><footer class="article-footer"><p class="references">此演示只对二维对角正定模型实现二分搜索；一般不定矩阵、重复最小特征值和 Hard Case 需要额外分支与稳定分解。</p><nav class="prev-next" aria-label="相邻内容"><a href="4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.html"><small>上一篇</small><strong>收敛到驻点</strong></a><a href="03_4.3.1._The_Hard_Case.html"><small>下一篇</small><strong>Hard Case</strong></a></nav></footer></article></main></div></body></html>

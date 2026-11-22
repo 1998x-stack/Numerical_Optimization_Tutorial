@@ -21,10 +21,11 @@
 | 第三章 3.4–3.5.2 | 已重构 | Hessian 修正、谱裁剪、单位矩阵平移、修正分解、插值与步长初值 |
 | 第三章 3.5.3–3.7 | 已重构 | 强 Wolfe/zoom、浮点诊断与四道原创练习 |
 | 第四章 4.1.1–4.2.1 | 已重构（5 篇） | Cauchy 点、方向改善、Dogleg、二维子空间与下降界 |
-| 第四章 4.2.2 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第四章 4.2.2–4.5.2 | 已重构（8 篇） | 全局驻点收敛、λ 根搜索、Hard Case、全局最优证书、局部 Newton、缩放与范数 |
+| 第四章 4.6–4.7 及第五章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.2.1 共四十二篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 共五十篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -62,6 +63,21 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第七批：信赖域收敛、Hard Case 与尺度
+
+本批八篇逐页保留原仓库路径；均包含独立 HTML、Markdown、Python、可访问 SVG、参数交互与证据记录：
+
+- [4.2.2 收敛到驻点](04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.html)：η=0 和 η>0 的不同全局收敛结论。
+- [4.3 迭代求解子问题](04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.html)：乘子 λ、谱单调性与 secular 方程。
+- [4.3.1 Hard Case](04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.html)：最负特征值零空间补足球面分量。
+- [4.3.2 信赖域全局最优证书](04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.html)：两个非负项给出球内全局最优性。
+- [4.3.3 近精确子问题](04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.html)：最优模型下降比例与二阶信息。
+- [4.4 信赖域 Newton 的局部速度](04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html)：信赖域约束消失后继承快速收敛。
+- [4.5.1 尺度变换](04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.html)：正对角 D 把椭球变为圆。
+- [4.5.2 其他范数](04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.html)：L1、L2 与 L∞ 球的形状和盒约束。
+
+**重要边界：**η=0 的收敛结论弱于固定 η>0；Hard Case 不能靠简单的 secular 根搜索解决；近精确下降不等于外层优化已经收敛；尺度/范数改变可行集合，不能脱离问题结构宣称更优。
 
 ## 第六批：Wolfe 搜索与信赖域基础
 

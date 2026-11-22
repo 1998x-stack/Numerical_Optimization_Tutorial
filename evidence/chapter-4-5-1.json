@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.5.1-1",
+    "claim": "原书定义正对角尺度矩阵 D 对应的椭球信赖域 ||Dp||<=Delta",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.5, Scaling, equations (4.56)–(4.61), pp. 95–97",
+    "status": "verified",
+    "notes": "独立示例和公式。"
+  },
+  {
+    "id": "tr-4.5.1-2",
+    "claim": "换元 q=Dp 后梯度与 Hessian 分别成为 D^{-1}g 和 D^{-1}BD^{-1}",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.5, Scaling, equations (4.56)–(4.61), pp. 95–97",
+    "status": "verified",
+    "notes": "独立示例和公式。"
+  },
+  {
+    "id": "tr-4.5.1-3",
+    "claim": "该二维例子在 d=10 下缩放 Hessian 为单位阵",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Python 数值检验和符号推导",
+    "status": "derived",
+    "notes": "独立示例和公式。"
+  },
+  {
+    "id": "tr-4.5.1-4",
+    "claim": "Δ=1 时缩放最优点 q=(-1/sqrt(2),-1/sqrt(2)) 且预测下降 sqrt(2)-1/2",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Python 数值检验和符号推导",
+    "status": "derived",
+    "notes": "独立示例和公式。"
+  }
+]

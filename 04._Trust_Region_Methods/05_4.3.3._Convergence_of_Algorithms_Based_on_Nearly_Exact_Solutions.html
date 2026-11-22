@@ -1,36 +1,23 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.3.3. Convergence of Algorithms Based on Nearly Exact Solutions</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions</h1>
-<pre><code>Lecture: /04._Trust-Region_Methods
-Content: 05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions
-
-"""
-Lecture: /04._Trust-Region_Methods
-Content: 05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="信赖域子问题不必解到机器精度；但近似步必须保证相对于真正最优模型下降的足够比例，并限制步长长度。否则方法可能忽略鞍点处有用的负曲率。"><title>4.3.3 近精确子问题：固定比例模型下降与二阶信息 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.3.3</span><a href="#s1">只盯着求根误差为什么不够</a><a href="#s2">近精确模型下降的两个约束</a><a href="#s3">用一个二维不定模型直接算比例</a><a href="#s4">为什么二阶信息能帮助脱离鞍点</a><a href="#s5">哪些结论需要额外假设</a><a href="#interactive">交互检验</a><a href="#code">Python 实验</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.3.3</div><h1>4.3.3 近精确子问题：固定比例模型下降与二阶信息</h1><p class="dek">信赖域子问题不必解到机器精度；但近似步必须保证相对于真正最优模型下降的足够比例，并限制步长长度。否则方法可能忽略鞍点处有用的负曲率。</p></header><section id="s1"><h2>只盯着求根误差为什么不够</h2><p>设 q(p)=gᵀp+½pᵀBp，限制 ‖p‖≤Δ，最优模型步为 p*。用乘子 λ 求解精确子问题可能需要多次矩阵分解。但外层信赖域方法真正关注的是候选 p 减少了多少模型值，而不只关心方程残差。</p></section>
+<section id="s2"><h2>近精确模型下降的两个约束</h2><p>原书条件 (4.52) 要求 q(0)−q(p)≥c₁[q(0)−q(p*)]，其中 c₁∈(0,1] 是固定比例，还要满足 ‖p‖≤γΔ，γ＞0 是固定的长度因子。理论采用的 γΔ 长度控制，不应被误解成可以在严格球约束的实现中任意越界。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="近精确模型下降"><math display="block" aria-label="近精确模型下降"><mrow><mi>q</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><mi>q</mi><mo>(</mo><mi>p</mi><mo>)</mo><mo>≥</mo><msub><mi>c</mi><mn>1</mn></msub><mo>[</mo><mi>q</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><mi>q</mi><mo>(</mo><msup><mi>p</mi><mo>*</mo></msup><mo>)</mo><mo>]</mo></mrow></math></div></div><figure><img src="../assets/figures/trust-nearly-exact.svg" alt="在同一半径下，利用负曲率方向能够取得比零步或最速下降更大的模型减少；柱长代表原创建模例子的模型下降占最优下降的比例。"><figcaption>在同一半径下，利用负曲率方向能够取得比零步或最速下降更大的模型减少；柱长代表原创建模例子的模型下降占最优下降的比例。</figcaption></figure></section>
+<section id="s3"><h2>用一个二维不定模型直接算比例</h2><p>取 B=diag(−2,1)、g=(0,1)、Δ=2。精确子问题的两个最优点为 (±√35/3,−1/3)，最优预测下降是 25/6≈4.166667。构造候选 p(t)=(t,−1/3)，若 t²+1/9≤4 则可行，预测下降为 t²+5/18。t=1.5 的下降比例约 60.67%；t=0.5 的比例约 12.67%。</p></section>
+<section id="s4"><h2>为什么二阶信息能帮助脱离鞍点</h2><p>若换成 g=(0,0)、B=diag(−2,1)、Δ=2，零梯度方向无法给出任何 Cauchy 下降，但边界上的 (±2,0) 仍使二次模型下降 4。要求固定比例最优模型下降的近精确准则，会迫使算法识别这类负曲率，而不能仅返回 p=0。</p></section>
+<section id="s5"><h2>哪些结论需要额外假设</h2><p>若真实 Bₖ=∇²f(xₖ)，再结合光滑性、外层接受机制、目标水平集与有界性等条件，才可能得出二阶必要条件相关的全局极限点结论。一次模拟满足 60% 比例不等于整条迭代轨迹已经有二阶收敛保证。</p></section><section id="interactive"><h2>交互：改变步长，观察最优下降比例</h2><p>固定二维模型及 Δ=2，调节 t，比较候选步与最优球内下降的比例。</p><div class="interactive-panel" data-demo="tr-nearly-exact"><div class="demo-controls"><div class="demo-control"><label for="tr-nearly-exact-input">负曲率方向位移 t <output data-value-for="t">1.5</output></label><input id="tr-nearly-exact-input" data-key="t" type="range" min="0.25" max="1.9" step="0.05" value="1.5"></div></div><div class="demo-output" data-output aria-live="polite">计算中…</div></div></section><section id="code"><h2>Python：重复计算与断言</h2><p>运行以下标准库程序以验证各候选的半径与下降比例。</p><pre><code>&quot;&quot;&quot;Test near-exact trust-region model reduction in an exact 2-D case.&quot;&quot;&quot;
+from math import hypot,sqrt
+OPTIMAL=25.0/6.0
+def trial(t):
+    p=(t,-1.0/3.0)
+    if hypot(*p)&gt;2.0+1e-12:
+        raise ValueError(&quot;infeasible trust-region step&quot;)
+    reduction=t*t+5.0/18.0
+    return p,reduction,reduction/OPTIMAL
+if __name__==&quot;__main__&quot;:
+    for t in (0.5,1.0,1.5,sqrt(35)/3):
+        p,d,r=trial(t)
+        print(t,p,d,r)
+        assert 0&lt;r&lt;=1+1e-12
+    assert trial(1.5)[2]&gt;=.6
+    assert trial(.5)[2]&lt;.6
+    assert abs(trial(sqrt(35)/3)[2]-1)&lt;1e-12
+    # With g=0, B=diag(-2,1), p=(2,0) reduces the model by 4.
+    assert -0.5*(-2*2**2)==4.0</code></pre><div class="references"><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Section 4.3, conditions (4.52) and Theorem 4.8, pp. 91–92。</div></section><footer class="article-footer"><p>本页使用可解析的二维 Hard Case 来确定最优下降，不构成一般不定 Hessian 的近精确子问题求解器。</p><nav class="prev-next"><a href="04_4.3.2._Proof_of_Theorem_4.1.html"><small>上一篇</small><strong>全局最优证书</strong></a><a href="06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html"><small>下一篇</small><strong>信赖域 Newton 局部收敛</strong></a></nav></footer></article></main></div></body></html>

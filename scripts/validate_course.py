@@ -179,6 +179,38 @@ ARTICLES = [
      "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.md",
      "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.py",
      "evidence/chapter-4-2-1.json"),
+    ("04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.html",
+     "04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.md",
+     "04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.py",
+     "evidence/chapter-4-2-2.json"),
+    ("04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.html",
+     "04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.md",
+     "04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.py",
+     "evidence/chapter-4-3.json"),
+    ("04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.html",
+     "04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.md",
+     "04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.py",
+     "evidence/chapter-4-3-1.json"),
+    ("04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.html",
+     "04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.md",
+     "04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.py",
+     "evidence/chapter-4-3-2.json"),
+    ("04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.html",
+     "04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.md",
+     "04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.py",
+     "evidence/chapter-4-3-3.json"),
+    ("04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html",
+     "04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.md",
+     "04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.py",
+     "evidence/chapter-4-4.json"),
+    ("04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.html",
+     "04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.md",
+     "04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.py",
+     "evidence/chapter-4-5-1.json"),
+    ("04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.html",
+     "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.md",
+     "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.py",
+     "evidence/chapter-4-5-2.json"),
 ]
 
 
@@ -337,13 +369,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.2.1 共四十二篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 共五十篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 42:
-        errors.append("index.html: expected exactly forty-two featured modules (six batches)")
+    if index.count('class="featured-card"') != 50:
+        errors.append("index.html: expected exactly fifty featured modules (seven batches)")
     return errors
 
 

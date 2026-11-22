@@ -1,36 +1,36 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="信赖域算法先判断模型能否可信地预测真实下降，再决定接受步长。允许所有真实下降的策略，与要求真实下降达到预测下降固定比例的策略，得到的全局收敛结论并不相同。"><title>4.2.2 信赖域全局收敛：为什么接受阈值 η 改变结论 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">课程目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.2.2</span><a href="#s1">为什么要计算实际下降与预测下降</a><a href="#s2">模型偏差如何在半径缩小时变小</a><a href="#s3">η=0 与 η&gt;0，究竟得到什么结论</a><a href="#s4">一维非二次例子：模型并非始终精确</a><a href="#s5">哪些假设不能省略</a><a href="#interactive">互动推演</a><a href="#code">Python 数值复核</a><a href="../../index.html#chapters">返回完整目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.2.2</div><h1>4.2.2 信赖域全局收敛：为什么接受阈值 η 改变结论</h1><p class="dek">信赖域算法先判断模型能否可信地预测真实下降，再决定接受步长。允许所有真实下降的策略，与要求真实下降达到预测下降固定比例的策略，得到的全局收敛结论并不相同。</p><div class="article-meta"><span>问题与模型</span><span>独立推导</span><span>边界检查</span></div></header><section id="s1"><h2>为什么要计算实际下降与预测下降</h2><p>给定可微目标 f 与迭代点 xₖ，令 gₖ=∇f(xₖ)，选对称模型矩阵 Bₖ，并定义 mₖ(p)=f(xₖ)+gₖᵀp+½pᵀBₖp。子问题把 p 限制在 ‖p‖≤Δₖ 中。预测下降是 pred=mₖ(0)−mₖ(p)，实际下降是 ared=f(xₖ)−f(xₖ+p)。</p><p>只要 pred＞0，就定义质量比 ρₖ=ared/pred。ρ≈1 表示模型预测与真实行为相符；ρ≤0 表示真实目标没有下降。典型策略在 ρ≥η 时接受，其中 0≤η＜1 是事先固定的阈值。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="信赖域实际预测比"><math display="block" aria-label="信赖域实际预测比"><mrow><msub><mi>ρ</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo><mo>−</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo></mrow><mrow><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><msub><mi>m</mi><mi>k</mi></msub><mo>(</mo><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo></mrow></mfrac></mrow></math></div></div></section>
+<section id="s2"><h2>模型偏差如何在半径缩小时变小</h2><p>假设梯度在相关水平集附近 Lipschitz 连续，且 Bₖ 的范数一致有界。由 Taylor 展开可将模型误差 |mₖ(p)−f(xₖ+p)| 控制为 C‖p‖²。</p><p>若近似子问题解至少取得固定比例的 Cauchy 下降，则 pred≥c‖gₖ‖min(Δₖ,‖gₖ‖/‖Bₖ‖)。假设梯度一直远离零，缩小 Δₖ 后模型相对误差就趋于零，ρₖ 趋近 1。这解释了为什么持续拒绝最终与足够小半径相矛盾。</p><figure><img src="../../assets/figures/trust-stationary-ratio.svg" alt="半径缩小时，二次模型的预测通常更接近真实目标变化；但这一局部观察本身不是整个序列收敛的证明。"><figcaption>半径缩小时，二次模型的预测通常更接近真实目标变化；但这一局部观察本身不是整个序列收敛的证明。</figcaption></figure></section>
+<section id="s3"><h2>η=0 与 η&gt;0，究竟得到什么结论</h2><p>在适当的下降、光滑、模型矩阵有界、函数值下界及半径更新假设下，当 η=0（仅需真实下降即可接受）时，标准结论为 liminfₖ ‖gₖ‖=0：存在梯度趋零的子序列，但不能仅据此断言整个梯度序列趋零。</p><p>若固定 η＞0，即每次接受必须获得预测下降的固定正比例，则可证明更强的 ‖gₖ‖→0。关键区别在于接受步对真实函数下降量提供了统一的量化保证；它与仅要求 ared＞0 不同。</p></section>
+<section id="s4"><h2>一维非二次例子：模型并非始终精确</h2><p>取 f(x)=½(x−1)²+0.1(x−1)⁴，在 x=2 有 f=0.6、g=1.4、H=2.2。若 Δ=0.5，则一维正定二次模型给出 p=−0.5，预测下降 0.425，而真实下降 0.46875，ρ≈1.10294。</p><p>ρ 可以超过 1，因为模型可能低估真实下降；它不需要被限制在 [0,1] 中。这个单步例子只验证比值与半径的机制，不能替代上述关于无限迭代序列的证明。</p></section>
+<section id="s5"><h2>哪些假设不能省略</h2><p>证明需要一类具体的信赖域外层更新规则、模型充分下降、Bₖ 有界、目标在初始水平集上有下界，并对梯度在邻域内施加足够的连续性条件。即使梯度收敛到零，也不自动排除鞍点。</p><p>对有限精度实现还需检查 pred＞0、非有限函数值、半径过小以及不可区分步长。不要把实验中某一轮的 ρ 很接近 1 宣称为整个算法的全局收敛保证。</p></section><section id="interactive"><h2>交互：调整参数，核查结论</h2><p>把 Δ 从 0.1 增大到 1，观察预测下降、实际下降和 ρ 的变化；哪些半径会使完整 Newton 模型步变得可行？</p><div class="interactive-panel" data-demo="tr-stationary"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="tr-stationary-input">试探半径 Δ <output data-value-for="delta">0.5</output></label><input id="tr-stationary-input" type="range" data-key="delta" min="0.1" max="1" step="0.1" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：复现结果与断言</h2><p>以下代码只依赖 Python 标准库；它复核本页算例，并对假设不满足的输入进行明确处理。</p><pre><code>&quot;&quot;&quot;Trust ratio for a nonquadratic, strongly convex teaching objective.&quot;&quot;&quot;
+def f(x):
+    t=x-1.0
+    return 0.5*t*t+0.1*t**4
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.2.2. Convergence to Stationary Points</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_4.2.2._Convergence_to_Stationary_Points</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.2._Global_Convergence
-Content: 01_4.2.2._Convergence_to_Stationary_Points
-</code></pre>
+def gradient(x):
+    t=x-1.0
+    return t+0.4*t**3
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_4.2.2._Convergence_to_Stationary_Points
+def hessian(x):
+    t=x-1.0
+    return 1.0+1.2*t*t
 
-"""
-Lecture: 04._Trust-Region_Methods/4.2._Global_Convergence
-Content: 01_4.2.2._Convergence_to_Stationary_Points
-"""
+def trial(x, radius):
+    if radius &lt;= 0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    g, h=gradient(x), hessian(x)
+    p=max(-radius,min(radius,-g/h))
+    predicted=-g*p-0.5*h*p*p
+    if predicted &lt;= 0:
+        raise RuntimeError(&quot;nonpositive predicted decrease&quot;)
+    actual=f(x)-f(x+p)
+    return p,predicted,actual,actual/predicted
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    p,pred,actual,rho=trial(2.0,0.5)
+    print(&quot;step&quot;,p,&quot;pred&quot;,pred,&quot;actual&quot;,actual,&quot;rho&quot;,rho)
+    assert p == -0.5
+    assert abs(pred-0.425)&lt;1e-12
+    assert abs(actual-0.46875)&lt;1e-12
+    assert abs(rho-0.46875/0.425)&lt;1e-12
+    assert trial(2.0,0.2)[3]&gt;0</code></pre><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 4.2, Convergence to Stationary Points, Theorems 4.5–4.6, pp. 79–83。本文数值、图形和解释独立构造。</div></section><footer class="article-footer"><p class="references">η=0 与 η&gt;0 的序列级结论必须保留原定理的全部算法、光滑和有界性假设；程序仅演示单步模型质量比。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html"><small>上一篇</small><strong>Cauchy 下降界</strong></a><a href="../02_4.3._Iterative_Solution_of_the_Subproblem.html"><small>下一篇</small><strong>信赖域子问题求解</strong></a></nav></footer></article></main></div></body></html>
