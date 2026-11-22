@@ -1,36 +1,39 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="把共轭方向法改写成只维护解、梯度、方向和一次矩阵-向量乘积的形式：每轮一次 Qp_k、两个内积与几次向量更新，存储 O(n)。这就是算法 5.2 的线性共轭梯度法。"><title>5.1.3 线性共轭梯度法的实用形式：只有向量运算 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.3</span><a href="#section-1">为什么要改写算法</a><a href="#section-2">算法 5.2 的完整流程</a><a href="#section-3">更新公式与符号约定</a><a href="#section-4">计算代价与存储</a><a href="#section-5">一次迭代的数值追踪</a><a href="#section-6">停止准则与适用边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.3</div><h1>5.1.3 线性共轭梯度法的实用形式：只有向量运算</h1><p class="dek">把共轭方向法改写成只维护当前解、梯度、方向和一次矩阵-向量乘积的形式：每轮一次 Qp_k、两个内积与几次向量更新，存储 O(n)。这就是算法 5.2 的线性共轭梯度法。</p><div class="article-meta"><span>算法流程</span><span>复杂度分析</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>为什么要改写算法</h2><p>5.1.1 的共轭方向法要求把 n 个方向全部存储下来，并在构造阶段求解共轭性。对大型稀疏正定问题，这既占内存又难以实现。共轭梯度法给出一个等价但从不需要存储全部方向的版本：它只保留&quot;当前解 x_k、当前梯度 g_k、当前方向 p_k&quot;三个长度为 n 的向量，以及一个临时的 Qp_k。</p><p>代价是每轮一次矩阵-向量乘积 Qp_k、两次内积（g_kᵀg_k 与 p_kᵀQp_k）和几次长度 n 的向量更新。当 Q 稀疏或只需一个算子作用时，这使得 CG 特别适合大规模问题。</p></section>
+<section id="section-2"><h2>算法 5.2 的完整流程</h2><p>下面给出线性共轭梯度法的循环结构。初始化后每轮先检查停止准则，再依次计算步长、更新解与梯度、计算系数、生成新方向。所有公式都使用本课程的符号约定 g_k=Qx_k−b。</p><figure><img src="../../assets/figures/cg-practical-loop.svg" alt="线性共轭梯度法的循环流程图：初始化、范数检查、步长、解更新、梯度更新、β 计算、方向更新，再回到范数检查。" ><figcaption>算法 5.2 的迭代流程。每一轮只用到向量运算与一次矩阵-向量乘积 Qp_k；范数满足容差时输出当前解。流程图描述的是线性 CG 的精确算术版本。</figcaption></figure></section>
+<section id="section-3"><h2>更新公式与符号约定</h2><p>梯度更新使用 g_{k+1}=g_k+α_k Qp_k，这比直接算 Qx_{k+1}−b 少一次矩阵-向量乘积。系数用 Fletcher–Reeves 形式 β_{k+1}=g_{k+1}ᵀg_{k+1}/g_kᵀg_k，新方向取 p_{k+1}=−g_{k+1}+β_{k+1}p_k。所有公式中的 g_k 都是梯度；若把残余定义为 r_k=b−Qx_k，则 r_k=−g_k，公式需要相应改号。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="线性共轭梯度更新公式"><math display="block" aria-label="线性共轭梯度更新公式"><mrow><msub><mi>α</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow></mfrac><mo>,</mo><mspace width="1em"/><msub><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>g</mi><mi>k</mi></msub><mo>+</mo><msub><mi>α</mi><mi>k</mi></msub><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub><mo>,</mo><mspace width="1em"/><msub><mi>p</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mo>−</mo><msub><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><msub><mi>p</mi><mi>k</mi></msub><mo>.</mo></mrow></math></div></div></section>
+<section id="section-4"><h2>计算代价与存储</h2><p>每轮的主导开销是一次矩阵-向量乘积 Qp_k。此外只需两次内积（g_kᵀg_k 与 p_kᵀQp_k）和几次形如 u←u+αv 的向量更新。常驻存储只有 x_k、g_k、p_k 三个长度为 n 的向量，外加一个临时 Qp_k，所以总存储是 O(n)。</p><p>与直接分解（如 Cholesky）相比，CG 不修改 Q，也不要求显式存储分解因子。只要能把 Q 作用到任意向量上，就能运行 CG——这正是它在大型稀疏问题上流行的原因。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 210" style="width:100%;height:auto;display:block" role="img" aria-labelledby="cgm-title cgm-desc"><title id="cgm-title">共轭梯度法的存储布局</title><desc id="cgm-desc">常驻三个长度为 n 的向量 x、g、p，另有一个临时向量 Qp；总存储 O(n)。</desc><rect width="640" height="210" rx="16" fill="#f7f4ee"/><g font-family="system-ui, sans-serif"><rect x="150" y="34" width="380" height="26" rx="5" fill="#e4f2ec" stroke="#126e66"/><rect x="150" y="74" width="380" height="26" rx="5" fill="#e4f2ec" stroke="#126e66"/><rect x="150" y="114" width="380" height="26" rx="5" fill="#e4f2ec" stroke="#126e66"/><rect x="150" y="154" width="380" height="26" rx="5" fill="#fce9dc" stroke="#bd633f" stroke-dasharray="7 5"/><text x="140" y="52" text-anchor="end" font-size="16" fill="#263a33">x_k</text><text x="140" y="92" text-anchor="end" font-size="16" fill="#263a33">g_k</text><text x="140" y="132" text-anchor="end" font-size="16" fill="#263a33">p_k</text><text x="140" y="172" text-anchor="end" font-size="15" fill="#bd633f">Qp_k（临时）</text><text x="340" y="52" text-anchor="middle" font-size="14" fill="#5b6b64">长度 n</text><text x="340" y="92" text-anchor="middle" font-size="14" fill="#5b6b64">长度 n</text><text x="340" y="132" text-anchor="middle" font-size="14" fill="#5b6b64">长度 n</text><text x="340" y="172" text-anchor="middle" font-size="14" fill="#5b6b64">长度 n</text></g></svg><p class="caption">CG 每轮只需三个常驻向量（x、g、p）和一个临时向量 Qp，总存储 O(n)；一个矩阵-向量乘积即可推进一轮。图中长度 n 的条带表示向量分量数，而非具体数值。</p></div></section>
+<section id="section-5"><h2>一次迭代的数值追踪</h2><p>仍取 Q=[[3,1],[1,3]]、b=(5,7)，从 x₀=(0,0) 开始。初始化：g₀=(−5,−7)，p₀=(5,7)，g₀ᵀg₀=74。</p><p>第一轮：Qp₀=Q(5,7)=(22,26)，p₀ᵀQp₀=292，故 α₀=74/292=37/146≈0.2534；x₁=(1.2671,1.7740)。梯度用增量公式更新：g₁=g₀+α₀Qp₀=(42/73,−30/73)≈(0.5753,−0.4110)。系数 β₁=g₁ᵀg₁/g₀ᵀg₀≈0.00676，新方向 p₁=−g₁+β₁p₀≈(−0.5416,0.4583)。</p><p>第二轮重复同一套更新，得到 x₂=x*=(1,2)，此时 g₂=0，范数准则触发，循环结束。整个过程只用到两个不同的矩阵-向量乘积 Qp₀ 与 Qp₁。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="梯度增量更新"><math display="block" aria-label="梯度增量更新"><mrow><msub><mi>g</mi><mn>1</mn></msub><mo>=</mo><msub><mi>g</mi><mn>0</mn></msub><mo>+</mo><msub><mi>α</mi><mn>0</mn></msub><mi>Q</mi><msub><mi>p</mi><mn>0</mn></msub><mo>,</mo><mspace width="1em"/><msub><mi>β</mi><mn>1</mn></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mn>1</mn><mo>⊤</mo></msubsup><msub><mi>g</mi><mn>1</mn></msub></mrow><mrow><msubsup><mi>g</mi><mn>0</mn><mo>⊤</mo></msubsup><msub><mi>g</mi><mn>0</mn></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div></section>
+<section id="section-6"><h2>停止准则与适用边界</h2><p>实用算法用 ‖g_k‖≤tol 作为停止准则。对正定二次问题，误差的能量范数恰好等于梯度的 Q⁻¹ 范数：‖x_k−x*‖_Q²=g_kᵀQ⁻¹g_k，所以梯度范数是一个可靠的尺度。精确算术下最多 n 步终止；浮点环境下舍入误差使准则提前或延后触发，需要重启与预条件来控制。</p><p>本页程序是线性共轭梯度的教学实现，只处理对称正定线性方程组对应的二次目标；它不处理非线性目标（见 5.2）、不处理不定矩阵，也不声称对病态问题有特定收敛速度。</p></section>
+<section id="interactive"><h2>交互：逐步查看算法记账</h2><p>把起点取为 x₀=(t,t)，拖动滑块改变 t。面板列出每轮的梯度范数与步长，最后给出第三次检查时的 ‖g‖ 与当前解——验证循环的停止逻辑与 n 步终止。</p><div class="interactive-panel" data-demo="cg-practical"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgp3-t">起点参数 t（x₀=(t,t)） <output data-value-for="t">0.5</output></label><input id="cgp3-t" type="range" data-key="t" min="-2" max="2" step="0.1" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：算法 5.2 的教学实现</h2><p>程序只依赖标准库。它实现算法 5.2 的循环与容差停止准则，并断言在这个二维例子上两次迭代就结束、结果为 x*=(1,2)。</p><pre><code>&quot;&quot;&quot;Practical linear conjugate gradient (Algorithm 5.2) on a small quadratic.&quot;&quot;&quot;
+from math import sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.3. A Practical Form of the Conjugate Gradient Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method
-</code></pre>
+def cg(Q, b, x0, tol=1e-12, max_iter=10):
+    n = len(b)
+    mv = lambda v: [sum(Q[i][j]*v[j] for j in range(n)) for i in range(n)]
+    dot = lambda u, v: sum(u[i]*v[i] for i in range(n))
+    x = list(x0)
+    g = [mv(x)[i] - b[i] for i in range(n)]
+    p = [-g[i] for i in range(n)]
+    gnorm = dot(g, g)
+    for k in range(max_iter):
+        if sqrt(gnorm) &lt;= tol:
+            return x, k
+        Qp = mv(p)
+        alpha = gnorm / dot(p, Qp)
+        x = [x[i] + alpha*p[i] for i in range(n)]
+        g = [g[i] + alpha*Qp[i] for i in range(n)]
+        gnorm_new = dot(g, g)
+        beta = gnorm_new / gnorm
+        p = [-g[i] + beta*p[i] for i in range(n)]
+        gnorm = gnorm_new
+    return x, max_iter
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method
-
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    Q = [[3.0, 1.0], [1.0, 3.0]]
+    b = [5.0, 7.0]
+    x, iters = cg(Q, b, [0.0, 0.0])
+    assert iters == 2
+    assert abs(x[0] - 1.0) &lt; 1e-9 and abs(x[1] - 2.0) &lt; 1e-9
+    print(&quot;x =&quot;, [round(v, 6) for v in x], &quot;iterations =&quot;, iters)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1, Algorithm 5.2, pp. 110–111。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">实用形式只把共轭方向法改写成向量递归，并未放松它的前提：Q 对称正定、精确算术与线性目标仍然必需。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.html"><small>上一篇</small><strong>CG 的基本性质</strong></a><a href="03_5.1.4._Rate_of_Convergence.html"><small>下一篇</small><strong>CG 的收敛速度</strong></a></nav></footer></article></main></div></body></html>

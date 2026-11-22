@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 580" role="img" aria-labelledby="cgl-title cgl-desc">
+<title id="cgl-title">线性共轭梯度法 5.2 的迭代流程</title>
+<desc id="cgl-desc">从初始点计算 g0 与 p0，反复检查范数是否满足容差；未满足时依次计算步长、更新解与梯度、计算 β 与新方向，再回到范数检查。</desc>
+<rect width="620" height="580" rx="18" fill="#fbfaf6"/>
+<defs><marker id="cgl-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6 z" fill="#263a33"/></marker></defs>
+<rect x="110" y="20" width="400" height="48" rx="10" fill="#e4f2ec" stroke="#126e66" stroke-width="2"/>
+<text x="310" y="50" text-anchor="middle" font-size="16" font-family="system-ui, sans-serif" fill="#263a33">给定 x₀；g₀=Qx₀−b；p₀=−g₀</text>
+<polygon points="310,92 470,140 310,188 150,140" fill="#fff3d6" stroke="#b8860b" stroke-width="2"/>
+<text x="310" y="146" text-anchor="middle" font-size="16" font-family="system-ui, sans-serif" fill="#263a33">‖g_k‖ ≤ tol ？</text>
+<rect x="470" y="208" width="130" height="44" rx="10" fill="#f3e4e4" stroke="#bd633f" stroke-width="2"/>
+<text x="535" y="235" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">停止：输出 x_k</text>
+<rect x="110" y="208" width="300" height="44" rx="10" fill="#eef2fb" stroke="#3b5b9a" stroke-width="2"/>
+<text x="260" y="235" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">α_k = g_kᵗg_k / (p_kᵗQp_k)</text>
+<rect x="110" y="272" width="300" height="44" rx="10" fill="#eef2fb" stroke="#3b5b9a" stroke-width="2"/>
+<text x="260" y="299" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">x_{k+1} = x_k + α_k p_k</text>
+<rect x="110" y="336" width="300" height="44" rx="10" fill="#eef2fb" stroke="#3b5b9a" stroke-width="2"/>
+<text x="260" y="363" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">g_{k+1} = g_k + α_k Qp_k</text>
+<rect x="110" y="400" width="300" height="44" rx="10" fill="#eef2fb" stroke="#3b5b9a" stroke-width="2"/>
+<text x="260" y="427" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">β_{k+1} = g_{k+1}ᵗg_{k+1} / g_kᵗg_k</text>
+<rect x="110" y="464" width="300" height="44" rx="10" fill="#eef2fb" stroke="#3b5b9a" stroke-width="2"/>
+<text x="260" y="491" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">p_{k+1} = −g_{k+1} + β_{k+1} p_k</text>
+<g stroke="#263a33" stroke-width="2" fill="none" marker-end="url(#cgl-arrow)">
+<line x1="310" y1="68" x2="310" y2="90"/>
+<line x1="310" y1="140" x2="310" y2="206"/>
+<line x1="470" y1="140" x2="534" y2="206"/>
+<line x1="260" y1="252" x2="260" y2="270"/>
+<line x1="260" y1="316" x2="260" y2="334"/>
+<line x1="260" y1="380" x2="260" y2="398"/>
+<line x1="260" y1="444" x2="260" y2="462"/>
+</g>
+<path d="M410 486 H560 V140 H474" fill="none" stroke="#263a33" stroke-width="2" marker-end="url(#cgl-arrow)"/>
+<text x="300" y="146" text-anchor="middle" font-size="15" font-family="system-ui, sans-serif" fill="#5b6b64">否</text>
+<text x="500" y="130" font-size="15" font-family="system-ui, sans-serif" fill="#5b6b64">是</text>
+<text x="500" y="520" font-size="15" font-family="system-ui, sans-serif" fill="#5b6b64">k ← k+1，回到检查</text>
+</svg>

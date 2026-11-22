@@ -595,6 +595,32 @@
         ' · 与 x* 距离 ' + err.toExponential(2) +
         (Math.abs(orth) < 1e-9 && err < 1e-9 ? ' · 正交且两步命中' : ' · 数值退化');
     });
+    if (kind === "cg-practical") bind(root, el => {
+      const t = read(el, "t");
+      const Q = [[3, 1], [1, 3]], b = [5, 7];
+      const mv = v => [Q[0][0]*v[0] + Q[0][1]*v[1], Q[1][0]*v[0] + Q[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0] + u[1]*v[1];
+      let x = [t, t];
+      let g = [mv(x)[0]-b[0], mv(x)[1]-b[1]];
+      let p = [-g[0], -g[1]];
+      let gn = dot(g, g);
+      const rows = ['k=0: ‖g‖=' + Math.sqrt(gn).toFixed(4)];
+      for (let k = 0; k < 3; k++) {
+        if (Math.sqrt(gn) <= 1e-9) break;
+        const Qp = mv(p);
+        const alpha = gn / dot(p, Qp);
+        x = [x[0] + alpha*p[0], x[1] + alpha*p[1]];
+        g = [g[0] + alpha*Qp[0], g[1] + alpha*Qp[1]];
+        const gnNew = dot(g, g), beta = gnNew / gn;
+        rows.push('k=' + (k+1) + ': α=' + alpha.toFixed(4) + ', β=' + beta.toFixed(4) +
+          ', ‖g‖=' + Math.sqrt(gnNew).toFixed(4));
+        p = [-g[0] + beta*p[0], -g[1] + beta*p[1]];
+        gn = gnNew;
+      }
+      output.innerHTML = '<strong>x₀=(' + fmt(t,1) + ',' + fmt(t,1) + ')</strong><br>' +
+        rows.join('<br>') + '<br>结束时 ‖g‖=' + Math.sqrt(gn).toExponential(2) +
+        '，x≈(' + fmt(x[0],4) + ', ' + fmt(x[1],4) + ')';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
