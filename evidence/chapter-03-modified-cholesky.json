@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.4.3-1",
+    "claim": "正定矩阵的 LDLᵀ 分解具有正对角主元。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Modified Cholesky Factorization, equations (3.46)–(3.50), pp. 52–54",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.3-2",
+    "claim": "教材式 (3.49) 通过 |cⱼⱼ|、θⱼ/β 和 δ 约束修正主元与因子增长。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Modified Cholesky Factorization, equations (3.46)–(3.50), pp. 52–54",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.3-3",
+    "claim": "二维 H=[[1,2],[2,1]] 的原始第二主元为 −3。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.4.3-4",
+    "claim": "截断第二主元为 0.5 后 B 正定且给出方向 p=(−5,2)。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

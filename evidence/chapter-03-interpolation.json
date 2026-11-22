@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.5.1-1",
+    "claim": "二次插值可由 φ(0)、φ′(0)、φ(α₀) 构建，并从模型极小点得到候选步长。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Interpolation, equations (3.57)–(3.59), pp. 57–59",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5.1-2",
+    "claim": "三次插值能利用相邻的函数值与方向导数信息；实际实现需要安全边界。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Interpolation, equations (3.57)–(3.59), pp. 57–59",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5.1-3",
+    "claim": "对 φ=(α−2)²、α₀=1，二次插值得到 α_new=2。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.5.1-4",
+    "claim": "添加 ε=0.25 的三次项后，候选为 1.6，真实驻点为 4/3。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

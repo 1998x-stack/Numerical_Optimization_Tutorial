@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.4.1-1",
+    "claim": "谱分解与正特征值修正可以使对称 Hessian 近似变为正定。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Eigenvalue Modification, pp. 49–51",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.1-2",
+    "claim": "谱方法在大规模稠密问题中可能成本过高。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Eigenvalue Modification, pp. 49–51",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.1-3",
+    "claim": "二维示例中 H 的特征值为 3 和 −1；阈值为 1 时 B=[[2,1],[1,2]]。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.4.1-4",
+    "claim": "在 g=(1,2) 下的搜索方向为 (0,−1)，方向导数 −2。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

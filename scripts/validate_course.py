@@ -115,6 +115,38 @@ ARTICLES = [
      "03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.md",
      "03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.py",
      "evidence/chapter-03-quasi-newton.json"),
+    ("03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.html",
+     "03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.md",
+     "03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.py",
+     "evidence/chapter-03-hessian-overview.json"),
+    ("03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.html",
+     "03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.md",
+     "03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.py",
+     "evidence/chapter-03-eigenvalue-modification.json"),
+    ("03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.html",
+     "03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.md",
+     "03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.py",
+     "evidence/chapter-03-identity-shift.json"),
+    ("03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.html",
+     "03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.md",
+     "03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.py",
+     "evidence/chapter-03-modified-cholesky.json"),
+    ("03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.html",
+     "03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.md",
+     "03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.py",
+     "evidence/chapter-03-symmetric-indefinite.json"),
+    ("03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.html",
+     "03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.md",
+     "03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.py",
+     "evidence/chapter-03-step-selection.json"),
+    ("03._Line_Search_Methods/15_3.5.1._Interpolation.html",
+     "03._Line_Search_Methods/15_3.5.1._Interpolation.md",
+     "03._Line_Search_Methods/15_3.5.1._Interpolation.py",
+     "evidence/chapter-03-interpolation.json"),
+    ("03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.html",
+     "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.md",
+     "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.py",
+     "evidence/chapter-03-initial-step.json"),
 ]
 
 
@@ -273,13 +305,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.3.3 共二十六篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.5.2 共三十四篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 26:
-        errors.append("index.html: expected exactly twenty-six featured modules (four batches)")
+    if index.count('class="featured-card"') != 34:
+        errors.append("index.html: expected exactly thirty-four featured modules (five batches)")
     return errors
 
 

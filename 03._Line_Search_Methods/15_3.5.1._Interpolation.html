@@ -1,36 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="当一次试探步长没有达到充分下降，单纯把步长减半是一种安全选择；插值则利用已评估的函数值和初始斜率，预测曲线低谷可能在哪里。"><title>3.5.1 插值线搜索：从函数值估计下一个候选步 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.5.1</span><a href="#fit">最少需要哪些信息来构造二次模型</a><a href="#toy">为什么插值有时精确，有时会有偏差</a><a href="#safeguard">为什么不能不加保护地相信插值结果</a><a href="#limits">如何区分模型更新与终止判据</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.5.1</div><h1>3.5.1 插值线搜索：从函数值估计下一个候选步</h1><p class="dek">当一次试探步长没有达到充分下降，单纯把步长减半是一种安全选择；插值则利用已评估的函数值和初始斜率，预测曲线低谷可能在哪里。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="fit"><h2>最少需要哪些信息来构造二次模型</h2><p>沿下降方向定义 φ(α)=f(x+αp)，其初始方向导数 d₀=φ′(0)＜0。已知 φ(0)、d₀ 和一次正试探 α₀ 的 φ(α₀)，就足以唯一决定一个二次插值模型 q(α)=aα²+d₀α+φ(0)。</p><p>插值二次系数为 a=[φ(α₀)−φ(0)−d₀α₀]/α₀²。若 a＞0，模型极小点位于 α_new=−d₀/(2a)。这仍是模型的极小点，真正的函数值与 Armijo 或 Wolfe 判据必须在 α_new 重新检查。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="二次插值候选步长"><math display="block" aria-label="二次插值候选步长"><mrow><msub><mi>α</mi><mi>new</mi></msub><mo>=</mo><mo>−</mo><mfrac><mrow><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><msubsup><mi>α</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mrow><mn>2</mn><mo>[</mo><mi>φ</mi><mo>(</mo><msub><mi>α</mi><mn>0</mn></msub><mo>)</mo><mo>−</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><msub><mi>α</mi><mn>0</mn></msub><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>]</mo></mrow></mfrac></mrow></math></div></div></section>
+<section id="toy"><h2>为什么插值有时精确，有时会有偏差</h2><p>先取 φ(α)=(α−2)²。它本身就是二次函数，已知 φ(0)=4、φ′(0)=−4，并在 α₀=1 处计算 φ(1)=1。代入插值公式得到 α_new=2，与真实一维极小点完全一致。</p><p>现在引入一个非二次扰动 εα³：φ(α)=(α−2)²+εα³，且仍在 α₀=1 试探。此时 φ(0)=4、φ′(0)=−4、φ(1)=1+ε，因此 α_new=2/(1+ε)。</p><p>例如 ε=0.25 时，插值预测 α_new=1.6，但真正的驻点由 2(α−2)+0.75α²=0 给出 α*=4/3≈1.3333。插值改善了候选搜索，却不是一次就精确解出非二次函数。</p><figure><img src="../assets/figures/quadratic-interpolation.svg" alt="从 φ(0)、φ′(0) 与 φ(1) 建立二次插值，模型的最低点给出新的试探步长，但未必是真实非二次函数的最小点。"><figcaption>插值得到的是一个模型候选，而不是无条件接受的最终步长；当插值点过近或模型曲率不可靠时需要安全防护。</figcaption></figure></section>
+<section id="safeguard"><h2>为什么不能不加保护地相信插值结果</h2><p>当二次模型曲率系数 a 接近零、为负，或因为浮点消去出现不稳定值时，公式可能给出极大、极小甚至负的候选步。工程实现一般要求候选点位于当前可接受区间的安全内段，过于接近边界则退回二分或几何缩小。</p><p>进一步利用相邻两点的 φ 和 φ′，可以构造三次插值，更好地反映曲率变化，但也增加实现与数值稳定性问题。是否使用三次插值通常与梯度评估成本有关。</p></section>
+<section id="limits"><h2>如何区分模型更新与终止判据</h2><p>插值策略解决“下一次试哪里”；Armijo 或 Wolfe 条件解决“本次是否可以接受”。一个正确的线搜索不能把插值器输出直接当作最终 α。</p><p>此处的多项式仅用来建立一维候选，不说明原目标函数的全局凸性，也不保证浮点条件下导数总是准确可用。</p></section><section id="interactive"><h2>交互实验：改变非二次扰动，观察插值误差</h2><p>固定初始斜率 φ′(0)=−4 和试探点 α₀=1，令 φ(α)=(α−2)²+εα³；调节 ε，比较二次插值候选与真正的驻点。</p><div class="interactive-panel" data-demo="interpsearch"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="interp-eps">三次扰动 ε <output data-value-for="eps">0.25</output></label><input id="interp-eps" data-key="eps" type="range" min="0" max="1" step="0.05" value="0.25"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>用三个函数信息构建二次插值，解析对照三次扰动后的真实驻点，并检查候选方向的函数值。</p><pre><code>&quot;&quot;&quot;Quadratic interpolation from phi(0), phi'(0), phi(alpha0).&quot;&quot;&quot;
+from math import sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.5.1. Interpolation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>15_3.5.1._Interpolation</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 15_3.5.1._Interpolation
-</code></pre>
+def phi(alpha: float, eps: float):
+    return (alpha-2.0)**2 + eps*alpha**3
 
-    <h3>Python 文件</h3>
-    <pre><code># 15_3.5.1._Interpolation
+def candidate(alpha0: float, eps: float):
+    slope0 = -4.0
+    denom = 2.0*(phi(alpha0,eps)-phi(0.0,eps)-slope0*alpha0)
+    if alpha0 &lt;= 0.0 or denom &lt;= 1e-12:
+        raise ValueError(&quot;invalid interpolation curvature&quot;)
+    return -slope0*alpha0**2/denom
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 15_3.5.1._Interpolation
-"""
+def optimum(eps: float):
+    if eps == 0.0:
+        return 2.0
+    return (-2.0 + sqrt(4.0 + 48.0*eps))/(6.0*eps)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    assert candidate(1.0,0.0) == 2.0
+    a = candidate(1.0,0.25)
+    exact = optimum(0.25)
+    print(&quot;candidate:&quot;,a,&quot;stationary point:&quot;,exact)
+    assert abs(a-1.6)&lt;1e-12
+    assert abs(exact-4.0/3.0)&lt;1e-12
+    assert phi(a,0.25)&lt;phi(0.0,0.25)
+    assert abs(a-exact)&gt;0.1</code></pre><p>自检：当 ε→0 时公式为什么回到 α=2？若插值二次系数为负，应如何拒绝这个候选？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.5, Interpolation, equations (3.57)–(3.59), pp. 57–59。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">二次插值输出只是搜索候选。其精度依赖局部函数形状；一般线搜索仍需检查下降条件、区间安全范围和浮点异常。</p><nav class="prev-next" aria-label="相邻内容"><a href="14_3.5._Step_Length_Selection_Algorithms.html"><small>上一篇</small><strong>步长选择总览</strong></a><a href="16_3.5.2._Initial_Step_Length.html"><small>下一篇</small><strong>初始步长</strong></a></nav></footer></article></main></div></body></html>

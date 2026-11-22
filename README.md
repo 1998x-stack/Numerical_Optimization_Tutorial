@@ -18,10 +18,11 @@
 | 第三章 3.1：步长选择 | 已重构 | Armijo、弱/强 Wolfe、Goldstein 与回溯 |
 | 第三章 3.1.1–3.1.3 | 已重构 | Wolfe、Goldstein、充分下降与回溯 |
 | 第三章 3.2–3.3.3 | 已重构 | Zoutendijk 全局收敛、收敛速度、最速下降、Newton 与拟 Newton |
-| 第三章 3.4 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第三章 3.4–3.5.2 | 已重构 | Hessian 修正、谱裁剪、单位矩阵平移、修正分解、插值与步长初值 |
+| 第三章 3.5.3 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.3.3 共二十六篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.5.2 共三十四篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -59,6 +60,21 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第五批：Hessian 修正与步长算法
+
+已完成八篇独立教程，保留原始章节 URL，并提供 HTML、同步 Markdown、Python、原创 SVG、交互演示及证据账本：
+
+- [03.4 Hessian 修正总览](03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.html)：在不定曲率下重新构造严格下降方向。
+- [03.4.1 特征值裁剪](03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.html)：修复过小特征值，同时保留可信方向信息。
+- [03.4.2 对角平移 τI](03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.html)：以 Cholesky 反馈寻找足够大的平移量。
+- [03.4.3 修正 Cholesky](03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.html)：主元下界、因子增长控制与二维重建。
+- [03.4.4 对称不定块修正](03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.html)：2×2 主元、矩阵惯性与非对角修正。
+- [03.5 线搜索步长选择](03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.html)：初始试探、括区间与缩小候选范围。
+- [03.5.1 二次插值候选步长](03._Line_Search_Methods/15_3.5.1._Interpolation.html)：从函数值与方向导数估计曲线低谷。
+- [03.5.2 初始步长热启动](03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.html)：使用历史方向导数改善首次试探。
+
+**必要区分：**正定修正保证下降方向，不自动给出全局最优；插值和历史步长只提供搜索候选，不等于通过 Armijo/Wolfe。3.5.3 的完整 Wolfe 搜索仍待下一批。
 
 ## 第四批：第三章步长条件与收敛分析
 

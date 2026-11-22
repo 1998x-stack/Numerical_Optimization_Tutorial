@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.5-1",
+    "claim": "一般线搜索可以分为建立区间和在区间中选择接受步的两个阶段。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Step-Length Selection Algorithms, pp. 56–57",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5-2",
+    "claim": "对强凸二次目标，沿固定下降方向的一维极小步长具有闭式表达式。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Step-Length Selection Algorithms, pp. 56–57",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5-3",
+    "claim": "φ(α)=(α−2)² 的导数在 [0,5] 两端异号。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.5-4",
+    "claim": "四次二分给出区间 [1.875,2.1875]。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

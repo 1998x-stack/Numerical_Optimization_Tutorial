@@ -1,36 +1,24 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="线搜索从 α₀ 开始试探。Newton 与拟 Newton 方法一般首先尝试完整步长 1；对梯度法与共轭梯度法，可以把上一轮的步长和方向导数转化为新猜测，但猜测仍需验证。"><title>3.5.2 初始步长：一个好的猜测可以省掉多少搜索 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.5.2</span><a href="#why">初始步长是猜测，不是最优性证据</a><a href="#ratio">利用相邻两次方向导数的比例</a><a href="#worked">把猜测放入实际的一维函数检查</a><a href="#other">其他初始策略及失败防护</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.5.2</div><h1>3.5.2 初始步长：一个好的猜测可以省掉多少搜索</h1><p class="dek">线搜索从 α₀ 开始试探。Newton 与拟 Newton 方法一般首先尝试完整步长 1；对梯度法与共轭梯度法，可以把上一轮的步长和方向导数转化为新猜测，但猜测仍需验证。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="why"><h2>初始步长是猜测，不是最优性证据</h2><p>给定下降方向 pₖ 后，线搜索需要从某个正步长开始评估。初始值 α₀ 越接近实际可接受区间，越有机会减少函数与梯度评估次数；但是过大的 α₀ 可能越过低谷，过小的 α₀ 可能提前停止或导致多次扩展。</p><p>在 Newton 和拟 Newton 方法中，一旦进入良好的局部区域，单位步长常常最终会被接受；因此应优先尝试 α₀=1，而不是总沿用一个极小的历史步长。</p></section>
+<section id="ratio"><h2>利用相邻两次方向导数的比例</h2><p>梯度法或非线性共轭梯度方向的尺度可能随迭代变化。一种候选策略认为“上一次实际取得的线性预测下降”可以提供数量级参考：让新一轮初始步长与当前方向导数的乘积，等于上一次步长与旧方向导数的乘积。</p><p>记上一轮接受步长为 α_prev，两个起点方向导数分别为 d_prev＜0 和 d_now＜0，则 α₀=α_prev d_prev/d_now。该式在两个斜率都为负时给出正数；如果当前斜率几乎为零，数值结果可能异常大，必须施加步长上下限。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="基于方向导数比例的初值猜测"><math display="block" aria-label="基于方向导数比例的初值猜测"><mrow><msub><mi>α</mi><mn>0</mn></msub><mo>=</mo><msub><mi>α</mi><mi>prev</mi></msub><mfrac><msub><mi>d</mi><mi>prev</mi></msub><msub><mi>d</mi><mi>now</mi></msub></mfrac></mrow></math></div></div><figure><img src="../assets/figures/initial-step-heuristics.svg" alt="上一轮的 α、方向导数与当前方向导数给出尺度比；这个比值用于提议候选步，不保证满足 Wolfe 条件。"><figcaption>历史信息有助于减少搜索调用，但不应当覆盖 Newton 型方向优先试 α=1 的局部快速收敛策略。</figcaption></figure></section>
+<section id="worked"><h2>把猜测放入实际的一维函数检查</h2><p>假设上一轮 α_prev=0.5、方向导数 d_prev=−8，而当前方向导数 d_now=−4。比例策略提出 α₀=1。为展示接受检查，取当前线搜索函数 φ(α)=(α−2)²；其初始方向导数恰好为 −4。</p><p>在 α=1，函数值从 φ(0)=4 降到 1；取 c₁=10⁻⁴、c₂=0.9，Armijo 上界为 3.9996，而 |φ′(1)|=2≤3.6，强 Wolfe 通过。因此这个候选可接受。</p><p>如果上一轮 α_prev=2，同样的比例策略提出 α₀=4，此时 φ(4)=4、没有充分下降，Armijo 拒绝。这并不说明比例策略错误，而是说明初始猜测与终止判据的职责不同。</p></section>
+<section id="other"><h2>其他初始策略及失败防护</h2><p>另一种常见初值利用上两轮目标值差和当前方向导数：α₀=2(fₖ−fₖ₋₁)/d_now。这来自一个简化的二次插值模型；如果目标值没有下降或 d_now 不是负值，就需要回退策略。</p><p>一个可靠实现应检查初值的有限性、正性和合理上下界；如果历史斜率太小，回退到安全默认值，并在最终接受前重新执行线搜索准则。</p></section><section id="interactive"><h2>交互实验：历史步长能否成为可接受的当前步</h2><p>固定 d_prev=−8、d_now=−4，当前 φ(α)=(α−2)²；改变上一轮 α_prev，观察建议的 α₀ 和 Armijo/强 Wolfe 检查。</p><div class="interactive-panel" data-demo="initialstep"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="init-prev">上一轮步长 α_prev <output data-value-for="prev">0.5</output></label><input id="init-prev" data-key="prev" type="range" min="0.25" max="2" step="0.25" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>按上一轮/当前方向导数比例给出候选，并将它送回函数值和强 Wolfe 曲率判据检查；展示接受与拒绝两种情况。</p><pre><code>&quot;&quot;&quot;Warm-start line search with previous directional derivative.&quot;&quot;&quot;
+def initial_guess(alpha_prev, d_prev=-8.0, d_now=-4.0):
+    if alpha_prev &lt;= 0 or d_prev &gt;= 0 or d_now &gt;= 0:
+        raise ValueError(&quot;positive previous step and negative slopes required&quot;)
+    return max(0.1, min(4.0, alpha_prev*d_prev/d_now))
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.5.2. Initial Step Length</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>16_3.5.2._Initial_Step_Length</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 16_3.5.2._Initial_Step_Length
-</code></pre>
+def conditions(alpha, c1=1e-4, c2=0.9):
+    phi = lambda a: (a-2.0)**2
+    dphi = lambda a: 2.0*(a-2.0)
+    armijo = phi(alpha) &lt;= phi(0.0)+c1*alpha*dphi(0.0)
+    strong = armijo and abs(dphi(alpha)) &lt;= c2*abs(dphi(0.0))
+    return armijo, strong
 
-    <h3>Python 文件</h3>
-    <pre><code># 16_3.5.2._Initial_Step_Length
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 16_3.5.2._Initial_Step_Length
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    a = initial_guess(0.5)
+    b = initial_guess(2.0)
+    print(&quot;initial guesses:&quot;,a,b,&quot;conditions:&quot;,conditions(a),conditions(b))
+    assert a == 1.0 and b == 4.0
+    assert conditions(a) == (True,True)
+    assert conditions(b) == (False,False)
+    assert abs(2.0*(3.0-5.0)/(-4.0)-1.0)&lt;1e-12</code></pre><p>自检：若 d_now 接近零，比例初值会发生什么？为什么必须设置上界或回退策略？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.5, Initial Step Length, equation (3.60), pp. 59–60。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">方向导数比例与函数值差是启发式初始猜测，不能替代 Armijo/Wolfe 终止条件；Newton 型方法应优先尝试 α=1。</p><nav class="prev-next" aria-label="相邻内容"><a href="15_3.5.1._Interpolation.html"><small>上一篇</small><strong>插值搜索</strong></a><a href="17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.html"><small>下一篇</small><strong>Wolfe 搜索算法（待重构）</strong></a></nav></footer></article></main></div></body></html>

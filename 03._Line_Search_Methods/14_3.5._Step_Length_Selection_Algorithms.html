@@ -1,36 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="搜索方向 p 确定以后，还要决定沿 p 前进多远。对于一般非线性目标，精确求一维极小点通常不划算；实际算法在有限次函数或方向导数评估内寻找满足下降准则的步长。"><title>3.5 步长搜索算法：从试探、括区间到接受 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.5</span><a href="#model">把多维问题沿一条方向压成一维</a><a href="#two">搜索通常分为括区间与选择两个阶段</a><a href="#bracket">一个可手算的区间压缩实验</a><a href="#fail">效率和失败模式</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.5</div><h1>3.5 步长搜索算法：从试探、括区间到接受</h1><p class="dek">搜索方向 p 确定以后，还要决定沿 p 前进多远。对于一般非线性目标，精确求一维极小点通常不划算；实际算法在有限次函数或方向导数评估内寻找满足下降准则的步长。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="model"><h2>把多维问题沿一条方向压成一维</h2><p>在当前点 xₖ，给定方向 pₖ，定义 φ(α)=f(xₖ+αpₖ)。若 ∇f(xₖ)ᵀpₖ＜0，说明 α=0 的初始斜率为负。步长搜索希望寻找 α＞0，使函数值得到充分下降，并在需要时满足 Wolfe 曲率条件。</p><p>对于 Hessian 为 Q 的强凸二次目标，沿固定方向的一维极小点有闭式解：α*=−(gᵀp)/(pᵀQp)，前提是 pᵀQp＞0。对一般非线性目标则通常需要迭代式的试探。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="方向上的一维目标"><math display="block" aria-label="方向上的一维目标"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>α</mi><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo></mrow></math></div></div></section>
+<section id="two"><h2>搜索通常分为括区间与选择两个阶段</h2><p>第一个阶段从一个初值试探，观察函数值是否上升、下降不足，或方向导数是否换号，以确定一个包含有用候选步长的区间。第二个阶段在已知区间中通过插值或安全二分寻找可接受的步。</p><p>不同线搜索使用不同停止条件。Armijo 回溯只要求充分下降；满足 Wolfe 或强 Wolfe 的搜索还要检查新点方向导数。即使一维函数在局部很规则，提前接受符合条件的 α 也可能比精确找到极小点更划算。</p><figure><img src="../assets/figures/line-search-bracketing-flow.svg" alt="初始试探确定是否可接受，失败时扩展或括住候选区间，再在该区间中缩小范围选择步长。"><figcaption>括区间是为了控制候选步的搜索范围；Wolfe 搜索还必须验证终止条件，区间二分本身不是完整的 Wolfe 算法。</figcaption></figure></section>
+<section id="bracket"><h2>一个可手算的区间压缩实验</h2><p>设 φ(α)=(α−2)²，φ′(α)=2(α−2)。在 α=0 斜率为 −4，在 α=5 斜率为 6，因此 [0,5] 包含唯一的一维极小点 α*=2。</p><p>仅作为严格凸一维函数的示例，每轮按中点的导数符号更新区间：中点斜率为正，把右端移至中点；斜率为负，把左端移至中点。经过四轮，中点序列为 2.5、1.25、1.875、2.1875，得到新区间 [1.875,2.1875]。</p><p>这段符号二分证明的是本例极小点被包含。对于一般非凸函数以及强 Wolfe 条件，算法 3.5/3.6 所需的区间不变量与终止检查更加复杂，不可把二分教学例子称为完整实现。</p></section>
+<section id="fail"><h2>效率和失败模式</h2><p>若只使用函数值信息，却缺少方向导数，判断“是否已经足够远”通常更困难，可能重复很多次函数计算。若允许插值候选无限靠近端点，区间收缩会很慢，因此实际算法要对插值设安全范围并保留二分回退。</p><p>当 φ 在起点不是下降方向、没有下界、计算中产生 NaN，或步长已小到浮点精度无法更新 x 时，必须明确报告失败，而不是凭空宣称存在可接受步长。</p></section><section id="interactive"><h2>交互实验：用导数符号压缩区间</h2><p>固定 φ(α)=(α−2)² 和初始区间 [0,5]；改变二分轮数，观察极小点被保留的区间宽度。</p><div class="interactive-panel" data-demo="bracketsearch"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="bracket-n">二分轮数 N <output data-value-for="n">4</output></label><input id="bracket-n" data-key="n" type="range" min="1" max="8" step="1" value="4"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>仅对严格凸一维二次函数演示导数符号二分。这个算法不是通用强 Wolfe 搜索实现。</p><pre><code>&quot;&quot;&quot;Derivative-sign bisection on a strictly convex quadratic.&quot;&quot;&quot;
+def dphi(alpha):
+    return 2.0*(alpha-2.0)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.5. Step Length Selection Algorithms</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>14_3.5._Step-Length_Selection_Algorithms</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 14_3.5._Step-Length_Selection_Algorithms
-</code></pre>
+def bracket(steps=4):
+    left, right = 0.0, 5.0
+    if not (dphi(left) &lt; 0 and dphi(right) &gt; 0):
+        raise ValueError(&quot;the bracket must straddle a stationary point&quot;)
+    history = []
+    for _ in range(steps):
+        midpoint = (left+right)/2.0
+        history.append(midpoint)
+        if dphi(midpoint) &gt; 0:
+            right = midpoint
+        elif dphi(midpoint) &lt; 0:
+            left = midpoint
+        else:
+            left = right = midpoint
+            break
+    return (left,right),history
 
-    <h3>Python 文件</h3>
-    <pre><code># 14_3.5._Step-Length_Selection_Algorithms
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 14_3.5._Step-Length_Selection_Algorithms
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    interval, trials = bracket(4)
+    print(&quot;candidates:&quot;,trials,&quot;bracket:&quot;,interval)
+    assert trials == [2.5,1.25,1.875,2.1875]
+    assert interval == (1.875,2.1875)
+    assert interval[0] &lt; 2.0 &lt; interval[1]</code></pre><p>自检：若初始右端换成 α=1，为什么不能再使用方向导数异号这一假设？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.5, Step-Length Selection Algorithms, pp. 56–57。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">仅展示凸二次函数的括区间机制，不构成一般非凸目标、Armijo 或强 Wolfe 搜索的完整算法。</p><nav class="prev-next" aria-label="相邻内容"><a href="13_3.4.4._Modified_Symmetric_Indefinite_Factorization.html"><small>上一篇</small><strong>对称不定分解</strong></a><a href="15_3.5.1._Interpolation.html"><small>下一篇</small><strong>插值选择候选步长</strong></a></nav></footer></article></main></div></body></html>
