@@ -1,36 +1,26 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="即使二次模型的 Hessian 可能不定，沿负梯度射线在信赖域内最小化二次模型仍能得到一个可靠的基准步长。Cauchy 点的价值不是完全解出子问题，而是保证可计算的预测下降。"><title>4.1.1 Cauchy 点：信赖域内最廉价的充分下降 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.1.1</span><a href="#section-1">在什么范围内相信二次模型</a><a href="#section-2">Cauchy 点的构造</a><a href="#section-3">两个半径的可重复算例</a><a href="#section-4">为什么它是所有其他近似方法的标尺</a><a href="#section-5">完整外层算法还需要做什么</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.1.1</div><h1>4.1.1 Cauchy 点：信赖域内最廉价的充分下降</h1><p class="dek">即使二次模型的 Hessian 可能不定，沿负梯度射线在信赖域内最小化二次模型仍能得到一个可靠的基准步长。Cauchy 点的价值不是完全解出子问题，而是保证可计算的预测下降。</p><div class="article-meta"><span>几何构造</span><span>数值推导</span><span>可复现实验</span></div></header><section id="section-1"><h2>在什么范围内相信二次模型</h2><p>给定当前点 x，使用二次模型 m(p)=f(x)+gᵀp+½pᵀBp；其中 g=∇f(x)，B 为对称曲率矩阵。信赖域半径 Δ＞0，把候选步限制在欧氏球 ‖p‖≤Δ 之内。</p><p>因为 B 可能有负特征值，二次模型在整个空间上未必有最小值，但封闭的信赖域球总允许搜索一个有界候选。模型下降是 m(0)−m(p)，不等于实际目标 f(x)−f(x+p)。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="信赖域二次模型"><math display="block" aria-label="信赖域二次模型"><mrow><mi>m</mi><mo>(</mo><mi>p</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>+</mo><msup><mi>g</mi><mo>⊤</mo></msup><mi>p</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>p</mi><mo>⊤</mo></msup><mi>B</mi><mi>p</mi></mrow></math></div></div></section>
+<section id="section-2"><h2>Cauchy 点的构造</h2><p>令 p=−tg，t≥0；满足信赖域约束意味着 t≤Δ/‖g‖。沿射线的模型下降为 t‖g‖²−½t²gᵀBg，因此只需要求解一个一维二次函数。</p><p>若 gᵀBg＞0，最佳 t=min{‖g‖²/(gᵀBg),Δ/‖g‖}；若 gᵀBg≤0，模型沿射线持续下降，最佳 t 位于边界 Δ/‖g‖。当 g=0 时应另行处理，不能除以梯度范数。</p><figure><img src="../../assets/figures/trust-region-cauchy.svg" alt="同一个负梯度方向上，半径较大时 Cauchy 点落在球内；半径缩小时，步长被截到球边界。圆表示球的几何约束。"><figcaption>同一个负梯度方向上，半径较大时 Cauchy 点落在球内；半径缩小时，步长被截到球边界。圆表示球的几何约束。</figcaption></figure></section>
+<section id="section-3"><h2>两个半径的可重复算例</h2><p>取 g=(2,0)、B=diag(4,1)。沿负梯度的无约束最优 t=¼，对应 p=(−0.5,0)，预测下降为 0.5。若 Δ=1，该点在球内，直接可用。</p><p>当 Δ=0.2 时，只能取 t=0.1，即 p=(−0.2,0)，预测下降变成 0.32。半径越小，模型能够探索的范围越有限，但仍保证这条射线上的最佳下降。</p></section>
+<section id="section-4"><h2>为什么它是所有其他近似方法的标尺</h2><p>Cauchy 点可能不是球上模型的全局最优步，却能提供廉价的最低下降基线。其他方法只要保证至少取得固定正比例的 Cauchy 下降，就有希望满足全局收敛证明中的子问题质量条件。</p><p>Dogleg 与二维子空间法利用模型曲率改进方向，但不需要每次都求出高维球约束二次模型的精确极小点。</p></section>
+<section id="section-5"><h2>完整外层算法还需要做什么</h2><p>模型预测下降越多不等于真实目标下降越多。外层信赖域方法会计算实际下降与预测下降之比，决定接受还是拒绝该步，并按模型可靠性调整下一轮的 Δ。</p><p>这里的标准库程序只计算一个固定二次模型的 Cauchy 点，没有实现外层接受规则、半径更新或对一般非凸函数的全局收敛控制。</p></section><section id="interactive"><h2>交互：改变参数并观察模型下降</h2><p>尝试把 Δ 从 0.1 调到 1.5，观察何时 Cauchy 点从信赖域边界转入球内部。</p><div class="interactive-panel" data-demo="trcauchy"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="trcauchy-input">信赖域半径 Δ <output data-value-for="radius">1</output></label><input id="trcauchy-input" type="range" data-key="radius" min="0.1" max="1.5" step="0.1" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：模型与断言交叉验证</h2><p>完整代码仅依赖 Python 标准库；可独立运行，包含数值断言。</p><pre><code>&quot;&quot;&quot;Compute Cauchy steps for a simple two-dimensional quadratic model.&quot;&quot;&quot;
+from math import hypot
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.1.1. The Cauchy Point</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_4.1.1._The_Cauchy_Point</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 00_4.1.1._The_Cauchy_Point
-</code></pre>
+def cauchy(radius):
+    if radius &lt;= 0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    g = (2.0, 0.0)
+    norm = hypot(*g)
+    gg = norm**2
+    gBg = 4.0*g[0]**2 + g[1]**2
+    t = min(gg/gBg, radius/norm) if gBg &gt; 0 else radius/norm
+    p = (-t*g[0], -t*g[1])
+    reduction = -(2*p[0] + 0.5*(4*p[0]**2+p[1]**2))
+    return p, reduction
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_4.1.1._The_Cauchy_Point
-
-"""
-Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 00_4.1.1._The_Cauchy_Point
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    p, decrease = cauchy(1.0)
+    print(&quot;delta=1:&quot;, p, decrease)
+    assert p == (-0.5, 0.0) and abs(decrease-0.5)&lt;1e-12
+    p, decrease = cauchy(0.2)
+    assert abs(p[0]+0.2)&lt;1e-12
+    assert abs(decrease-0.32)&lt;1e-12</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 4, Section 4.1, Algorithm 4.2, pp. 71–73。教学图、数值例子及代码独立构造。</div></section><footer class="article-footer"><p class="references">Cauchy 点沿负梯度射线最优，未必是球约束子问题的全局最优；需要外层 ρ 判据来检查真实目标下降。</p><nav class="prev-next" aria-label="相邻内容"><a href="../../03._Line_Search_Methods/19_3.7._Exercises.html"><small>上一篇</small><strong>线搜索原创练习</strong></a><a href="01_4.1.2._Improving_on_the_Cauchy_Point.html"><small>下一篇</small><strong>改进 Cauchy 点</strong></a></nav></footer></article></main></div></body></html>

@@ -1,36 +1,37 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="当二次模型的 B 对称正定，Dogleg 用最速下降点和 Newton 点构成一条折线。半径小就截在负梯度方向，半径适中就与第二段相交，半径足够大则取完整 Newton 步。"><title>4.1.3 Dogleg 方法：在两段折线中选择信赖域步 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.1.3</span><a href="#section-1">两段折线的两个关键节点</a><a href="#section-2">半径的三个区间</a><a href="#section-3">二维具体计算</a><a href="#section-4">为什么球面交点只需解一个一元二次方程</a><a href="#section-5">正定性和外层接受不能省略</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.1.3</div><h1>4.1.3 Dogleg 方法：在两段折线中选择信赖域步</h1><p class="dek">当二次模型的 B 对称正定，Dogleg 用最速下降点和 Newton 点构成一条折线。半径小就截在负梯度方向，半径适中就与第二段相交，半径足够大则取完整 Newton 步。</p><div class="article-meta"><span>几何构造</span><span>数值推导</span><span>可复现实验</span></div></header><section id="section-1"><h2>两段折线的两个关键节点</h2><p>模型 m(p)=fₖ+gᵀp+½pᵀBp；当 B 正定时，无约束极小点 pᴮ=−B⁻¹g。同时，沿负梯度进行不受半径限制的一维极小化，得到 pᵁ=−(gᵀg)/(gᵀBg)g。</p><p>Dogleg 路径先从 0 走到 pᵁ，再沿直线走到 pᴮ。若球中能容纳完整 Newton 步，就不需要截断；否则求折线与球边界的交点。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Dogleg 最速下降点和 Newton 点"><math display="block" aria-label="Dogleg 最速下降点和 Newton 点"><mrow><msup><mi>p</mi><mi>U</mi></msup><mo>=</mo><mo>−</mo><mfrac><mrow><msup><mi>g</mi><mo>⊤</mo></msup><mi>g</mi></mrow><mrow><msup><mi>g</mi><mo>⊤</mo></msup><mi>B</mi><mi>g</mi></mrow></mfrac><mi>g</mi><mo>,</mo><msup><mi>p</mi><mi>B</mi></msup><mo>=</mo><mo>−</mo><msup><mi>B</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>g</mi></mrow></math></div></div></section>
+<section id="section-2"><h2>半径的三个区间</h2><p>若 Δ≤‖pᵁ‖，取第一段与球面交点 p=−Δg/‖g‖；若 ‖pᵁ‖＜Δ＜‖pᴮ‖，取 p=pᵁ+τ(pᴮ−pᵁ)，其中 τ∈(0,1) 且 ‖p‖=Δ。</p><p>若 Δ≥‖pᴮ‖，直接返回 Newton 点。正定 B 使模型沿 Dogleg 路径下降，因此所选步的模型下降至少不差于 Cauchy 点。</p><figure><img src="../../assets/figures/trust-region-dogleg.svg" alt="从原点到 pᵁ 再到 pᴮ 的两段折线，与信赖域球边界交于可行步；图中不按特定数值严格缩放。"><figcaption>从原点到 pᵁ 再到 pᴮ 的两段折线，与信赖域球边界交于可行步；图中不按特定数值严格缩放。</figcaption></figure></section>
+<section id="section-3"><h2>二维具体计算</h2><p>取 g=(2,2)、B=diag(4,1)。得到 pᵁ=(−0.8,−0.8)，‖pᵁ‖≈1.1314；pᴮ=(−0.5,−2)，‖pᴮ‖≈2.0616。</p><p>Δ=1.3 时，求第二段与球面交点，可得约 p=(−0.7313,−1.0748)，模型下降约 1.9650。Δ=1 时则从负梯度第一段截断；Δ=2.5 时使用 pᴮ。</p></section>
+<section id="section-4"><h2>为什么球面交点只需解一个一元二次方程</h2><p>令 d=pᴮ−pᵁ，展开 ‖pᵁ+τd‖²=Δ²，得到 (dᵀd)τ²+2(pᵁᵀd)τ+(‖pᵁ‖²−Δ²)=0。选出 τ∈[0,1] 的非负根即可。</p><p>必须检查判别式与根范围；在极端半径或浮点误差下，接近零的负判别式需要谨慎处理，而不能无条件开方。</p></section>
+<section id="section-5"><h2>正定性和外层接受不能省略</h2><p>若 B 不定，所谓 Newton 点可能不是二次模型的极小点，Dogleg 两段单调下降的理由就会失效。此时应考虑负曲率处理、修正矩阵或其他信赖域子问题方法。</p><p>Dogleg 给出预测下降，真正的优化还须比较 f(x+p) 和模型预测值，再决定是否接受以及如何调整 Δ。</p></section><section id="interactive"><h2>交互：改变参数并观察模型下降</h2><p>调节半径，注意三种策略何时切换；即使 Dogleg 步位于球内，也不代表真实目标必定接受它。</p><div class="interactive-panel" data-demo="trdogleg"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="trdogleg-input">信赖域半径 Δ <output data-value-for="radius">1.3</output></label><input id="trdogleg-input" type="range" data-key="radius" min="0.5" max="2.5" step="0.1" value="1.3"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：模型与断言交叉验证</h2><p>完整代码仅依赖 Python 标准库；可独立运行，包含数值断言。</p><pre><code>&quot;&quot;&quot;Dogleg solution for B=diag(4,1), g=(2,2).&quot;&quot;&quot;
+from math import sqrt, hypot
+U=(-0.8,-0.8)
+P=(-0.5,-2.0)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.1.3. The Dogleg Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_4.1.3._The_Dogleg_Method</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 02_4.1.3._The_Dogleg_Method
-</code></pre>
+def reduction(p):
+    x,y=p
+    return -(2*x+2*y+0.5*(4*x*x+y*y))
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_4.1.3._The_Dogleg_Method
+def dogleg(radius):
+    if radius &lt;= 0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    nu,nb=hypot(*U),hypot(*P)
+    if radius &lt;= nu:
+        return (-radius/sqrt(2),-radius/sqrt(2)), &quot;first&quot;
+    if radius &gt;= nb:
+        return P,&quot;Newton&quot;
+    d=(P[0]-U[0],P[1]-U[1])
+    A=d[0]**2+d[1]**2
+    B=2*(U[0]*d[0]+U[1]*d[1])
+    C=U[0]**2+U[1]**2-radius**2
+    t=(-B+sqrt(B**2-4*A*C))/(2*A)
+    assert 0 &lt;= t &lt;= 1
+    return (U[0]+t*d[0],U[1]+t*d[1]),&quot;second&quot;
 
-"""
-Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 02_4.1.3._The_Dogleg_Method
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    for r in (0.8,1.3,2.5):
+        p,phase=dogleg(r)
+        print(r,phase,p,reduction(p))
+        assert hypot(*p)&lt;=r+1e-10 and reduction(p)&gt;0
+    p,phase=dogleg(1.3)
+    assert phase==&quot;second&quot;
+    assert abs(reduction(p)-1.9650065164267754)&lt;1e-9</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 4, Section 4.1, The Dogleg Method, pp. 73–76。教学图、数值例子及代码独立构造。</div></section><footer class="article-footer"><p class="references">经典 Dogleg 要求 B 对称正定；它保证模型路径的下降，不适用于把不定 Hessian 的 Newton 点直接当作最优目标。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_4.1.2._Improving_on_the_Cauchy_Point.html"><small>上一篇</small><strong>改进 Cauchy 点</strong></a><a href="03_4.1.4._Two_Dimensional_Subspace_Minimization.html"><small>下一篇</small><strong>二维子空间法</strong></a></nav></footer></article></main></div></body></html>

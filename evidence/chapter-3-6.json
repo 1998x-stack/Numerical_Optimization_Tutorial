@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.6-1",
+    "claim": "有限精度下的不可区分函数值和步长可能造成线搜索失败，需要有界试探次数与终止保护",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Notes and References, pp. 62–63; Chapter 8 on derivative computation",
+    "status": "verified",
+    "notes": "原文概念与假设已核对；此处为独立解释。"
+  },
+  {
+    "id": "3.6-2",
+    "claim": "Hessian 负曲率方向和一阶下降方向的判据不同",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Notes and References, pp. 62–63; Chapter 8 on derivative computation",
+    "status": "verified",
+    "notes": "原文概念与假设已核对；此处为独立解释。"
+  },
+  {
+    "id": "3.6-3",
+    "claim": "Python 双精度中 1e16+1.0==1e16",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本页数值算例与 Python 断言",
+    "status": "derived",
+    "notes": "原创可复现教学算例，不应当当作外部基准。"
+  },
+  {
+    "id": "3.6-4",
+    "claim": "math.ulp(1e17) 大于 math.ulp(1e12)",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本页数值算例与 Python 断言",
+    "status": "derived",
+    "notes": "原创可复现教学算例，不应当当作外部基准。"
+  }
+]

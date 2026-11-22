@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.7-1",
+    "claim": "强 Wolfe 条件在 c₁<c₂ 时同时约束充分下降和方向导数",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Exercises, pp. 63–65; Sections 3.1–3.5",
+    "status": "verified",
+    "notes": "原文概念与假设已核对；此处为独立解释。"
+  },
+  {
+    "id": "3.7-2",
+    "claim": "精确线搜索、Armijo 回溯及修正 Newton 方向属于不同算法步骤",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Exercises, pp. 63–65; Sections 3.1–3.5",
+    "status": "verified",
+    "notes": "原文概念与假设已核对；此处为独立解释。"
+  },
+  {
+    "id": "3.7-3",
+    "claim": "四题中的 17/65、三次试探和方向内积 3.5/−4.25 由独立算术推出",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本页数值算例与 Python 断言",
+    "status": "derived",
+    "notes": "原创可复现教学算例，不应当当作外部基准。"
+  },
+  {
+    "id": "3.7-4",
+    "claim": "解答与 Python 断言一一对应",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本页数值算例与 Python 断言",
+    "status": "derived",
+    "notes": "原创可复现教学算例，不应当当作外部基准。"
+  }
+]

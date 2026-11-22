@@ -19,10 +19,12 @@
 | 第三章 3.1.1–3.1.3 | 已重构 | Wolfe、Goldstein、充分下降与回溯 |
 | 第三章 3.2–3.3.3 | 已重构 | Zoutendijk 全局收敛、收敛速度、最速下降、Newton 与拟 Newton |
 | 第三章 3.4–3.5.2 | 已重构 | Hessian 修正、谱裁剪、单位矩阵平移、修正分解、插值与步长初值 |
-| 第三章 3.5.3 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第三章 3.5.3–3.7 | 已重构 | 强 Wolfe/zoom、浮点诊断与四道原创练习 |
+| 第四章 4.1.1–4.2.1 | 已重构（5 篇） | Cauchy 点、方向改善、Dogleg、二维子空间与下降界 |
+| 第四章 4.2.2 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.5.2 共三十四篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.2.1 共四十二篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -61,6 +63,21 @@
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
 
+## 第六批：Wolfe 搜索与信赖域基础
+
+从第三章最后三个模块过渡到第四章前五个信赖域模块，八篇均配备独立 HTML、Markdown、Python、原创建模图和可调参数实验：
+
+- [03.5.3 Wolfe 搜索与 zoom](03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.html)：两阶段搜索、强 Wolfe 条件和有界终止。
+- [03.6 线搜索的浮点边界](03._Line_Search_Methods/18_3.6._Notes_and_References.html)：不可区分的函数值、步长与负曲率。
+- [03.7 四组可执行练习](03._Line_Search_Methods/19_3.7._Exercises.html)：曲率区间、精确步长、回溯与修正 Newton。
+- [04.1.1 Cauchy 点](04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.html)：负梯度方向上的球内最佳模型步。
+- [04.1.2 改进 Cauchy 点](04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.html)：相同信赖域半径内利用曲率获得更多下降。
+- [04.1.3 Dogleg 折线法](04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.html)：三种半径分支与球面交点。
+- [04.1.4 二维子空间最小化](04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.html)：子空间包含 Dogleg 路径，模型下降可能更优。
+- [04.2.1 Cauchy 模型下降界](04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html)：半径、梯度和曲率范数给出的统一下界。
+
+**理论边界：**Wolfe 算法的教学二分 zoom 不等于工业级线搜索；Cauchy 下界保证的是模型下降，不等于真实函数值下降。正定模型上的 Dogleg 与二维子空间计算不自动覆盖不定 Hessian 情形。
+
 ## 第五批：Hessian 修正与步长算法
 
 已完成八篇独立教程，保留原始章节 URL，并提供 HTML、同步 Markdown、Python、原创 SVG、交互演示及证据账本：
@@ -74,7 +91,7 @@
 - [03.5.1 二次插值候选步长](03._Line_Search_Methods/15_3.5.1._Interpolation.html)：从函数值与方向导数估计曲线低谷。
 - [03.5.2 初始步长热启动](03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.html)：使用历史方向导数改善首次试探。
 
-**必要区分：**正定修正保证下降方向，不自动给出全局最优；插值和历史步长只提供搜索候选，不等于通过 Armijo/Wolfe。3.5.3 的完整 Wolfe 搜索仍待下一批。
+**必要区分：**正定修正保证下降方向，不自动给出全局最优；插值和历史步长只提供搜索候选，不等于通过 Armijo/Wolfe。本批范围止于 3.5.2；第六批已继续补齐 3.5.3–3.7。
 
 ## 第四批：第三章步长条件与收敛分析
 

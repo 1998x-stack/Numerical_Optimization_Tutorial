@@ -1,0 +1,38 @@
+[
+  {
+    "id": "4.1.3-1",
+    "claim": "Dogleg 路径由最速下降段和连接 Newton 点的第二段组成",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 4, Section 4.1, The Dogleg Method, pp. 73–76",
+    "status": "verified",
+    "notes": "核对原书所标节，独立表达。"
+  },
+  {
+    "id": "4.1.3-2",
+    "claim": "信赖域半径决定取第一段、第二段交点或完整 Newton 步",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 4, Section 4.1, The Dogleg Method, pp. 73–76",
+    "status": "verified",
+    "notes": "核对原书所标节，独立表达。"
+  },
+  {
+    "id": "4.1.3-3",
+    "claim": "g=(2,2)、B=diag(4,1) 给出 pᵁ=(-0.8,-0.8) 与 pᴮ=(-0.5,-2)",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文数值算例及 Python 断言",
+    "status": "derived",
+    "notes": "此为教学计算，不声称一般算法的基准性能。"
+  },
+  {
+    "id": "4.1.3-4",
+    "claim": "Δ=1.3 时模型下降约 1.9650",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文数值算例及 Python 断言",
+    "status": "derived",
+    "notes": "此为教学计算，不声称一般算法的基准性能。"
+  }
+]

@@ -285,5 +285,69 @@ class CrossVerificationTests(unittest.TestCase):
         self.assertTrue(armijo(0.5 * (-8) / (-4)))
         self.assertFalse(armijo(2 * (-8) / (-4)))
 
+
+    def test_sixth_batch_python_reproducibility(self):
+        import runpy
+        cases = [
+        "03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.py",
+        "03._Line_Search_Methods/18_3.6._Notes_and_References.py",
+        "03._Line_Search_Methods/19_3.7._Exercises.py",
+        "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.py",
+        "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.py",
+        "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.py",
+        "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.py",
+        "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.py"
+]
+        for path in cases:
+            with self.subTest(example=path):
+                runpy.run_path(str(ROOT / path), run_name="__main__")
+
+    def test_sixth_batch_svg_xml_is_well_formed(self):
+        from xml.etree import ElementTree
+        diagrams = [
+        "wolfe-zoom-search.svg",
+        "line-search-floating-point.svg",
+        "line-search-exercises-map.svg",
+        "trust-region-cauchy.svg",
+        "trust-region-improve.svg",
+        "trust-region-dogleg.svg",
+        "trust-region-subspace.svg",
+        "trust-region-cauchy-bound.svg"
+]
+        for file_name in diagrams:
+            with self.subTest(figure=file_name):
+                root = ElementTree.parse(ROOT / "assets" / "figures" / file_name).getroot()
+                self.assertTrue(root.tag.endswith("svg"))
+                self.assertIn("viewBox",root.attrib)
+
+    def test_trust_region_cauchy_bound_independent_check(self):
+        for radius in (0.1, 0.2, 0.8, 1.0, 1.5):
+            t = min(0.25, radius / 2)
+            p = -2 * t
+            decrease = -2 * p - 2 * p*p
+            lower = min(radius, 0.5)
+            self.assertGreaterEqual(decrease + 1e-12, lower)
+        self.assertAlmostEqual(0.32, -2*(-0.2) - 2*(-0.2)**2)
+
+    def test_curvature_aware_step_vs_cauchy(self):
+        g = (2.0,2.0)
+        curvature = (4.0,1.0)
+        reduction = lambda p: -(g[0]*p[0]+g[1]*p[1]+0.5*(curvature[0]*p[0]**2+curvature[1]*p[1]**2))
+        baseline=(-1/math.sqrt(2),-1/math.sqrt(2))
+        candidate=(-0.5,-math.sqrt(3)/2)
+        self.assertAlmostEqual(sum(z*z for z in baseline),1)
+        self.assertAlmostEqual(sum(z*z for z in candidate),1)
+        self.assertGreater(reduction(candidate),reduction(baseline))
+
+    def test_strong_wolfe_acceptance_is_not_only_armijo(self):
+        f=lambda a:(a-2)**2
+        slope=lambda a:2*(a-2)
+        c1,c2=1e-4,0.1
+        armijo=lambda a:f(a)<=f(0)+c1*a*slope(0)
+        strong=lambda a:armijo(a) and abs(slope(a))<=c2*abs(slope(0))
+        self.assertTrue(armijo(0.5))
+        self.assertFalse(strong(0.5))
+        self.assertTrue(strong(2.0))
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,36 +1,25 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="信赖域子问题不必被精确求解，但不能每轮都只产生可以忽略的模型下降。Cauchy 点保证模型下降至少与梯度、半径和曲率范数构成的下界成正比。"><title>4.2.1 Cauchy 下降界：信赖域全局收敛证明的起点 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.2.1</span><a href="#section-1">为什么一个下降下界能成为全局证明的关键</a><a href="#section-2">沿负梯度的两种曲率情形</a><a href="#section-3">两组半径的精确数字</a><a href="#section-4">由下界走向全局收敛仍需哪些条件</a><a href="#section-5">当梯度为零或模型不定时</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.2.1</div><h1>4.2.1 Cauchy 下降界：信赖域全局收敛证明的起点</h1><p class="dek">信赖域子问题不必被精确求解，但不能每轮都只产生可以忽略的模型下降。Cauchy 点保证模型下降至少与梯度、半径和曲率范数构成的下界成正比。</p><div class="article-meta"><span>几何构造</span><span>数值推导</span><span>可复现实验</span></div></header><section id="section-1"><h2>为什么一个下降下界能成为全局证明的关键</h2><p>模型 mₖ(p)=fₖ+gₖᵀp+½pᵀBₖp，约束 ‖p‖≤Δₖ。即使不精确求子问题，也要防止梯度明显非零时产生接近零的下降，否则无法排除算法长期原地踏步。</p><p>Cauchy 点满足一个统一估计：m(0)−m(pᶜ)≥½‖g‖min{Δ,‖g‖/‖B‖}。这里的 ‖B‖ 是诱导二范数；当 B=0 时，第二项应按无穷大理解，程序不得直接除零。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Cauchy 模型下降的统一下界"><math display="block" aria-label="Cauchy 模型下降的统一下界"><mrow><mi>m</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>−</mo><mi>m</mi><mo>(</mo><msup><mi>p</mi><mi>C</mi></msup><mo>)</mo><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>‖</mo><mi>g</mi><mo>‖</mo><mi>min</mi><mo>{</mo><mi>Δ</mi><mo>,</mo><mfrac><mrow><mo>‖</mo><mi>g</mi><mo>‖</mo></mrow><mrow><mo>‖</mo><mi>B</mi><mo>‖</mo></mrow></mfrac><mo>}</mo></mrow></math></div></div></section>
+<section id="section-2"><h2>沿负梯度的两种曲率情形</h2><p>取 p=−tg，模型下降是 t‖g‖²−½t²gᵀBg。若 gᵀBg≤0，则沿 t 增大模型一直下降，Cauchy 取 t=Δ/‖g‖，至少取得 Δ‖g‖ 的下降。</p><p>若 gᵀBg＞0，则用 t=min{‖g‖²/(gᵀBg),Δ/‖g‖}。再利用 gᵀBg≤‖B‖‖g‖²，便可以推出只用 ‖g‖、Δ 和 ‖B‖ 表达的统一下界，常数是 ½。</p><figure><img src="../../assets/figures/trust-region-cauchy-bound.svg" alt="深色表示计算得到的 Cauchy 模型下降，浅色表示理论统一下界：在 Δ=0.2 时分别是 0.32 和 0.2；在 Δ=1 时均为 0.5。"><figcaption>深色表示计算得到的 Cauchy 模型下降，浅色表示理论统一下界：在 Δ=0.2 时分别是 0.32 和 0.2；在 Δ=1 时均为 0.5。</figcaption></figure></section>
+<section id="section-3"><h2>两组半径的精确数字</h2><p>令 g=(2,0)、B=diag(4,1)，则 ‖g‖=2、‖B‖=4、‖g‖/‖B‖=0.5。Δ=0.2 时 Cauchy 点 p=(−0.2,0)，实际模型下降是 0.32，统一下界为 0.2。</p><p>Δ=1 时，Cauchy 点 p=(−0.5,0)，模型下降 0.5；下界也为 0.5。这里恰好取等，不意味着任意问题、任意半径都能取等。</p></section>
+<section id="section-4"><h2>由下界走向全局收敛仍需哪些条件</h2><p>若某近似子问题求解方法保证达到固定比例的 Cauchy 下降，则同阶模型下降下界也保留。但要把模型下降变成真实 f 的渐近结论，仍需考虑实际/预测下降比、半径缩小规则、模型与真实目标一致性及目标有下界等假设。</p><p>因此这条引理不是完整全局收敛定理，更不能单独说明迭代点一定收敛到一个局部极小点。</p></section>
+<section id="section-5"><h2>当梯度为零或模型不定时</h2><p>若 g=0，这条下降下界右侧为零，不能辨认负曲率方向，也不能判断当前位置是不是非极小驻点。处理二阶驻点需要更多 Hessian 或子问题信息。</p><p>本页代码只验证对角二次模型上的一阶 Cauchy 下界，不实现完整信赖域主算法，也不会调用真实目标进行接受检查。</p></section><section id="interactive"><h2>交互：改变参数并观察模型下降</h2><p>调整半径，确认实际模型下降从不低于统一下界；请不要把模型下降误读为真实目标下降。</p><div class="interactive-panel" data-demo="trbound"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="trbound-input">信赖域半径 Δ <output data-value-for="radius">0.8</output></label><input id="trbound-input" type="range" data-key="radius" min="0.1" max="1.5" step="0.1" value="0.8"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：模型与断言交叉验证</h2><p>完整代码仅依赖 Python 标准库；可独立运行，包含数值断言。</p><pre><code>&quot;&quot;&quot;Numerically check the Cauchy decrease lower bound.&quot;&quot;&quot;
+def example(radius):
+    if radius &lt;= 0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    norm_g, norm_B = 2.0, 4.0
+    t = min(0.25, radius/norm_g)
+    x = -2.0*t
+    reduction = -2*x - 2*x*x
+    lower_bound = 0.5*norm_g*min(radius,norm_g/norm_B)
+    return x,reduction,lower_bound
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.2.1. Reduction Obtained by the Cauchy Point</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.2._Global_Convergence
-Content: 00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point
-
-"""
-Lecture: 04._Trust-Region_Methods/4.2._Global_Convergence
-Content: 00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    for r in (0.1,0.2,0.5,0.8,1.0,1.5):
+        x,actual,bound=example(r)
+        print(r,x,actual,bound)
+        assert abs(x)&lt;=r+1e-12
+        assert actual&gt;=bound-1e-12
+    _,actual,bound=example(0.2)
+    assert abs(actual-0.32)&lt;1e-12 and abs(bound-0.2)&lt;1e-12
+    _,actual,bound=example(1.0)
+    assert abs(actual-0.5)&lt;1e-12 and abs(bound-0.5)&lt;1e-12</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 4, Section 4.2, Lemma 4.3, equations (4.20)–(4.21), pp. 77–79。教学图、数值例子及代码独立构造。</div></section><footer class="article-footer"><p class="references">引理只保证模型下降的下界，不独立保证真实目标的下降、算法梯度趋零或收敛到局部极小点。</p><nav class="prev-next" aria-label="相邻内容"><a href="../4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.html"><small>上一篇</small><strong>二维子空间法</strong></a><a href="01_4.2.2._Convergence_to_Stationary_Points.html"><small>下一篇</small><strong>收敛到驻点（待重构）</strong></a></nav></footer></article></main></div></body></html>

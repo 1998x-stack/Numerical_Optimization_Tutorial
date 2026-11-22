@@ -1,0 +1,38 @@
+[
+  {
+    "id": "4.1.2-1",
+    "claim": "Cauchy 下降是近似信赖域求解器的基准",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 4, Section 4.1, Improving on the Cauchy Point, p. 73",
+    "status": "verified",
+    "notes": "核对原书所标节，独立表达。"
+  },
+  {
+    "id": "4.1.2-2",
+    "claim": "将 Hessian 曲率用于方向选择，可能改善 Cauchy 点",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 4, Section 4.1, Improving on the Cauchy Point, p. 73",
+    "status": "verified",
+    "notes": "核对原书所标节，独立表达。"
+  },
+  {
+    "id": "4.1.2-3",
+    "claim": "该 Cauchy 点的预测下降约为 1.578427",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文数值算例及 Python 断言",
+    "status": "derived",
+    "notes": "此为教学计算，不声称一般算法的基准性能。"
+  },
+  {
+    "id": "4.1.2-4",
+    "claim": "球面候选 p=(−0.5,−√3/2) 的预测下降约为 1.857051",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文数值算例及 Python 断言",
+    "status": "derived",
+    "notes": "此为教学计算，不声称一般算法的基准性能。"
+  }
+]
