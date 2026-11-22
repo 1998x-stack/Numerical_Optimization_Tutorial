@@ -572,6 +572,29 @@
         fmt(x[1],4) + ')</strong> · p₁ᵗQp₀=' + fmt(conj,3) + ' · 与 x* 距离 ' + err.toExponential(2) +
         (err < 1e-9 ? ' · 共轭，两步命中 x*' : ' · 不共轭');
     });
+    if (kind === "cg-orthogonal") bind(root, el => {
+      const t = read(el, "t");
+      const Q = [[3, 1], [1, 3]], b = [5, 7];
+      const mv = v => [Q[0][0]*v[0] + Q[0][1]*v[1], Q[1][0]*v[0] + Q[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0] + u[1]*v[1];
+      const grad = x => { const q = mv(x); return [q[0]-b[0], q[1]-b[1]]; };
+      let x = [t, t];
+      const g0 = grad(x);
+      let g = g0, p = [-g[0], -g[1]];
+      let a = -dot(g, p) / dot(p, mv(p));
+      x = [x[0] + a*p[0], x[1] + a*p[1]];
+      const g1 = grad(x);
+      const beta = dot(g1, g1) / dot(g, g);
+      p = [-g1[0] + beta*p[0], -g1[1] + beta*p[1]];
+      g = g1;
+      a = -dot(g, p) / dot(p, mv(p));
+      x = [x[0] + a*p[0], x[1] + a*p[1]];
+      const orth = dot(g0, g1), err = Math.hypot(x[0]-1, x[1]-2);
+      output.innerHTML = '<strong>x₀=(' + fmt(t,1) + ',' + fmt(t,1) + ')，x₂=(' +
+        fmt(x[0],4) + ', ' + fmt(x[1],4) + ')</strong> · g₀ᵗg₁=' + orth.toExponential(2) +
+        ' · 与 x* 距离 ' + err.toExponential(2) +
+        (Math.abs(orth) < 1e-9 && err < 1e-9 ? ' · 正交且两步命中' : ' · 数值退化');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

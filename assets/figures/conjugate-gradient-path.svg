@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-labelledby="cgp-title cgp-desc">
+<title id="cgp-title">共轭梯度法自动生成的迭代路径</title>
+<desc id="cgp-desc">等值线椭圆中心为 x*=(1,2)。CG 从 x0=(0,0) 出发，残余方向 p0=-g0 指向 x1，再用正交化后的方向 p1 修正，第二步到达 x*。方向在迭代中自动生成，无需预先给定。</desc>
+<rect width="880" height="420" rx="18" fill="#fbfaf6"/>
+<line x1="210" y1="190" x2="680" y2="190" stroke="#ddd6c8" stroke-width="1.5"/>
+<line x1="440" y1="20" x2="440" y2="400" stroke="#ddd6c8" stroke-width="1.5"/>
+<ellipse cx="440" cy="190" rx="215.7" ry="152.5" transform="rotate(45 440 190)" fill="none" stroke="#9dc3ba" stroke-width="2.5"/>
+<ellipse cx="440" cy="190" rx="24.6" ry="17.4" transform="rotate(45 440 190)" fill="none" stroke="#9dc3ba" stroke-width="2"/>
+<line x1="370" y1="330" x2="459" y2="206" stroke="#126e66" stroke-width="4"/>
+<line x1="459" y1="206" x2="440" y2="190" stroke="#bd633f" stroke-width="4"/>
+<circle cx="370" cy="330" r="7" fill="#263a33"/>
+<circle cx="459" cy="206" r="7" fill="#126e66"/>
+<circle cx="440" cy="190" r="9" fill="#bd633f"/>
+<circle cx="440" cy="190" r="3.5" fill="#fbfaf6"/>
+<g fill="#263a33" font-size="17" font-family="system-ui, sans-serif">
+<text x="320" y="356">x₀=(0,0)</text>
+<text x="468" y="212" fill="#126e66">x₁</text>
+<text x="410" y="178" fill="#bd633f">x*=(1,2)</text>
+</g>
+<g fill="#263a33" font-size="16" font-family="system-ui, sans-serif">
+<text x="668" y="150" font-weight="700">Q = [[3,1],[1,3]]</text>
+<text x="668" y="178">在第 1 步沿 p₀ 精确搜索</text>
+<text x="668" y="204" fill="#126e66">p₀=−g₀，得 x₁</text>
+<text x="668" y="230" fill="#bd633f">p₁=−g₁+β₁p₀，得 x*</text>
+<text x="668" y="262" font-size="15" fill="#5b6b64">方向在迭代中自动生成，</text>
+<text x="668" y="284" font-size="15" fill="#5b6b64">无需提前构造共轭基。</text>
+<text x="668" y="312" font-size="15" fill="#5b6b64">二维问题：第 2 步终止。</text>
+</g>
+</svg>

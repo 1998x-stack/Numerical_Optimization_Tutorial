@@ -1,36 +1,46 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="共轭梯度法不需要预先给定共轭方向：它用当前梯度构造新方向，保证新方向与上一次方向关于 Q 共轭，并让相邻梯度彼此正交。这两个性质使迭代在正定二次问题上 n 步终止。"><title>5.1.2 共轭梯度法的基本性质：自动共轭与残余正交 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.2</span><a href="#section-1">从给定方向到生成方向</a><a href="#section-2">三个关键性质</a><a href="#section-3">Krylov 子空间中的最优性</a><a href="#section-4">β 的实用递推形式</a><a href="#section-5">二维精确算例</a><a href="#section-6">有限精度下的失效边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.2</div><h1>5.1.2 共轭梯度法的基本性质：自动共轭与残余正交</h1><p class="dek">共轭梯度法不需要预先给定共轭方向；它用当前梯度构造新方向，并保证新方向与上一次方向关于 Q 共轭，同时让相邻梯度彼此正交。这两个性质把任意起点上的迭代导向 Krylov 子空间中的最优解，并在正定二次问题上 n 步终止。</p><div class="article-meta"><span>性质与定理</span><span>递推公式</span><span>精确算例</span></div></header>
+<section id="section-1"><h2>从给定方向到生成方向</h2><p>5.1.1 的共轭方向法假设方向已经给定。共轭梯度法反过来：每一步只保存一个方向，用当前梯度自动构造新的共轭方向。本页固定符号约定为 g_k=Qx_k−b（即二次目标的梯度，也是线性方程组 Qx=b 的残余的相反数；部分文献把残余记作 r_k=b−Qx_k，二者相差一个负号）。</p><p>递推从一个纯梯度方向开始，之后每一步把当前梯度再减去上一方向的成分，使其关于 Q 共轭：第一步 p₀=−g₀，此后 p_{k+1}=−g_{k+1}+β_{k+1}p_k。系数 β 由&quot;让新方向与旧方向 Q-正交&quot;这一要求确定。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="共轭梯度方向递推"><math display="block" aria-label="共轭梯度方向递推"><mrow><msub><mi>p</mi><mn>0</mn></msub><mo>=</mo><mo>−</mo><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mspace width="1em"/><msub><mi>p</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mo>−</mo><msub><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><msub><mi>p</mi><mi>k</mi></msub><mo>,</mo><mspace width="1em"/><msub><mi>β</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div></section>
+<section id="section-2"><h2>三个关键性质</h2><p>性质（Nocedal &amp; Wright 定理 5.2）。设 Q 对称正定，方向按上面的递推从 p₀=−g₀ 生成。则：一，方向组 p₀,…,p_{n−1} 两两关于 Q 共轭；二，梯度两两正交，即 g_iᵀg_j=0 对 i≠j 成立；三，前 k 个方向张成的空间等于前 k 个&quot;梯度—曲率&quot;向量张成的空间，即 span{p₀,…,p_{k−1}}=span{g₀,Qg₀,…,Q^{k−1}g₀}。</p><p>第二条最直观：精确线搜索让 g_{k+1} 垂直于搜索方向 p_k，而 Q-共轭与线性组合关系再把&quot;垂直于上一个方向&quot;放大成&quot;垂直于此前所有梯度&quot;。下图给出二维情形的手工核对。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="梯度正交性"><math display="block" aria-label="梯度正交性"><mrow><msubsup><mi>g</mi><mi>i</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn><mspace width="1em"/><mo>(</mo><mi>i</mi><mo>≠</mo><mi>j</mi><mo>)</mo><mo>,</mo><mspace width="1.5em"/><mo>span</mo><mo>{</mo><msub><mi>p</mi><mn>0</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>p</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>}</mo><mo>=</mo><mo>span</mo><mo>{</mo><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mi>Q</mi><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msup><mi>Q</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><msub><mi>g</mi><mn>0</mn></msub><mo>}</mo><mo>.</mo></mrow></math></div></div><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" style="width:100%;height:auto;display:block" role="img" aria-labelledby="cgort-title cgort-desc"><title id="cgort-title">相邻梯度彼此正交</title><desc id="cgort-desc">在 x0 处画梯度 g0，并把 g1 平移到同一起点（虚线）。两者夹角为直角，说明 g0 与 g1 正交；右侧给出点积为零。</desc><rect width="640" height="320" rx="16" fill="#f7f4ee"/><line x1="90" y1="238" x2="560" y2="238" stroke="#e0d9cb" stroke-width="1.5"/><line x1="180" y1="60" x2="180" y2="270" stroke="#e0d9cb" stroke-width="1.5"/><line x1="180" y1="238" x2="92" y2="115" stroke="#126e66" stroke-width="5"/><line x1="180" y1="238" x2="382" y2="98" stroke="#bd633f" stroke-width="5" stroke-dasharray="9 6"/><path d="M180 208 L210 208 L210 238" fill="none" stroke="#263a33" stroke-width="2"/><circle cx="180" cy="238" r="7" fill="#263a33"/><g fill="#263a33" font-size="17" font-family="system-ui, sans-serif"><text x="70" y="110" fill="#126e66">g₀</text><text x="388" y="94" fill="#bd633f">g₁（平移到 x₀）</text><text x="150" y="262">x₀</text></g><g fill="#263a33" font-size="16" font-family="system-ui, sans-serif"><text x="80" y="40" font-weight="700">残余正交性</text><text x="80" y="288">g₀·g₁ = 0：相邻梯度夹角为 90°。</text><text x="80" y="312" font-size="15" fill="#5b6b64">虚线表示把 g₁ 平移过来便于比较方向。</text></g></svg><p class="caption">相邻两步的梯度互相垂直。虚线把 g₁ 平移到 x₀ 的同一起点以便比较角度；直角符号标出这一正交关系。该性质对任意起点成立，是 CG 在 n 步内终止的关键。</p></div></section>
+<section id="section-3"><h2>Krylov 子空间中的最优性</h2><p>性质三给出了更强的解释：第 k 步的迭代点 x_k 是在整个仿射集 x₀+K_k(g₀,Q) 上使 φ 最小的点，而不只是沿单一方向的最好点。这里 K_k(g₀,Q)=span{g₀,Qg₀,…,Q^{k−1}g₀} 称为第 k 个 Krylov 子空间。</p><p>这正是 CG 优于最速下降的地方：最速下降每一步只看当前梯度，容易在狭长椭圆的谷底来回摆动；CG 在逐步扩大的 Krylov 子空间上取最优，因此对正定二次问题最多 n 步就精确终止。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Krylov 子空间最优性"><math display="block" aria-label="Krylov 子空间最优性"><mrow><msub><mi>x</mi><mi>k</mi></msub><mo>=</mo><munder><mo>arg min</mo><mrow><mi>x</mi><mo>∈</mo><msub><mi>x</mi><mn>0</mn></msub><mo>+</mo><msub><mi>K</mi><mi>k</mi></msub><mo>(</mo><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mi>Q</mi><mo>)</mo></mrow></munder><mi>φ</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>,</mo><mspace width="1em"/><msub><mi>K</mi><mi>k</mi></msub><mo>(</mo><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mi>Q</mi><mo>)</mo><mo>=</mo><mo>span</mo><mo>{</mo><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mi>Q</mi><msub><mi>g</mi><mn>0</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msup><mi>Q</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><msub><mi>g</mi><mn>0</mn></msub><mo>}</mo><mo>.</mo></mrow></math></div></div></section>
+<section id="section-4"><h2>β 的实用递推形式</h2><p>由残余正交性可以证明，共轭形式的分母与分子可以化简，得到只用两个内积的 Fletcher–Reeves 系数：β_{k+1}=g_{k+1}ᵀg_{k+1}/g_kᵀg_k。它不再需要显式地算 g_{k+1}ᵀQp_k，但计算步长 α_k 时仍然需要矩阵-向量乘积 Qp_k。</p><p>这个等价关系只在“精确线搜索 + 线性共轭梯度”下成立。一旦目标非线性或线搜索不精确（即 5.2 节的情形），不同 β 公式不再等价，需要另行选择，并配合重启策略。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Fletcher–Reeves 系数"><math display="block" aria-label="Fletcher–Reeves 系数"><mrow><msub><mi>β</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mo>⊤</mo></msubsup><msub><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div></section>
+<section id="section-5"><h2>二维精确算例</h2><p>仍取 Q=[[3,1],[1,3]]、b=(5,7)，则 x*=Q⁻¹b=(1,2)。从 x₀=(0,0) 出发：g₀=(−5,−7)，p₀=(5,7)。p₀ᵀQp₀=292，故 α₀=74/292=37/146≈0.2534，得 x₁≈(1.2671,1.7740)。</p><p>下一步梯度 g₁=(42/73,−30/73)≈(0.5753,−0.4110)。直接代入得 g₀ᵀg₁=(−5)(42/73)+(−7)(−30/73)=0，残余正交性成立。于是 Fletcher–Reeves 系数 β₁=g₁ᵀg₁/g₀ᵀg₀≈0.00676，p₁≈(−0.5416,0.4583)。再走一步得 α₁≈0.4934，x₂≈(1.0000,2.0000)=x*，两步终止。</p><p>下面的程序用分数（Fraction）精确算术复现同一过程，避免浮点误差对“正交性是否等于零”的判断造成干扰。</p><figure><img src="../../assets/figures/conjugate-gradient-path.svg" alt="等值线椭圆中心为 x*=(1,2)；CG 从 x0 沿 p0=-g0 到 x1，再用正交化方向 p1 到 x*，第二步到达。"><figcaption>CG 从 x₀ 出发，先沿纯梯度方向 p₀ 到 x₁，再用自动正交化后的方向 p₁ 修正。方向在迭代中生成，无需提前构造共轭基；二维问题第 2 步终止，与定理 5.1 一致。</figcaption></figure></section>
+<section id="section-6"><h2>有限精度下的失效边界</h2><p>上述正交性与共轭性在精确算术下严格成立。在浮点运算中，它们会逐步退化：舍入误差使 g_iᵀg_j 不再恰好为零，n 步终止也不再严格。病态问题（条件数很大）下退化更快。</p><p>这正是实际 CG 需要重启（见 5.2.3）与预条件（5.1.5–5.1.6）的原因。本页的程序用分数精确算术验证性质，不对浮点 CG 的收敛步数或稳健性作任何声明。</p></section>
+<section id="interactive"><h2>交互：更换起点观察正交性</h2><p>把起点取为 x₀=(t,t)，拖动滑块改变 t。因为残余正交性是 CG 的不变量，无论从哪里出发，g₀ᵀg₁ 都为零，且两步都落到 x*=(1,2)。</p><div class="interactive-panel" data-demo="cg-orthogonal"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgo-t">起点参数 t（x₀=(t,t)） <output data-value-for="t">0.5</output></label><input id="cgo-t" type="range" data-key="t" min="-2" max="2" step="0.1" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：分数精确算术交叉验证</h2><p>程序只用标准库。它跑两步线性 CG，断言相邻梯度的内积等于零、第二步结果等于 x*，且 Qx*=b 成立。</p><pre><code>&quot;&quot;&quot;Exact-arithmetic conjugate gradient on a 2x2 positive definite quadratic.&quot;&quot;&quot;
+from fractions import Fraction as F
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.2. Basic Properties of the Conjugate Gradient Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method
-</code></pre>
+Q = ((F(3), F(1)), (F(1), F(3)))
+b = (F(5), F(7))
+xstar = (F(1), F(2))
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method
+def matvec(v):
+    return (Q[0][0]*v[0] + Q[0][1]*v[1], Q[1][0]*v[0] + Q[1][1]*v[1])
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method
-"""
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def gradient(x):
+    q = matvec(x)
+    return (q[0] - b[0], q[1] - b[1])
+
+def run(x0, steps):
+    x, g = x0, gradient(x0)
+    p = (-g[0], -g[1])
+    grads = [g]
+    for _ in range(steps):
+        alpha = -dot(g, p) / dot(p, matvec(p))
+        x = (x[0] + alpha*p[0], x[1] + alpha*p[1])
+        g_next = gradient(x)
+        beta = dot(g_next, g_next) / dot(g, g)
+        p = (-g_next[0] + beta*p[0], -g_next[1] + beta*p[1])
+        g, grads = g_next, grads + [g_next]
+    return x, grads
+
+if __name__ == &quot;__main__&quot;:
+    x2, grads = run((F(0), F(0)), 2)
+    assert dot(grads[0], grads[1]) == 0
+    assert dot(grads[0], grads[2]) == 0
+    assert x2 == xstar
+    assert matvec(x2) == b
+    print(&quot;x2 =&quot;, tuple(str(c) for c in x2), &quot;| g0.g1 =&quot;, dot(grads[0], grads[1]))</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1（Theorem 5.2 与 Fletcher–Reeves 系数），pp. 106–110。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">共轭梯度的共轭性、残余正交性与 Krylov 最优性都以精确线搜索为前提；浮点环境下需要重启与预条件来维持。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_5.1.1._Conjugate_Direction_Methods.html"><small>上一篇</small><strong>共轭方向法</strong></a><a href="02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.html"><small>下一篇</small><strong>CG 的实用算法形式</strong></a></nav></footer></article></main></div></body></html>
+

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.1.2-1",
+    "claim": "共轭梯度法自动生成的方向关于 Q 共轭，且梯度两两正交 g_i^T g_j=0 (i≠j)",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, Theorem 5.2, pp. 108–109",
+    "status": "verified",
+    "notes": "核对原书定理编号与三条性质，独立表达。"
+  },
+  {
+    "id": "5.1.2-2",
+    "claim": "x_k 在仿射集 x_0+K_k(g_0,Q) 上最小化二次目标，K_k 为 Krylov 子空间",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, pp. 108–110",
+    "status": "verified",
+    "notes": "核对原书关于 Krylov 子空间最优性的论述，独立表达。"
+  },
+  {
+    "id": "5.1.2-3",
+    "claim": "线性 CG 中 β_{k+1}=g_{k+1}^T g_{k+1}/g_k^T g_k（Fletcher–Reeves 形式）",
+    "kind": "derived",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1；由残余正交性化简",
+    "status": "derived",
+    "notes": "由共轭形式在正交性下化简得到；仅在精确线搜索的线性情形等价。"
+  },
+  {
+    "id": "5.1.2-4",
+    "claim": "算例中 g_0^T g_1=0 且两步到达 x*=(1,2)，α0=37/146、β1≈0.00676",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及分数算术 Python 断言",
+    "status": "derived",
+    "notes": "独立精确计算；教学算例，不代表浮点 CG 的步数或稳健性。"
+  }
+]
