@@ -652,6 +652,35 @@
         '<br>定理 5.3 上界 ' + bound.toExponential(2) + '（初始误差 ' + e0.toFixed(3) + '）' +
         (actual <= bound + 1e-12 ? ' · 满足上界' : ' · 超出上界');
     });
+    if (kind === "cg-precond") bind(root, el => {
+      const pp = read(el, "p");
+      const lam = [1, 4, 16, 64], n = 4;
+      const m = lam.map(l => Math.pow(l, pp));
+      let x = new Array(n).fill(0);
+      let g = lam.map(l => -l);
+      let z = g.map((v, i) => v/m[i]);
+      let pd = z.map(v => -v);
+      let gz = g.reduce((s, v, i) => s + v*z[i], 0);
+      const norm = () => Math.sqrt(g.reduce((s, v) => s + v*v, 0));
+      let iters = 0;
+      for (let k = 0; k < 10; k++) {
+        if (norm() <= 1e-10) break;
+        const Qp = pd.map((v, i) => lam[i]*v);
+        const alpha = gz / pd.reduce((s, v, i) => s + v*Qp[i], 0);
+        x = x.map((v, i) => v + alpha*pd[i]);
+        g = g.map((v, i) => v + alpha*Qp[i]);
+        z = g.map((v, i) => v/m[i]);
+        const gzNew = g.reduce((s, v, i) => s + v*z[i], 0), beta = gzNew/gz;
+        pd = pd.map((v, i) => -z[i] + beta*v);
+        gz = gzNew;
+        iters++;
+      }
+      const err = Math.sqrt(x.reduce((s, v) => s + (v-1)*(v-1), 0));
+      const kappa = Math.pow(64, 1 - pp);
+      output.innerHTML = '<strong>p=' + fmt(pp,1) + '，κ(M⁻¹Q)=' +
+        (kappa < 1.0001 ? '1' : fmt(kappa,2)) + '</strong><br>' +
+        '停止迭代次数 ' + iters + '（容差 1e-10）<br>最终误差 ‖x−x*‖=' + err.toExponential(2);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

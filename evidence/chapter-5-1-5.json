@@ -1,0 +1,29 @@
+[
+  {
+    "id": "5.1.5-1",
+    "claim": "预条件 CG 等价于对 M^{-1/2}QM^{-1/2} 应用标准 CG，收敛由 κ(M^{-1}Q) 控制",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, pp. 115–117",
+    "status": "verified",
+    "notes": "核对原书变换与算法 5.3 的等价性，独立表达。"
+  },
+  {
+    "id": "5.1.5-2",
+    "claim": "算法 5.3 每轮只比算法 5.2 多一次求解 Mz=r",
+    "kind": "derived",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, Algorithm 5.3",
+    "status": "derived",
+    "notes": "逐行对比两个算法的更新式后得到。"
+  },
+  {
+    "id": "5.1.5-3",
+    "claim": "对角算例 Q=diag(1,4,16,64)、M=diag(1,2,4,8) 使 κ(M^{-1}Q)=8，理想 M=Q 时一步终止",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 断言",
+    "status": "derived",
+    "notes": "独立计算；教学算例，不代表一般预条件器的性能。"
+  }
+]

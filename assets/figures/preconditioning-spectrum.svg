@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" role="img" aria-labelledby="pcs-title pcs-desc">
+<title id="pcs-title">预条件把谱往一起压</title>
+<desc id="pcs-desc">上轴是 Q 的特征值 1、4、16、64，跨越很宽；下轴是理想预条件后 M^{-1}Q 的特征值，全部聚到 1 附近。</desc>
+<rect width="640" height="280" rx="18" fill="#fbfaf6"/>
+<text x="90" y="40" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">Q 的谱：κ=λ_max/λ_min=64</text>
+<line x1="90" y1="90" x2="560" y2="90" stroke="#263a33" stroke-width="1.5"/>
+<g stroke="#bd633f" stroke-width="3">
+<line x1="90" y1="72" x2="90" y2="108"/><line x1="246.7" y1="72" x2="246.7" y2="108"/>
+<line x1="403.3" y1="72" x2="403.3" y2="108"/><line x1="560" y1="72" x2="560" y2="108"/>
+</g>
+<g font-size="13" font-family="system-ui, sans-serif" fill="#5b6b64">
+<text x="90" y="126" text-anchor="middle">1</text><text x="246.7" y="126" text-anchor="middle">4</text>
+<text x="403.3" y="126" text-anchor="middle">16</text><text x="560" y="126" text-anchor="middle">64</text>
+<text x="90" y="150" text-anchor="start">log 刻度 λ</text>
+</g>
+<text x="90" y="186" font-size="15" font-family="system-ui, sans-serif" fill="#263a33">理想预条件 M=Q：κ(M⁻¹Q)=1</text>
+<line x1="90" y1="236" x2="560" y2="236" stroke="#263a33" stroke-width="1.5"/>
+<g stroke="#126e66" stroke-width="3">
+<line x1="90" y1="218" x2="90" y2="254"/><line x1="98" y1="218" x2="98" y2="254"/>
+<line x1="106" y1="218" x2="106" y2="254"/><line x1="114" y1="218" x2="114" y2="254"/>
+</g>
+<g font-size="13" font-family="system-ui, sans-serif" fill="#5b6b64">
+<text x="90" y="272" text-anchor="start">1</text>
+<text x="240" y="272" text-anchor="middle">所有特征值聚到 λ=1</text>
+</g>
+</svg>

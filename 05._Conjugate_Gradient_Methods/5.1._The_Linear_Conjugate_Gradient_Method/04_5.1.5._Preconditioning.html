@@ -1,36 +1,42 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="用一个对称正定矩阵 M 近似 Q，让求解 Mz=r 很便宜，从而把 M^{-1}Q 的条件数压小，加速共轭梯度。"><title>5.1.5 预条件：把谱往一起压 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.5</span><a href="#section-1">为什么要预条件</a><a href="#section-2">变换后的系统</a><a href="#section-3">预条件共轭梯度</a><a href="#section-4">预条件器的选择标准</a><a href="#section-5">一个对角算例</a><a href="#section-6">边界与代价</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.5</div><h1>5.1.5 预条件：把谱往一起压</h1><p class="dek">用一个对称正定矩阵 M 近似 Q，让求解 Mz=r 很便宜，从而把 M⁻¹Q 的条件数压小。收敛速度由预条件后的谱决定，所以好的预条件器比更快的迭代公式更有效。</p><div class="article-meta"><span>变换与等价</span><span>算法 5.3</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>为什么要预条件</h2><p>5.1.4 的界说明 CG 的收敛速度由谱条件数 κ 决定。当问题本身病态（κ 很大）时，界退化为无信息，实际迭代也会很慢。与其修改 CG 的公式，不如改变它面对的矩阵：找一个对称正定矩阵 M，让 M 接近 Q（于是 M⁻¹Q 接近单位阵），同时让每次求解 Mz=r 都很便宜。</p><p>理想情况下 M=Q，这时 M⁻¹Q=I，条件数为 1，一步即终止。实际中 M 只是 Q 的近似——例如取 Q 的对角部分或它的不完全分解。</p></section>
+<section id="section-2"><h2>变换后的系统</h2><p>把原方程 Qx=b 左乘 M⁻¹，得到 M⁻¹Qx=M⁻¹b。这不再是标准 CG 可直接处理的形式，因为 M⁻¹Q 一般不对称。标准做法是把变量变换 x̂=M^{1/2}x，得到对称正定的等价系统 (M^{-1/2}QM^{-1/2})x̂=M^{-1/2}b，对它用 CG。</p><p>因此预条件 CG 的收敛速度由 M^{-1/2}QM^{-1/2} 的谱决定，其条件数记作 κ(M^{-1}Q)。谱越聚集，收敛越快。下图对比预条件前后的谱。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="预条件后的有效矩阵"><math display="block" aria-label="预条件后的有效矩阵"><mrow><mi>Q</mi><mi>x</mi><mo>=</mo><mi>b</mi><mspace width="1em"/><mo>⟶</mo><mspace width="1em"/><mo>(</mo><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup><mi>Q</mi><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup><mo>)</mo><mover><mi>x</mi><mo>^</mo></mover><mo>=</mo><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup><mi>b</mi><mo>.</mo></mrow></math></div></div><figure><img src="../../assets/figures/preconditioning-spectrum.svg" alt="上轴是 Q 的特征值 1、4、16、64，跨越很宽；下轴是理想预条件后 M^{-1}Q 的特征值，全部聚到 1 附近。"><figcaption>预条件把谱往一起压。上轴是原始矩阵 Q 的特征值（κ=64），下轴是理想预条件器 M=Q 时的谱（κ=1）。实际预条件器只近似达到这种聚集。</figcaption></figure></section>
+<section id="section-3"><h2>预条件共轭梯度</h2><p>为了不在迭代中显式构造 M^{1/2}，我们在原坐标系里改写 CG。定义 z_k=M⁻¹g_k（即每轮解一次 Mz_k=g_k），用它代替 g_k 出现在内积中。算法 5.3（预条件共轭梯度）如下：初始化 g₀=Qx₀−b，z₀=M⁻¹g₀，p₀=−z₀；每轮先算步长 α_k=g_kᵀz_k/(p_kᵀQp_k)，更新 x、g，再算 z_{k+1}=M⁻¹g_{k+1} 与系数 β_{k+1}=g_{k+1}ᵀz_{k+1}/(g_kᵀz_k)，最后 p_{k+1}=−z_{k+1}+β_{k+1}p_k。</p><p>与算法 5.2 相比，每轮只多了一步“求解 Mz=r”；其余完全相同。当 M=I 时 z_k=g_k，公式就退化成普通 CG。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="预条件共轭梯度公式"><math display="block" aria-label="预条件共轭梯度公式"><mrow><msub><mi>z</mi><mi>k</mi></msub><mo>=</mo><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><msub><mi>g</mi><mi>k</mi></msub><mo>,</mo><mspace width="1em"/><msub><mi>α</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>z</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow></mfrac><mo>,</mo><mspace width="1em"/><msub><mi>β</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mo>⊤</mo></msubsup><msub><mi>z</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>z</mi><mi>k</mi></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div></section>
+<section id="section-4"><h2>预条件器的选择标准</h2><p>一个好的预条件器同时满足三点：一，M 对称正定（否则预条件后的系统不再适合 CG）；二，求解 Mz=r 必须便宜，最好与一次矩阵-向量乘积同阶；三，它要让 M⁻¹Q 的谱聚集——这比单纯把条件数变小更关键，因为聚集的谱能在很少的步数内被多项式消除。</p><p>最常见的两类是：对角预条件（M=diag(Q)，也称 Jacobi）与不完全分解预条件（M=LLᵀ，其中 L 是 Q 的不完全 Cholesky 因子）。下一节给出一个对角算例。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" style="width:100%;height:auto;display:block" role="img" aria-labelledby="pck-title pck-desc"><title id="pck-title">预条件降低有效条件数</title><desc id="pck-desc">三个条形分别对应无预条件 κ=64、对角预条件 κ=8、理想预条件 κ=1，条形长度正比于条件数。</desc><rect width="640" height="220" rx="16" fill="#f7f4ee"/><g font-family="system-ui, sans-serif"><rect x="150" y="38" width="420" height="30" rx="5" fill="#fce9dc" stroke="#bd633f"/><text x="140" y="59" text-anchor="end" font-size="15" fill="#263a33">无预条件</text><text x="580" y="59" text-anchor="end" font-size="14" fill="#263a33">κ=64</text><rect x="150" y="92" width="52.5" height="30" rx="5" fill="#e4f2ec" stroke="#126e66"/><text x="140" y="113" text-anchor="end" font-size="15" fill="#263a33">对角预条件</text><text x="220" y="113" text-anchor="start" font-size="14" fill="#263a33">κ=8</text><rect x="150" y="146" width="7" height="30" rx="3" fill="#e4f2ec" stroke="#126e66"/><text x="140" y="167" text-anchor="end" font-size="15" fill="#263a33">理想 M=Q</text><text x="175" y="167" text-anchor="start" font-size="14" fill="#263a33">κ=1</text><text x="20" y="205" font-size="13" fill="#5b6b64">条形长度正比于 κ(M⁻¹Q)（线性尺度，满长 = 64）。</text></g></svg><p class="caption">预条件把有效条件数 κ(M⁻¹Q) 从 64 降到 8（对角预条件）或 1（理想 M=Q）。条形长度按线性尺度绘制，满长对应 64。</p></div></section>
+<section id="section-5"><h2>一个对角算例</h2><p>取 Q=diag(1,4,16,64)，右端项 b=Q·1，最优解 x*=1。无预条件时 κ(Q)=64，收缩因子 ρ=7/9≈0.778。</p><p>选对角预条件 M=diag(1,2,4,8)，则 M⁻¹Q=diag(1,2,4,8)，κ(M⁻¹Q)=8，收缩因子降到 ρ=(√8−1)/(√8+1)≈0.478。若取理想预条件 M=Q，则 M⁻¹Q=I，条件数为 1，第一步即精确终止。这说明改进收敛的关键在于“把谱压到一起”，而不是把步长调得更聪明。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="对角预条件的有效矩阵"><math display="block" aria-label="对角预条件的有效矩阵"><mrow><mi>Q</mi><mo>=</mo><mo>diag</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>16</mn><mo>,</mo><mn>64</mn><mo>)</mo><mo>,</mo><mspace width="1em"/><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>Q</mi><mo>=</mo><mo>diag</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>8</mn><mo>)</mo><mo>.</mo></mrow></math></div></div></section>
+<section id="section-6"><h2>边界与代价</h2><p>预条件不是免费的：每轮多解一次 Mz=r，并多存 M 的相关数据。只有当这一步足够便宜时，降低迭代次数才划算。M 必须对称正定；无效或近奇异的 M 会让 z_k 失真，破坏 CG 的正确性。</p><p>本页程序用对角家族 M=diag(λᵢ^p) 演示“谱逐渐压紧”的机制。它不代表一般预条件器的性能，也不声称对角预条件对任意问题有效——对非对角占优的问题，Jacobi 可能几乎没有改善。</p></section>
+<section id="interactive"><h2>交互：预条件强度与迭代次数</h2><p>选择幂次 p，程序用 M=diag(λᵢ^p)（λ=1,4,16,64）运行预条件 CG。p=0 是普通 CG，p=1 对应 M=Q 的理想情形。面板给出有效条件数与停止所需的迭代次数。</p><div class="interactive-panel" data-demo="cg-precond"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="pcg-p">预条件强度 p <output data-value-for="p">0.5</output></label><input id="pcg-p" type="range" data-key="p" min="0" max="1" step="0.1" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：预条件强度的数值对比</h2><p>程序只依赖标准库。它在 Q=diag(1,4,16,64)（x*=1）上运行预条件 CG，断言 p=1（即 M=Q）一步终止，且不比普通 CG（p=0）慢。</p><pre><code>&quot;&quot;&quot;Preconditioned CG on a diagonal problem with M = diag(lam**p).&quot;&quot;&quot;
+from math import sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.5. Preconditioning</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>04_5.1.5._Preconditioning</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 04_5.1.5._Preconditioning
-</code></pre>
+def pcg(lam, p, tol=1e-10, max_iter=10):
+    n = len(lam)
+    m = [l**p for l in lam]
+    x = [0.0]*n
+    g = [-l for l in lam]                  # b = lam since x* = ones
+    z = [g[i]/m[i] for i in range(n)]
+    pdir = [-z[i] for i in range(n)]
+    gz = sum(g[i]*z[i] for i in range(n))
+    for k in range(max_iter):
+        if sqrt(sum(v*v for v in g)) &lt;= tol:
+            return x, k
+        Qp = [lam[i]*pdir[i] for i in range(n)]
+        alpha = gz / sum(pdir[i]*Qp[i] for i in range(n))
+        x = [x[i] + alpha*pdir[i] for i in range(n)]
+        g = [g[i] + alpha*Qp[i] for i in range(n)]
+        z = [g[i]/m[i] for i in range(n)]
+        gz_new = sum(g[i]*z[i] for i in range(n))
+        beta = gz_new / gz
+        pdir = [-z[i] + beta*pdir[i] for i in range(n)]
+        gz = gz_new
+    return x, max_iter
 
-    <h3>Python 文件</h3>
-    <pre><code># 04_5.1.5._Preconditioning
+if __name__ == &quot;__main__&quot;:
+    lam = [1.0, 4.0, 16.0, 64.0]
+    x1, it1 = pcg(lam, 1.0)                 # M = Q: exact in one step
+    assert it1 == 1
+    assert abs(x1[0] - 1.0) &lt; 1e-9 and abs(x1[3] - 1.0) &lt; 1e-9
+    _, it0 = pcg(lam, 0.0)                  # M = I: plain CG
+    assert it0 &gt;= it1
+    print(&quot;p=1 iterations:&quot;, it1, &quot;| p=0 iterations:&quot;, it0)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1（Preconditioning 与 Algorithm 5.3），pp. 115–118。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">预条件通过变换改变 CG 面对的谱，而不是改变 CG 本身；M 必须对称正定且求解便宜，否则得不偿失。</p><nav class="prev-next" aria-label="相邻内容"><a href="03_5.1.4._Rate_of_Convergence.html"><small>上一篇</small><strong>CG 的收敛速度</strong></a><a href="05_5.1.6._Practical_Preconditioners.html"><small>下一篇</small><strong>实用预条件器</strong></a></nav></footer></article></main></div></body></html>
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 04_5.1.5._Preconditioning
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
