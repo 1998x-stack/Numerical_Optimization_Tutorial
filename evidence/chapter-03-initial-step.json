@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.5.2-1",
+    "claim": "Newton 与拟 Newton 线搜索应优先试 α₀=1，以保留局部快速收敛机会。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Initial Step Length, equation (3.60), pp. 59–60",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5.2-2",
+    "claim": "利用前次步长与相邻方向导数的比例、或者相邻函数值差，可估计新的初始步长。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.5, Initial Step Length, equation (3.60), pp. 59–60",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.5.2-3",
+    "claim": "α_prev=0.5、d_prev=−8、d_now=−4 时初值为 1。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.5.2-4",
+    "claim": "对于 φ=(α−2)²，该候选满足强 Wolfe，而初值 4 不满足 Armijo。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.4-1",
+    "claim": "若 H 不正定，普通 Newton 方向可能不是下降方向。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Algorithm 3.2 and Theorem 3.8, pp. 48–49",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4-2",
+    "claim": "通过 B=H+E 正定并保证条件数可控，可结合线搜索构建有条件的全局收敛方法。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Algorithm 3.2 and Theorem 3.8, pp. 48–49",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4-3",
+    "claim": "给定二维不定二次目标，原 Newton 方向与梯度内积为零。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.4-4",
+    "claim": "取 τ=3 后方向导数为 −4.8。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

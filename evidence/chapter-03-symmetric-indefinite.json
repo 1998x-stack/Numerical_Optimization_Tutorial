@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3.4.4-1",
+    "claim": "对称矩阵可以经过置换写成 L、1×1/2×2 块对角矩阵及 Lᵀ 的乘积。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Modified Symmetric Indefinite Factorization, pp. 54–56",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.4-2",
+    "claim": "针对不定主元块的修正可能影响整个矩阵，而不只影响对角线。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 3.4, Modified Symmetric Indefinite Factorization, pp. 54–56",
+    "status": "verified",
+    "notes": "对照第二版相应节；本页表述独立重写。"
+  },
+  {
+    "id": "3.4.4-3",
+    "claim": "H=[[0,2],[2,0]] 的两个特征值为 2 和 −2。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  },
+  {
+    "id": "3.4.4-4",
+    "claim": "δ=1 后 B=[[1.5,0.5],[0.5,1.5]]，gᵀp=−2。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "正文数值例子、独立代数与配套 Python 断言",
+    "status": "derived",
+    "notes": "教学示例不代表通用求解器或真实基准测量。"
+  }
+]

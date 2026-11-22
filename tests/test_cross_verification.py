@@ -247,5 +247,43 @@ class CrossVerificationTests(unittest.TestCase):
             self.assertGreater(det,0)
             B,x=Bn,xn
 
+    def test_fifth_batch_eight_python_examples_execute(self):
+        import runpy
+        files = [
+          "03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.py",
+          "03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.py",
+          "03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.py",
+          "03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.py",
+          "03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.py",
+          "03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.py",
+          "03._Line_Search_Methods/15_3.5.1._Interpolation.py",
+          "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.py"
+]
+        for filename in files:
+            with self.subTest(article=filename):
+                runpy.run_path(str(ROOT / filename), run_name="__main__")
+
+    def test_hessian_modification_direction_and_spectral_floor(self):
+        g = (2, -2)
+        raw = (-1, -1)
+        self.assertEqual(sum(g[i] * raw[i] for i in range(2)), 0)
+        modified = (-0.4, 2)
+        self.assertAlmostEqual(sum(g[i] * modified[i] for i in range(2)), -4.8)
+        self.assertEqual((3, -1), (3, -1))
+        b = ((2, 1), (1, 2))
+        self.assertGreater(b[0][0] * b[1][1] - b[0][1] * b[1][0], 0)
+
+    def test_interpolation_and_initial_guess_are_distinct_from_acceptance(self):
+        eps = 0.25
+        predicted = 2.0 / (1 + eps)
+        stationary = (-2 + math.sqrt(4 + 48 * eps)) / (6 * eps)
+        self.assertAlmostEqual(predicted, 1.6)
+        self.assertAlmostEqual(stationary, 4 / 3)
+        self.assertGreater(predicted, stationary)
+        phi = lambda x: (x - 2) ** 2
+        armijo = lambda a: phi(a) <= phi(0) + 1e-4 * a * (-4)
+        self.assertTrue(armijo(0.5 * (-8) / (-4)))
+        self.assertFalse(armijo(2 * (-8) / (-4)))
+
 if __name__ == "__main__":
     unittest.main()

@@ -292,6 +292,83 @@
         ' · 最终 det(B)=' + fmt(records.length ? records[records.length-1].det : 0, 5) +
         ' · x≈(' + fmt(x[0], 5) + ', ' + fmt(x[1], 5) + ')';
     });
+    if (kind === "hessian-overview") bind(root, el => {
+      const tau = read(el, "tau"), a = tau + 2, b = tau - 2;
+      if (Math.abs(a) < 1e-10 || Math.abs(b) < 1e-10) {
+        output.innerHTML = '<strong>B 在当前 τ 下奇异</strong>，无法唯一解 Bp=−g；需要继续增大修正。';
+        return;
+      }
+      const p = [-2/a, 2/b], slope = 2*p[0]-2*p[1];
+      output.innerHTML = '<strong>λ(B)=(' + fmt(a,2) + ', ' + fmt(b,2) + ')</strong> · p=(' +
+        fmt(p[0],3) + ', ' + fmt(p[1],3) + ') · gᵀp=' + fmt(slope,4) + ' · ' +
+        (a>0 && b>0 ? '严格正定，保证下降' : '不满足正定性保证');
+    });
+    if (kind === "eigenfloor") bind(root, el => {
+      const d=read(el,"delta"), pos=Math.max(3,d), neg=d;
+      const a=(pos+neg)/2, b=(pos-neg)/2, det=pos*neg;
+      const p0=(-a+2*b)/det, p1=(b-2*a)/det, slope=p0+2*p1;
+      output.innerHTML = '<strong>裁剪后特征值 (' + fmt(pos,2) + ', ' + fmt(neg,2) +
+        ')</strong> · B=[[' + fmt(a,3) + ',' + fmt(b,3) + '],[' + fmt(b,3) + ',' +
+        fmt(a,3) + ']] · gᵀp=' + fmt(slope,4) + ' · κ(B)=' + fmt(Math.max(pos,neg)/Math.min(pos,neg),3);
+    });
+    if (kind === "identityshift") bind(root, el => {
+      const tau=read(el,"tau"), a=tau-1, b=tau+3;
+      if (a<=0 || b<=0) {
+        output.innerHTML = '<strong>λ(B)=(' + fmt(a,2) + ',' + fmt(b,2) +
+          ')</strong> · B 尚未严格正定；不能保证修正方向下降。';
+        return;
+      }
+      const p=[-1/a,-2/b], slope=p[0]+2*p[1];
+      output.innerHTML = '<strong>λ(B)=(' + fmt(a,2) + ',' + fmt(b,2) +
+        ')</strong> · p=(' + fmt(p[0],4) + ',' + fmt(p[1],4) + ') · gᵀp=' +
+        fmt(slope,4) + ' · κ(B)=' + fmt(b/a,3);
+    });
+    if (kind === "modcholesky") bind(root, el => {
+      const delta=read(el,"delta"), d1=Math.max(1,delta), l=2/d1;
+      const raw2=1-l*l*d1, d2=Math.max(raw2,delta);
+      const a=d1,b=2,c=l*l*d1+d2, det=a*c-b*b;
+      const p0=(-c+b)/det,p1=(b-a)/det;
+      output.innerHTML = '<strong>原第二主元 c₂₂=' + fmt(raw2,3) +
+        ' → 修正 d₂=' + fmt(d2,3) + '</strong> · det(B)=' + fmt(det,3) +
+        ' · p=(' + fmt(p0,3) + ',' + fmt(p1,3) + ') · gᵀp=' + fmt(p0+p1,3);
+    });
+    if (kind === "indefiniteblock") bind(root, el => {
+      const delta=read(el,"delta"), a=(2+delta)/2, b=(2-delta)/2;
+      const p=1/delta, slope=-2*p;
+      output.innerHTML = '<strong>修正特征值 (2, ' + fmt(delta,2) +
+        ')</strong> · B=[[' + fmt(a,3) + ',' + fmt(b,3) + '],[' +
+        fmt(b,3) + ',' + fmt(a,3) + ']] · det(B)=' + fmt(2*delta,3) +
+        ' · gᵀp=' + fmt(slope,3);
+    });
+    if (kind === "bracketsearch") bind(root, el => {
+      const n=Math.round(read(el,"n"));let lo=0,hi=5;const mids=[];
+      for(let k=0;k<n;k++){
+        const mid=(lo+hi)/2;mids.push(fmt(mid,5));
+        const deriv=2*(mid-2);
+        if(deriv>0)hi=mid;else if(deriv<0)lo=mid;else{lo=hi=mid;break;}
+      }
+      output.innerHTML = '<strong>新区间 [' + fmt(lo,6) + ', ' + fmt(hi,6) +
+        ']</strong> · 宽度 ' + fmt(hi-lo,6) +
+        ' · 中点序列：' + mids.join(' → ') + ' · 真实驻点 α*=2 仍被括住';
+    });
+    if (kind === "interpsearch") bind(root, el => {
+      const eps=read(el,"eps"), estimate=2/(1+eps);
+      const exact=eps===0?2:(-2+Math.sqrt(4+48*eps))/(6*eps);
+      const phi=a=>(a-2)**2+eps*a**3;
+      output.innerHTML = '<strong>插值候选 α=' + fmt(estimate,5) +
+        '</strong> · 真实驻点 α*=' + fmt(exact,5) +
+        ' · |候选−驻点|=' + fmt(Math.abs(estimate-exact),5) +
+        ' · φ(候选)=' + fmt(phi(estimate),5);
+    });
+    if (kind === "initialstep") bind(root, el => {
+      const prev=read(el,"prev"), alpha=Math.max(0.1,Math.min(4,prev*2));
+      const f=(alpha-2)**2, d=2*(alpha-2);
+      const armijo=f<=4+1e-4*alpha*(-4);
+      const strong=armijo&&Math.abs(d)<=3.6;
+      output.innerHTML = '<strong>建议 α₀=' + fmt(alpha,3) + '</strong> · φ(α₀)=' +
+        fmt(f,4) + ' · Armijo：' + (armijo?'通过':'未通过') +
+        ' · 强 Wolfe：' + (strong?'通过':'未通过') + '。候选不通过时必须继续线搜索。';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

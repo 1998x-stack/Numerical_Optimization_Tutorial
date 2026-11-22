@@ -1,36 +1,27 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="普通 Cholesky 需要所有主元为正；遇到负主元时，修正 Cholesky 不是先硬算出不稳定因子，而是在分解过程中调整主元，并控制三角因子的大小。"><title>3.4.3 修正 Cholesky：在分解过程中保护正定性 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.4.3</span><a href="#factor">普通 LDLᵀ 分解为何在不定矩阵上有问题</a><a href="#example">二维例子：第二个主元从 −3 变为正数</a><a href="#stability">主元正定与数值稳定不是同一个结论</a><a href="#limits">工程使用边界</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.4.3</div><h1>3.4.3 修正 Cholesky：在分解过程中保护正定性</h1><p class="dek">普通 Cholesky 需要所有主元为正；遇到负主元时，修正 Cholesky 不是先硬算出不稳定因子，而是在分解过程中调整主元，并控制三角因子的大小。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="factor"><h2>普通 LDLᵀ 分解为何在不定矩阵上有问题</h2><p>对称正定矩阵 A 可以分解为 A=LDLᵀ，其中 L 是单位下三角矩阵，D 是正对角矩阵。若未经保护就对不定矩阵执行这类分解，可能遇到零主元或负主元；零主元会使除法中断，负主元则无法对应一个正定的 LDLᵀ 因子分解。</p><p>修正 Cholesky 的核心是在计算每个主元时加入安全保护，确保 dⱼ≥δ＞0，同时限制某些三角因子元素的大小。教材给出包含参数 β 的主元规则，意图是同时约束主元下界和因子规模。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="受控修改主元的规则"><math display="block" aria-label="受控修改主元的规则"><mrow><msub><mi>d</mi><mi>j</mi></msub><mo>=</mo><mi>max</mi><mo>(</mo><mo>|</mo><msub><mi>c</mi><mrow><mi>j</mi><mi>j</mi></mrow></msub><mo>|</mo><mo>,</mo><msup><mrow><mo>(</mo><mfrac><msub><mi>θ</mi><mi>j</mi></msub><mi>β</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup><mo>,</mo><mi>δ</mi><mo>)</mo></mrow></math></div></div></section>
+<section id="example"><h2>二维例子：第二个主元从 −3 变为正数</h2><p>设 H=[[1,2],[2,1]]。第一个主元 d₁=1，乘子 l₂₁=2。未修正的第二个主元为 c₂₂=1−l₂₁²d₁=−3，因此不能用正对角 D 表示原矩阵。</p><p>取一个教学版的保护规则 d₂=max(c₂₂,δ)，并固定 δ=0.5。可得 L=[[1,0],[2,1]]、D=diag(1,0.5)，所以 B=LDLᵀ=[[1,2],[2,4.5]]，det(B)=0.5＞0，满足正定。</p><p>当 g=(1,1) 时，解 Bp=−g 得 p=(−5,2)，方向导数 gᵀp=−3。请注意：这里用的是简化的二维主元截断，不等同于教材完整的 β 约束和对称置换算法。</p><figure><img src="../assets/figures/modified-cholesky-pivots.svg" alt="二维不定矩阵的 LDL 主元为 1 和负 3；把第二主元提高到正 0.5，重建矩阵变正定。"><figcaption>这个二维例子只演示主元修正机制；完整修改分解还需置换、控制 L 与 D 的增长和舍入误差。</figcaption></figure></section>
+<section id="stability"><h2>主元正定与数值稳定不是同一个结论</h2><p>若只要求每个 dⱼ＞0，却允许 L 中的元素无限大，重建矩阵可能非常病态。教材进一步引入 β，要求 |lᵢⱼ√dⱼ|≤β，并在必要时对行列进行对称置换，减小所需修正。</p><p>例如 c₂₁=2 时，如果 δ 很小，l₂₁=2/d₁ 的增长可能导致较大的舍入误差和矩阵修正。稳定实现须根据矩阵规模设置阈值，同时保存或控制因子结构。</p></section>
+<section id="limits"><h2>工程使用边界</h2><p>这个二维分解可用标准库完成，但不能用在任意高维不定矩阵上作为工业级求解器。真正的修正 Cholesky 通常结合合适的主元策略、尺度、误差控制与失败后回退。</p><p>即使 B=LDLᵀ 正定，计算得到的下降方向也必须通过线搜索确定步长。修正越大，离原 Newton 方向可能越远。</p></section><section id="interactive"><h2>交互实验：调整主元保护阈值</h2><p>固定 H=[[1,2],[2,1]] 与 g=(1,1)，先算 d₁=1，再把第二主元从 −3 提升为 δ；观察重建 B 的行列式与方向导数。</p><div class="interactive-panel" data-demo="modcholesky"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="chol-delta">主元下界 δ <output data-value-for="delta">0.5</output></label><input id="chol-delta" data-key="delta" type="range" min="0.25" max="2" step="0.25" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>实现一个确定的二维 LDLᵀ 主元截断玩具模型，验证重建结果、行列式与下降方向。完整算法还需 β 限制和对称置换。</p><pre><code>&quot;&quot;&quot;Two-dimensional pivot modification: pedagogical LDL^T example.&quot;&quot;&quot;
+def modified_ldl(delta: float):
+    if delta &lt;= 0:
+        raise ValueError(&quot;delta must be positive&quot;)
+    d1 = max(1.0, delta)
+    l21 = 2.0/d1
+    raw2 = 1.0-l21*l21*d1
+    d2 = max(raw2, delta)
+    b11, b12, b22 = d1, l21*d1, l21*l21*d1+d2
+    det = b11*b22-b12*b12
+    p = ((-b22+b12)/det,(b12-b11)/det)
+    return (d1,d2), (b11,b12,b22), p, sum(p)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.4.3. Modified Cholesky Factorization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>12_3.4.3._Modified_Cholesky_Factorization</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 12_3.4.3._Modified_Cholesky_Factorization
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 12_3.4.3._Modified_Cholesky_Factorization
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 12_3.4.3._Modified_Cholesky_Factorization
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    D,B,p,slope = modified_ldl(0.5)
+    print(&quot;D:&quot;,D,&quot;B:&quot;,B,&quot;p:&quot;,p,&quot;slope:&quot;,slope)
+    assert D == (1.0,0.5)
+    assert B == (1.0,2.0,4.5)
+    assert p == (-5.0,2.0)
+    assert slope == -3.0
+    for delta in (0.25,1.0,2.0):
+        d,b,p,slope = modified_ldl(delta)
+        assert d[0]&gt;0 and d[1]&gt;0 and b[0]*b[2]-b[1]**2&gt;0
+        assert slope&lt;0</code></pre><p>自检：为什么仅把原 H 的对角线改成正数，不一定得到正定矩阵？在本例中 determinant 与 d₁d₂ 为什么相等？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.4, Modified Cholesky Factorization, equations (3.46)–(3.50), pp. 52–54。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">Python 例子是二维单步主元保护，并未实现教材的 β 因子上界、行列置换或高维稳定分解。不得视为完整修正 Cholesky 库。</p><nav class="prev-next" aria-label="相邻内容"><a href="11_3.4.2._Adding_a_Multiple_of_the_Identity.html"><small>上一篇</small><strong>对角平移</strong></a><a href="13_3.4.4._Modified_Symmetric_Indefinite_Factorization.html"><small>下一篇</small><strong>修正对称不定分解</strong></a></nav></footer></article></main></div></body></html>

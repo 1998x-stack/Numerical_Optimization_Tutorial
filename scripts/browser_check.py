@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the course portal and twenty-six standalone articles."""
+"""Playwright QA for the course portal and thirty-four standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -35,6 +35,14 @@ ARTICLES = [
     "03._Line_Search_Methods/06_3.3.1._Convergence_Rate_of_Steepest_Descent.html",
     "03._Line_Search_Methods/07_3.3.2._Newton’s_Method.html",
     "03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.html",
+    "03._Line_Search_Methods/09_3.4._Newton’s_Method_with_Hessian_Modification.html",
+    "03._Line_Search_Methods/10_3.4.1._Eigenvalue_Modification.html",
+    "03._Line_Search_Methods/11_3.4.2._Adding_a_Multiple_of_the_Identity.html",
+    "03._Line_Search_Methods/12_3.4.3._Modified_Cholesky_Factorization.html",
+    "03._Line_Search_Methods/13_3.4.4._Modified_Symmetric_Indefinite_Factorization.html",
+    "03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.html",
+    "03._Line_Search_Methods/15_3.5.1._Interpolation.html",
+    "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -145,7 +153,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, twenty-six article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, thirty-four article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 

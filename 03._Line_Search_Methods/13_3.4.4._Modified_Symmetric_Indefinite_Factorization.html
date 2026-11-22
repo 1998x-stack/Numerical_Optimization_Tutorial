@@ -1,36 +1,24 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="对称不定矩阵不能总靠逐个 1×1 正主元稳定地分解。采用对称置换与 1×1、2×2 块主元，可以先看清曲率的正负，再有依据地修正。"><title>3.4.4 对称不定分解：识别 2×2 主元中的负曲率 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.4.4</span><a href="#obstacle">为什么不能强迫所有主元都只有 1×1</a><a href="#demo">零对角不意味着没有有用的二阶信息</a><a href="#inertia">惯性如何帮助决定修正</a><a href="#boundary">示例与一般因子分解之间的距离</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.4.4</div><h1>3.4.4 对称不定分解：识别 2×2 主元中的负曲率</h1><p class="dek">对称不定矩阵不能总靠逐个 1×1 正主元稳定地分解。采用对称置换与 1×1、2×2 块主元，可以先看清曲率的正负，再有依据地修正。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="obstacle"><h2>为什么不能强迫所有主元都只有 1×1</h2><p>对于一般实对称矩阵 A，如果在未经合适置换的条件下直接进行 LDLᵀ 的 1×1 消元，可能碰到零主元，即使 A 本身并不奇异。例如 H=[[0,2],[2,0]] 的行列式为 −4，矩阵可逆，但左上角的第一个对角主元为 0。</p><p>对称不定分解允许对行列做相同的置换，并使用 1×1 和 2×2 块：PAPᵀ=LBLᵀ，L 是单位下三角，B 是小块构成的块对角矩阵。2×2 块既能表达正负混合的惯性，也避免在某些零对角元处强行除零。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="置换对称不定分解"><math display="block" aria-label="置换对称不定分解"><mrow><mi>P</mi><mi>A</mi><msup><mi>P</mi><mo>⊤</mo></msup><mo>=</mo><mi>L</mi><mi>D</mi><msup><mi>L</mi><mo>⊤</mo></msup></mrow></math></div></div></section>
+<section id="demo"><h2>零对角不意味着没有有用的二阶信息</h2><p>取 H=[[0,2],[2,0]]，其特征向量分别是 (1,1)/√2 与 (1,−1)/√2，对应特征值 2 与 −2。沿第一个方向二次模型向上弯曲，沿第二个方向向下弯曲。</p><p>给负特征值设置正下界 δ=1，得到 B=[[1.5,0.5],[0.5,1.5]]，它的特征值为 2 和 1。对于 g=(1,−1)，求解 Bp=−g 得 p=(−1,1)，梯度与方向内积为 −2。</p><p>如果只把原矩阵加 I，则得到 [[1,2],[2,1]]，仍有特征值 3 和 −1，并非正定。必须检查整块的谱或惯性，不能只检查对角线变成正数。</p><figure><img src="../assets/figures/symmetric-indefinite-block.svg" alt="H=[[0,2],[2,0]] 对角元为零，但存在正负特征值 ±2；把负特征值裁剪到正阈值 δ 后，获得非对角的正定修正。"><figcaption>对称不定分解的 2×2 块可以显式揭示负曲率；针对块的修改可能改变整个原矩阵，不一定只改对角线。</figcaption></figure></section>
+<section id="inertia"><h2>惯性如何帮助决定修正</h2><p>实对称矩阵的惯性是正、负、零特征值的个数。合同变换下惯性不变，因此合适的对称分解能够在块上识别原矩阵的曲率符号。</p><p>为了获得下降方向，修正目标应当是把分解所代表的整体矩阵变成足够正定，同时限制误差和因子增长。只把 2×2 块的对角元改成正值，仍可能保留一个负特征值。</p></section>
+<section id="boundary"><h2>示例与一般因子分解之间的距离</h2><p>本页使用能够直接求谱的单个 2×2 块，演示如何对负特征方向进行修正。通用分解包含置换、多块因子和稳定性策略；对整个矩阵的修正 E 通常不再是简单的对角矩阵。</p><p>求得的 B 正定只说明当前方向有严格下降性，并不保证完整步 α=1 可接受；仍需采用线搜索和数值条件控制。</p></section><section id="interactive"><h2>交互实验：负特征值裁剪后如何改变方向</h2><p>固定 H=[[0,2],[2,0]] 与 g=(1,−1)，调整 2×2 块的负特征值修正下界 δ。</p><div class="interactive-panel" data-demo="indefiniteblock"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="indef-delta">正曲率下界 δ <output data-value-for="delta">1</output></label><input id="indef-delta" data-key="delta" type="range" min="0.25" max="2" step="0.25" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>在解析可知的 2×2 对称块上执行谱裁剪，独立检查行列式、特征值与搜索方向导数。</p><pre><code>&quot;&quot;&quot;Correct a single indefinite symmetric 2-by-2 block.&quot;&quot;&quot;
+def modify_block(delta: float):
+    if delta &lt;= 0.0:
+        raise ValueError(&quot;delta must be positive&quot;)
+    a = (2.0+delta)/2.0
+    b = (2.0-delta)/2.0
+    det = a*a-b*b
+    p = (-1.0/delta, 1.0/delta)
+    slope = p[0]-p[1]
+    return (a,b,a), det, p, slope
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.4.4. Modified Symmetric Indefinite Factorization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>13_3.4.4._Modified_Symmetric_Indefinite_Factorization</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 13_3.4.4._Modified_Symmetric_Indefinite_Factorization
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 13_3.4.4._Modified_Symmetric_Indefinite_Factorization
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 13_3.4.4._Modified_Symmetric_Indefinite_Factorization
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    B,det,p,slope = modify_block(1.0)
+    print(&quot;B:&quot;,B,&quot;det:&quot;,det,&quot;p:&quot;,p,&quot;slope:&quot;,slope)
+    assert B == (1.5,0.5,1.5) and det == 2.0
+    assert p == (-1.0,1.0) and slope == -2.0
+    for delta in (0.25,0.5,1.0,2.0):
+        B,det,p,slope = modify_block(delta)
+        assert det &gt; 0.0 and slope &lt; 0.0
+    # Adding just I to the original H leaves a negative eigenvalue.
+    assert 1.0-2.0 &lt; 0.0</code></pre><p>自检：当 δ=2 时 B 是否变为 2I？为什么原始 H 的行列式为负并不妨碍它可逆？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.4, Modified Symmetric Indefinite Factorization, pp. 54–56。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">本页示范仅处理单个 2×2 不定块；完整的带置换块因子分解需考虑数值稳定性和矩阵规模。</p><nav class="prev-next" aria-label="相邻内容"><a href="12_3.4.3._Modified_Cholesky_Factorization.html"><small>上一篇</small><strong>修正 Cholesky 分解</strong></a><a href="14_3.5._Step_Length_Selection_Algorithms.html"><small>下一篇</small><strong>步长选择算法总览</strong></a></nav></footer></article></main></div></body></html>

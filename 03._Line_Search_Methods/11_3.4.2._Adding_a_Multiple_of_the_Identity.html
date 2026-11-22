@@ -1,36 +1,28 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="不必显式求出所有特征值，也可以试探一个标量 τ，使 H+τI 变成正定矩阵。这个方法实现简单，却会同时改变每个特征方向上的曲率。"><title>3.4.2 对角平移：为什么给 Hessian 加上 τI | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.4.2</span><a href="#why">最小特征值为什么决定平移量</a><a href="#example">算一个含负曲率的二次模型</a><a href="#algorithm">如何利用 Cholesky 的成功与失败</a><a href="#tradeoff">为什么 τ 过大也不是好事</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.4.2</div><h1>3.4.2 对角平移：为什么给 Hessian 加上 τI</h1><p class="dek">不必显式求出所有特征值，也可以试探一个标量 τ，使 H+τI 变成正定矩阵。这个方法实现简单，却会同时改变每个特征方向上的曲率。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="why"><h2>最小特征值为什么决定平移量</h2><p>对称矩阵 H 的特征值为 λ₁,…,λₙ。由于 I 与 H 共用特征向量，H+τI 的特征值恰好是 λᵢ+τ。因此，要保证所有特征值至少达到 δ＞0，只需 τ≥δ−λ_min(H)，同时取 τ≥0。</p><p>实际优化中通常不能廉价地知道最小特征值，特别是在大规模矩阵上。常用策略是尝试 Cholesky 分解；失败则增大 τ，直到分解成功。数值容差和最大尝试次数仍必须设置。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="正定平移门槛"><math display="block" aria-label="正定平移门槛"><mrow><mi>B</mi><mo>=</mo><mi>H</mi><mo>+</mo><mi>τ</mi><mi>I</mi><mo>,</mo><mspace width='.5em'/><msub><mi>λ</mi><mi>min</mi></msub><mo>(</mo><mi>B</mi><mo>)</mo><mo>=</mo><msub><mi>λ</mi><mi>min</mi></msub><mo>(</mo><mi>H</mi><mo>)</mo><mo>+</mo><mi>τ</mi></mrow></math></div></div></section>
+<section id="example"><h2>算一个含负曲率的二次模型</h2><p>取 H=diag(−1,3)、g=(1,2)、安全阈值 δ=0.5。此时 λ_min(H)=−1，最小允许平移 τ=1.5，得到 B=diag(0.5,4.5)。解 Bp=−g，得到 p=(−2,−4/9)，且 gᵀp=−26/9，确实下降。</p><p>如果将 H 的特征值分别裁剪至 δ，则得到 B_clip=diag(0.5,3)，与平移得到的 diag(0.5,4.5) 不同。前者条件数为 6，后者为 9。它们都正定，但对原始曲率的改动范围不同。</p><p>τ=1 时 B 的最小特征值为零，矩阵奇异；τ=0.5 时 B 仍不定。解法不能仅靠查看对角线上是否出现正数就宣称正定。</p><figure><img src="../assets/figures/identity-shift-spectrum.svg" alt="原特征值为负 1 和 3；加 1.5 倍单位矩阵后变成 0.5 和 4.5。"><figcaption>平移操作只需一个标量，却会同时提高正曲率与负曲率；它通常并非对原 Hessian 的最小改动。</figcaption></figure></section>
+<section id="algorithm"><h2>如何利用 Cholesky 的成功与失败</h2><p>简单的数值策略是：先尝试 τ=0；若分解失败，设置一个与矩阵规模相关的正初值，并将 τ 逐步放大（例如每次倍增）后重试。成功时返回正定矩阵的 Cholesky 因子，通过三角代回代解出方向。</p><p>不同于直接求特征分解，分解失败本身可成为是否需要增大修正的反馈。严格实现还需考虑舍入误差、规模归一化、试探次数与近奇异矩阵，不能以一个二维演示替代通用数值库。</p></section>
+<section id="tradeoff"><h2>为什么 τ 过大也不是好事</h2><p>当 τ 远大于 ‖H‖ 时，(H+τI)⁻¹近似 (1/τ)I，求得的方向趋近 −g/τ，即缩放后的最速下降方向。这样虽然保持下降性，却可能大幅牺牲 Newton 的曲率加速。</p><p>一种合格的修正策略不仅追求正定，还要在 H 已足够正定时尽可能保持 E=0。若解处 Hessian 正定，过度平移会妨碍进入使用单位步长的快速局部区间。</p></section><section id="interactive"><h2>交互实验：看 τ 跨越正定门槛</h2><p>固定 H=diag(−1,3)、g=(1,2)，调整 τ。只有 τ＞1 才严格正定；界面展示特征值和下降方向。</p><div class="interactive-panel" data-demo="identityshift"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="shift-tau">平移量 τ <output data-value-for="tau">1.5</output></label><input id="shift-tau" data-key="tau" type="range" min="0" max="4" step="0.25" value="1.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>对已知特征值的二维矩阵计算最小安全平移，并对比统一平移与特征值裁剪的条件数。</p><pre><code>&quot;&quot;&quot;Shift a symmetric Hessian by tau times the identity.&quot;&quot;&quot;
+def shifted(tau: float):
+    return (-1.0 + tau, 3.0 + tau)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.4.2. Adding a Multiple of the Identity</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>11_3.4.2._Adding_a_Multiple_of_the_Identity</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 11_3.4.2._Adding_a_Multiple_of_the_Identity
-</code></pre>
+def shifted_step(tau: float):
+    a, b = shifted(tau)
+    if a &lt;= 0 or b &lt;= 0:
+        raise ValueError(&quot;H+tau*I is not positive definite&quot;)
+    p = (-1.0 / a, -2.0 / b)
+    slope = p[0] + 2.0*p[1]
+    return p, slope, max(a,b)/min(a,b)
 
-    <h3>Python 文件</h3>
-    <pre><code># 11_3.4.2._Adding_a_Multiple_of_the_Identity
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 11_3.4.2._Adding_a_Multiple_of_the_Identity
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    tau = 1.5
+    assert shifted(tau) == (0.5, 4.5)
+    p, slope, kappa = shifted_step(tau)
+    print(&quot;modified direction:&quot;,p,&quot;slope:&quot;,slope,&quot;condition:&quot;,kappa)
+    assert abs(slope + 26.0/9.0) &lt; 1e-12
+    assert kappa == 9.0
+    assert (3.0/0.5) == 6.0  # spectral clipping comparison
+    try:
+        shifted_step(0.5)
+        raise AssertionError(&quot;indefinite matrix should be rejected&quot;)
+    except ValueError:
+        pass</code></pre><p>自检：当 τ=2 时，两个修正特征值分别是多少？正定是否意味着条件数比 τ=1.5 更好？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.4, Adding a Multiple of the Identity, Algorithm 3.3, pp. 51–52。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">对角平移的阈值计算示例依赖已知二维特征值；大型问题中宜用数值分解、容差、次数上限与缩放策略。</p><nav class="prev-next" aria-label="相邻内容"><a href="10_3.4.1._Eigenvalue_Modification.html"><small>上一篇</small><strong>特征值修正</strong></a><a href="12_3.4.3._Modified_Cholesky_Factorization.html"><small>下一篇</small><strong>修正 Cholesky 分解</strong></a></nav></footer></article></main></div></body></html>

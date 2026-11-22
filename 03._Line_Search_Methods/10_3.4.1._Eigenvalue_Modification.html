@@ -1,36 +1,23 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="对称 Hessian 可以拆成特征向量与特征值。把过小或为负的特征值提升到正阈值，就能保留可信曲率，同时得到正定矩阵。"><title>3.4.1 特征值修正：只修复不可靠的曲率方向 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.4.1</span><a href="#decompose">把曲率写在特征向量坐标中</a><a href="#two">在二维矩阵上逐项计算</a><a href="#conditioning">δ 是稳定性与局部精度的折中</a><a href="#limits">为什么正定性不自动保证快速收敛</a><a href="#interactive">动态数值实验</a><a href="#code">可运行 Python</a><a href="../index.html#chapters">返回课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.4.1</div><h1>3.4.1 特征值修正：只修复不可靠的曲率方向</h1><p class="dek">对称 Hessian 可以拆成特征向量与特征值。把过小或为负的特征值提升到正阈值，就能保留可信曲率，同时得到正定矩阵。</p><div class="article-meta"><span>问题与机制</span><span>原创数值例子</span><span>可复现检查</span></div></header><section id="decompose"><h2>把曲率写在特征向量坐标中</h2><p>若 H 对称，则存在正交矩阵 Q 和实对角矩阵 Λ，使 H=QΛQᵀ。每个特征值 λᵢ 表示沿对应单位特征向量的二阶曲率。λᵢ＞0 表示该方向上的局部二次模型向上弯曲，λᵢ＜0 则说明模型沿该方向向下弯曲。</p><p>取正阈值 δ＞0，构造 B=Q diag(max(λᵢ,δ)) Qᵀ。如此 B 的最小特征值至少为 δ，且如果 H 的全部特征值原本都大于 δ，就无需做任何修正。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="逐个特征值裁剪"><math display="block" aria-label="逐个特征值裁剪"><mrow><mi>H</mi><mo>=</mo><mi>Q</mi><mi>Λ</mi><msup><mi>Q</mi><mo>⊤</mo></msup><mo>,</mo><mspace width='.5em'/><mi>B</mi><mo>=</mo><mi>Q</mi><mi>diag</mi><mo>(</mo><mi>max</mi><mo>(</mo><msub><mi>λ</mi><mi>i</mi></msub><mo>,</mo><mi>δ</mi><mo>)</mo><mo>)</mo><msup><mi>Q</mi><mo>⊤</mo></msup></mrow></math></div></div></section>
+<section id="two"><h2>在二维矩阵上逐项计算</h2><p>考虑 H=[[1,2],[2,1]]，特征向量 u₊=(1,1)/√2 对应特征值 3，u₋=(1,−1)/√2 对应特征值 −1。取 δ=1，则修正特征值为 3 和 1，重建 B=[[2,1],[1,2]]。</p><p>给定 g=(1,2)，求解 Bp=−g，可得 p=(0,−1)，方向导数 gᵀp=−2。这个例子显示：修正后的方向既利用原矩阵的正曲率方向，又避免向负曲率方向求 Newton 方程。</p><p>不应把特征值“取绝对值”与“夹到 δ”混为一谈。前者会把 −100 改成 100；后者则把它改成 δ，二者求得的方向可能差别巨大。</p><figure><img src="../assets/figures/eigenvalue-floor.svg" alt="H 的特征值为 3 和负 1，裁剪后变为 3 和正阈值 δ；方向的坐标轴保持不变。"><figcaption>谱修正改变特征值，却保留对称矩阵的特征向量方向；与统一平移整个谱的 τI 策略不同。</figcaption></figure></section>
+<section id="conditioning"><h2>δ 是稳定性与局部精度的折中</h2><p>δ 很小时，B 虽然正定，仍可能病态；δ 很大时，B 的所有特征值都可能被抬高，方向更像缩放后的梯度下降，失去部分 Newton 曲率信息。</p><p>精确特征值分解在大规模稠密问题中通常昂贵，不能把这一小尺寸实现直接称为适合大规模优化的修改方法。数值算法可以使用矩阵分解等方式间接实现类似保护。</p></section>
+<section id="limits"><h2>为什么正定性不自动保证快速收敛</h2><p>修正保证 g≠0 时 gᵀp＜0，但步长大小仍需单独选择；某个大的单位步未必下降。</p><p>若解附近 H 足够正定且阈值 δ 小于其最小特征值，则修正终会消失，方向恢复普通 Newton 形式。若 Hessian 在解处接近奇异，修正可能持续存在，快速局部收敛结论不能照搬。</p></section><section id="interactive"><h2>交互实验：提高 δ 如何改变方向</h2><p>固定 H=[[1,2],[2,1]]、g=(1,2)；改变特征值下界 δ，观察修正后的方向导数与矩阵条件数。</p><div class="interactive-panel" data-demo="eigenfloor"><h3>改变参数，观察数值判据</h3><div class="demo-controls"><div class="demo-control"><label for="eig-delta">正曲率下界 δ <output data-value-for="delta">1</output></label><input id="eig-delta" data-key="delta" type="range" min="0.25" max="4" step="0.25" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：独立计算与断言</h2><p>利用二维矩阵已知的正交特征向量，手动重建修正矩阵并核对正定和下降性；无需 NumPy。</p><pre><code>&quot;&quot;&quot;Spectral floor of a symmetric 2-by-2 Hessian.&quot;&quot;&quot;
+def spectral_step(delta: float):
+    if delta &lt;= 0:
+        raise ValueError(&quot;delta must be positive&quot;)
+    positive, negative = max(3.0, delta), max(-1.0, delta)
+    b11 = (positive + negative) / 2
+    b12 = (positive - negative) / 2
+    determinant = positive * negative
+    g = (1.0, 2.0)
+    p = ((-b11*g[0]+b12*g[1])/determinant,
+         (b12*g[0]-b11*g[1])/determinant)
+    return (b11,b12),p,g[0]*p[0]+g[1]*p[1], max(positive,negative)/min(positive,negative)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.4.1. Eigenvalue Modification</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>10_3.4.1._Eigenvalue_Modification</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 10_3.4.1._Eigenvalue_Modification
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 10_3.4.1._Eigenvalue_Modification
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 10_3.4.1._Eigenvalue_Modification
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    B,p,slope,kappa = spectral_step(1.0)
+    print(&quot;B entries:&quot;,B,&quot;direction:&quot;,p,&quot;slope:&quot;,slope,&quot;condition number:&quot;,kappa)
+    assert B == (2.0,1.0)
+    assert p == (0.0,-1.0)
+    assert slope == -2.0 and kappa == 3.0
+    assert spectral_step(0.5)[2] &lt; 0.0</code></pre><p>自检：若 δ=4，两个特征值都会提升到 4，为什么新方向不再有原始矩阵的各向异性？</p><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 3.4, Eigenvalue Modification, pp. 49–51。图形与数值例子为独立构造。</div></section><footer class="article-footer"><p class="references">这里使用解析可得的二维特征分解；一般大规模矩阵的完整谱分解成本高。修正后必须再配合步长判据。</p><nav class="prev-next" aria-label="相邻内容"><a href="09_3.4._Newton’s_Method_with_Hessian_Modification.html"><small>上一篇</small><strong>Hessian 修正总览</strong></a><a href="11_3.4.2._Adding_a_Multiple_of_the_Identity.html"><small>下一篇</small><strong>添加单位矩阵的倍数</strong></a></nav></footer></article></main></div></body></html>
