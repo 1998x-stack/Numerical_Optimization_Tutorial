@@ -369,6 +369,102 @@
         fmt(f,4) + ' · Armijo：' + (armijo?'通过':'未通过') +
         ' · 强 Wolfe：' + (strong?'通过':'未通过') + '。候选不通过时必须继续线搜索。';
     });
+    if (kind === "wolfezoom") bind(root, el => {
+      const start=read(el,"start"), c1=1e-4, c2=0.1, f=a=>(a-2)**2, g=a=>2*(a-2);
+      const good=a=>f(a)<=4-4*c1*a;
+      let lo=0, hi=start, a=start, previous=0, trials=[], accepted=null;
+      for(let i=0;i<28;i++){
+        trials.push("试探 "+fmt(a,3));
+        if(!good(a)||(i>0&&f(a)>=f(previous))){lo=previous;hi=a;break;}
+        if(Math.abs(g(a))<=4*c2){accepted=a;break;}
+        if(g(a)>=0){lo=a;hi=previous;break;}
+        previous=a; a=Math.min(2*a,16);
+        if(a===previous)break;
+      }
+      if(accepted===null){
+        for(let j=0;j<50;j++){
+          const mid=(lo+hi)/2;
+          trials.push("zoom "+fmt(mid,3));
+          if(Math.abs(hi-lo)<1e-11)break;
+          if(!good(mid)||f(mid)>=f(lo))hi=mid;
+          else{
+            const slope=g(mid);
+            if(Math.abs(slope)<=4*c2){accepted=mid;break;}
+            if(slope*(hi-lo)>=0)hi=lo;
+            lo=mid;
+          }
+        }
+      }
+      const aout=accepted===null?"尚未找到":fmt(accepted,5);
+      output.innerHTML='<strong>α='+aout+'</strong> · 初始 α₁='+fmt(start,2)+
+        ' · 试探：'+trials.join(' → ')+
+        (accepted===null?' · 搜索失败':' · Armijo 与强 Wolfe 同时通过');
+    });
+    if (kind === "floatingstop") bind(root, el => {
+      const n=Math.round(read(el,"power")), x=10**n;
+      const next=x+1, same=next===x, ulp=2**(Math.floor(Math.log2(x))-52);
+      output.innerHTML='<strong>10^'+n+' + 1 '+(same?'等于':'不等于')+' 10^'+n+
+        '</strong> · 该尺度附近浮点相邻间距约 '+ulp.toExponential(3)+
+        ' · '+(same?'新点未改变，应报告精度停滞':'新点仍可区分');
+    });
+    if (kind === "lineexercises") bind(root, el => {
+      const n=Math.round(read(el,"exercise"));
+      const answers=[
+        '强 Wolfe：|2(α−2)|≤0.4，曲率区间为 [1.8,2.2]；α=2 也通过 Armijo。',
+        '二次精确线搜索：α=(gᵀg)/(gᵀBg)=17/65≈0.261538；新点位于同一条下降直线上。',
+        'Armijo 回溯：8 拒绝、4 拒绝、2 接受，共三次函数值试探。',
+        '不定 Hessian：gᵀpᴺ=3.5，上坡；正定修正后 gᵀp=−4.25，严格下降。'
+      ];
+      output.innerHTML='<strong>练习 '+n+'：</strong>'+answers[n-1];
+    });
+    if (kind === "trcauchy") bind(root, el => {
+      const D=read(el,"radius"),t=Math.min(.25,D/2), p=-2*t, dec=-2*p-2*p*p;
+      output.innerHTML='<strong>Δ='+fmt(D,2)+'，Cauchy p=('+fmt(p,4)+', 0)</strong>'+
+        ' · 预测下降 '+fmt(dec,5)+' · '+(2*t<D-1e-10?'位于球内':'由半径限制');
+    });
+    if (kind === "trbetter") bind(root, el => {
+      const theta=read(el,"angle")*Math.PI/180, p=[-Math.cos(theta),-Math.sin(theta)];
+      const reduction=v=>-(2*v[0]+2*v[1]+.5*(4*v[0]**2+v[1]**2));
+      const base=[-1/Math.SQRT2,-1/Math.SQRT2], current=reduction(p), baseline=reduction(base);
+      output.innerHTML='<strong>θ='+fmt(read(el,"angle"),0)+'°，候选下降='+fmt(current,5)+'</strong>'+
+        ' · Cauchy 基准 '+fmt(baseline,5)+' · '+(current>baseline?'候选改善模型下降':'该候选未超过基准')+
+        ' · ‖p‖=1';
+    });
+    if (kind === "trdogleg") bind(root, el => {
+      const D=read(el,"radius"),u=[-.8,-.8],N=[-.5,-2],norm=Math.hypot;
+      const du=norm(...u),dn=norm(...N);
+      let p,phase;
+      if(D<=du){p=[-D/Math.SQRT2,-D/Math.SQRT2];phase="负梯度段";}
+      else if(D>=dn){p=N;phase="完整 Newton 步";}
+      else{
+        const v=[N[0]-u[0],N[1]-u[1]],A=v[0]**2+v[1]**2,B=2*(u[0]*v[0]+u[1]*v[1]),C=u[0]**2+u[1]**2-D*D;
+        const t=(-B+Math.sqrt(Math.max(0,B*B-4*A*C)))/(2*A);
+        p=[u[0]+t*v[0],u[1]+t*v[1]];phase="折线第二段";
+      }
+      const dec=-(2*p[0]+2*p[1]+.5*(4*p[0]**2+p[1]**2));
+      output.innerHTML='<strong>'+phase+'：p=('+fmt(p[0],4)+','+fmt(p[1],4)+')</strong>'+
+        ' · ‖p‖='+fmt(norm(...p),4)+' ≤ Δ='+fmt(D,2)+' · 模型下降 '+fmt(dec,5);
+    });
+    if (kind === "trsubspace") bind(root, el => {
+      const D=read(el,"radius"),n=l=>Math.hypot(2/(4+l),2/(1+l));
+      let lam=0;
+      if(n(0)>D){
+        let lo=0,hi=1;
+        while(n(hi)>D && hi<1e8)hi*=2;
+        for(let i=0;i<80;i++){const mid=(lo+hi)/2;if(n(mid)>D)lo=mid;else hi=mid;}
+        lam=(lo+hi)/2;
+      }
+      const p=[-2/(4+lam),-2/(1+lam)],drop=-(2*p[0]+2*p[1]+.5*(4*p[0]**2+p[1]**2));
+      output.innerHTML='<strong>λ='+fmt(lam,6)+'，p=('+fmt(p[0],4)+','+fmt(p[1],4)+')</strong>'+
+        ' · ‖p‖='+fmt(n(lam),4)+' · 模型下降 '+fmt(drop,6)+
+        (lam===0?' · Newton 步在球内':' · 半径约束激活');
+    });
+    if (kind === "trbound") bind(root, el => {
+      const D=read(el,"radius"),t=Math.min(.25,D/2),p=-2*t;
+      const reduction=-2*p-2*p*p,low=Math.min(D,.5);
+      output.innerHTML='<strong>Δ='+fmt(D,2)+'：Cauchy 下降='+fmt(reduction,6)+'</strong>'+
+        ' · 理论下界='+fmt(low,6)+' · 下降 ≥ 下界：'+(reduction+1e-12>=low?'成立':'不成立');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

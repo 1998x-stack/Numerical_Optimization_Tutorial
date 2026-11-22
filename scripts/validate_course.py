@@ -147,6 +147,38 @@ ARTICLES = [
      "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.md",
      "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.py",
      "evidence/chapter-03-initial-step.json"),
+    ("03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.html",
+     "03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.md",
+     "03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.py",
+     "evidence/chapter-3-5-3.json"),
+    ("03._Line_Search_Methods/18_3.6._Notes_and_References.html",
+     "03._Line_Search_Methods/18_3.6._Notes_and_References.md",
+     "03._Line_Search_Methods/18_3.6._Notes_and_References.py",
+     "evidence/chapter-3-6.json"),
+    ("03._Line_Search_Methods/19_3.7._Exercises.html",
+     "03._Line_Search_Methods/19_3.7._Exercises.md",
+     "03._Line_Search_Methods/19_3.7._Exercises.py",
+     "evidence/chapter-3-7.json"),
+    ("04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.html",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.md",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.py",
+     "evidence/chapter-4-1-1.json"),
+    ("04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.html",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.md",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.py",
+     "evidence/chapter-4-1-2.json"),
+    ("04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.html",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.md",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.py",
+     "evidence/chapter-4-1-3.json"),
+    ("04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.html",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.md",
+     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.py",
+     "evidence/chapter-4-1-4.json"),
+    ("04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html",
+     "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.md",
+     "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.py",
+     "evidence/chapter-4-2-1.json"),
 ]
 
 
@@ -305,13 +337,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.5.2 共三十四篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.2.1 共四十二篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 34:
-        errors.append("index.html: expected exactly thirty-four featured modules (five batches)")
+    if index.count('class="featured-card"') != 42:
+        errors.append("index.html: expected exactly forty-two featured modules (six batches)")
     return errors
 
 

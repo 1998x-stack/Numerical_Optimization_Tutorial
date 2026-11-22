@@ -1,36 +1,55 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="给定下降方向以后，不能靠一次缩短就保证满足强 Wolfe 条件。先扩大试探寻找合适区间，再由 zoom 收缩区间并同时检查函数值与方向导数，才能找到可靠的步长。"><title>3.5.3 Wolfe 搜索：扩张试探与 zoom 如何协作 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.5.3</span><a href="#setup">两个条件分别阻止什么错误</a><a href="#stage">第一阶段：扩张试探，直到可接受或出现括区间</a><a href="#zoom">第二阶段：zoom 维持什么不变量</a><a href="#worked">一次完整的可复现路径</a><a href="#limits">保证、停止与工程保护</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.5.3</div><h1>3.5.3 Wolfe 搜索：扩张试探与 zoom 如何协作</h1><p class="dek">给定下降方向以后，不能靠一次缩短就保证满足强 Wolfe 条件。先扩大试探寻找合适区间，再由 zoom 收缩区间并同时检查函数值与方向导数，才能找到可靠的步长。</p><div class="article-meta"><span>概念与推导</span><span>反例与边界</span><span>运行验证</span></div></header><section id="setup"><h2>两个条件分别阻止什么错误</h2><p>在当前点 x 选择下降方向 p，记 φ(α)=f(x+αp)，并假设 φ′(0)＜0。充分下降（Armijo）阻止走得过远或函数值不降；强 Wolfe 曲率条件阻止停在仍然过陡的坡上。两者必须同时成立。</p><p>选择 0＜c₁＜c₂＜1，要求 φ(α)≤φ(0)+c₁αφ′(0)，并要求 |φ′(α)|≤c₂|φ′(0)|。满足条件的正步长不一定是一维精确极小点；它只需要在这次迭代上足够合理。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="强 Wolfe 的两个判据"><math display="block" aria-label="强 Wolfe 的两个判据"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><msub><mi>c</mi><mn>1</mn></msub><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math></div></div></section><section id="stage"><h2>第一阶段：扩张试探，直到可接受或出现括区间</h2><p>从 α₀=0 与正试探 α₁ 开始；每次计算 φ(αᵢ)。若 Armijo 失败，或者 i＞1 时函数值没有继续下降，就用相邻两次试探作为 zoom 端点。否则检查斜率：如果强 Wolfe 已通过，立即接受；如果 φ′(αᵢ)≥0，说明已经越过某个下降趋势的转折，再调用 zoom。</p><p>若以上情形都没出现，尝试更大的 αᵢ₊₁。这是和回溯的关键区别：起始步长过小时，算法可能需要扩张，而不是不断缩小。数值实现必须限制最大试探步和扩张次数。</p><figure><img src="../assets/figures/wolfe-zoom-search.svg" alt="外层搜索可以逐步增加 α 来发现曲率变化；当试探超出可接受区域，zoom 通过安全插值或二分收缩括区间。图示是教学流程，具体接受条件以不等式为准。"><figcaption>外层搜索可以逐步增加 α 来发现曲率变化；当试探超出可接受区域，zoom 通过安全插值或二分收缩括区间。图示是教学流程，具体接受条件以不等式为准。</figcaption></figure></section><section id="zoom"><h2>第二阶段：zoom 维持什么不变量</h2><p>zoom 使用一对端点 α_lo、α_hi。区间内部应包含符合强 Wolfe 的步长；α_lo 是已探索且满足 Armijo 的较好函数值点；两个端点的方向关系保持特定符号条件。插值、二分只负责产生新的候选 α_j，不能替代 Armijo 和曲率检查。</p><p>若 α_j 的函数值不充分下降，或没有优于 α_lo，就用 α_j 更新另一端点；否则检查曲率，满足就接受。不满足时，依据导数符号调整两个端点。要避免每次插值都贴近边界，通常保留安全内段或二分回退。</p></section><section id="worked"><h2>一次完整的可复现路径</h2><p>固定 φ(α)=(α−2)²，φ′(0)=−4，c₁=10⁻⁴，c₂=0.1。从初始 α₁=4 试探：φ(4)=4，而 Armijo 上界约 3.9984，不通过。调用 zoom(0,4)，其中点为 α=2；此时 φ(2)=0 且 φ′(2)=0，同时满足两个条件，立即接受。</p><p>若改从 α₁=0.5 开始，尽管 Armijo 已满足，但 φ′(0.5)=−3，绝对值大于 0.4，曲率条件失败。外层扩张至 α=1 仍未通过，再到 α=2 时才通过。可见“函数值已经下降”不等于“满足强 Wolfe”。</p></section><section id="limits"><h2>保证、停止与工程保护</h2><p>教科书的存在性与算法结论依赖下降方向、φ 足够光滑、沿方向有下界和 0＜c₁＜c₂＜1。实际程序还应当检查非有限数、区间宽度、浮点停滞、最大迭代数与最大步长，失败时明确抛错。</p><p>下面提供的是基于二分 zoom 与几何扩张的教学实现，保留强 Wolfe 的两个停止条件和主要区间分支，但没有实现专业线搜索库的三次插值、舍入误差容错与全部数值防护。</p></section><section id="interactive"><h2>交互：调整参数观察判据</h2><p>练习：如果将 c₂ 从 0.1 增大到 0.9，可接受步长集合会如何变化？这是否意味着更接近精确极小点？</p><div class="interactive-panel" data-demo="wolfezoom"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="wz-start">初始正步长 α₁ <output data-value-for="start">4</output></label><input id="wz-start" data-key="start" type="range" min="0.5" max="4" step="0.5" value="4"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的断言</h2><p>从不同起点运行线搜索，并且用独立断言检查返回步长的 Armijo 与强 Wolfe 条件；不把二分 zoom 误称为完整工业算法。</p><pre><code>&quot;&quot;&quot;Strong Wolfe search with safeguarded bisection-based zoom.&quot;&quot;&quot;
+def phi(a):
+    return (a - 2.0) ** 2
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.5.3. A Line Search Algorithm for the Wolfe Conditions</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions
-</code></pre>
+def dphi(a):
+    return 2.0 * (a - 2.0)
 
-    <h3>Python 文件</h3>
-    <pre><code># 17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions
+def wolfe_search(initial=4.0, c1=1e-4, c2=0.1, maximum=16.0):
+    if not (0.0 &lt; c1 &lt; c2 &lt; 1.0 and 0.0 &lt; initial &lt; maximum):
+        raise ValueError(&quot;invalid Wolfe parameters or step bound&quot;)
+    f0, g0 = phi(0.0), dphi(0.0)
+    if g0 &gt;= 0.0:
+        raise ValueError(&quot;direction is not descending&quot;)
+    trace = []
+    def sufficient(a):
+        return phi(a) &lt;= f0 + c1 * a * g0
+    def zoom(lo, hi):
+        for _ in range(60):
+            a = (lo + hi) / 2.0
+            trace.append((&quot;zoom&quot;, a))
+            if abs(hi - lo) &lt; 1e-12:
+                raise RuntimeError(&quot;zoom stagnated&quot;)
+            if not sufficient(a) or phi(a) &gt;= phi(lo):
+                hi = a
+            else:
+                ga = dphi(a)
+                if abs(ga) &lt;= -c2 * g0:
+                    return a, trace
+                if ga * (hi - lo) &gt;= 0.0:
+                    hi = lo
+                lo = a
+        raise RuntimeError(&quot;zoom iteration limit&quot;)
+    prev, a = 0.0, initial
+    for i in range(60):
+        trace.append((&quot;expand&quot;, a))
+        if not sufficient(a) or (i &gt; 0 and phi(a) &gt;= phi(prev)):
+            return zoom(prev, a)
+        ga = dphi(a)
+        if abs(ga) &lt;= -c2 * g0:
+            return a, trace
+        if ga &gt;= 0.0:
+            return zoom(a, prev)
+        prev, a = a, min(2.0 * a, maximum)
+        if a == prev:
+            raise RuntimeError(&quot;maximum step reached&quot;)
+    raise RuntimeError(&quot;search iteration limit&quot;)
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    for start in (0.5, 1.0, 3.0, 4.0):
+        alpha, history = wolfe_search(initial=start)
+        print(start, alpha, history)
+        assert phi(alpha) &lt;= phi(0) + 1e-4 * alpha * dphi(0)
+        assert abs(dphi(alpha)) &lt;= 0.1 * abs(dphi(0))
+    assert wolfe_search(4.0)[0] == 2.0
+    assert wolfe_search(0.5)[0] == 2.0</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Chapter 3, Section 3.5, Algorithms 3.5–3.6, pp. 60–63。本文实验、图形与解答独立编写。</div></section><footer class="article-footer"><p class="references">强 Wolfe 搜索在理论上依赖光滑性、下降方向与沿线下界；当前 Python 程序仅演示有界一维二次函数与二分 zoom，不能替代成熟的鲁棒数值实现。</p><nav class="prev-next" aria-label="相邻内容"><a href="16_3.5.2._Initial_Step_Length.html"><small>上一篇</small><strong>初始步长</strong></a><a href="18_3.6._Notes_and_References.html"><small>下一篇</small><strong>数值误差与线搜索参考</strong></a></nav></footer></article></main></div></body></html>

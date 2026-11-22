@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the course portal and thirty-four standalone articles."""
+"""Playwright QA for the course portal and forty-two standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -43,6 +43,14 @@ ARTICLES = [
     "03._Line_Search_Methods/14_3.5._Step_Length_Selection_Algorithms.html",
     "03._Line_Search_Methods/15_3.5.1._Interpolation.html",
     "03._Line_Search_Methods/16_3.5.2._Initial_Step_Length.html",
+    "03._Line_Search_Methods/17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.html",
+    "03._Line_Search_Methods/18_3.6._Notes_and_References.html",
+    "03._Line_Search_Methods/19_3.7._Exercises.html",
+    "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.html",
+    "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/01_4.1.2._Improving_on_the_Cauchy_Point.html",
+    "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.html",
+    "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.html",
+    "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -153,7 +161,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, thirty-four article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, forty-two article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 

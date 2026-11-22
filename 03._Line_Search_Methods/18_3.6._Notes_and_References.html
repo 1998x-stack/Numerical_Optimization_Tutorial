@@ -1,36 +1,21 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="下降不等式是在实数运算中推导的，程序执行却依赖有限精度。函数值接近机器精度时，“没有下降”可能来自表示精度，而不是算法方向失效；要同时看梯度、步长、模型和计算尺度。"><title>3.6 线搜索的数值边界：导数、曲率与浮点停滞 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.6</span><a href="#precision">实数步长与浮点步长并不是一回事</a><a href="#derivatives">为什么方向导数也可能不可信</a><a href="#negative">负曲率与下降方向不是一个概念</a><a href="#stop">什么情况应该立即停止并给出诊断</a><a href="#practice">如何记录可复核的数值结果</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.6</div><h1>3.6 线搜索的数值边界：导数、曲率与浮点停滞</h1><p class="dek">下降不等式是在实数运算中推导的，程序执行却依赖有限精度。函数值接近机器精度时，“没有下降”可能来自表示精度，而不是算法方向失效；要同时看梯度、步长、模型和计算尺度。</p><div class="article-meta"><span>概念与推导</span><span>反例与边界</span><span>运行验证</span></div></header><section id="precision"><h2>实数步长与浮点步长并不是一回事</h2><p>线搜索公式 x_new=x+αp 假设新点可以按实数精确形成。机器浮点数有有限有效位数：当 |x| 很大而 |αp| 相比之下过小时，计算出的 x_new 可能和 x 完全相同，即使数学上 α＞0、p≠0。</p><p>例如在常见 IEEE 754 双精度下，1e16+1.0 等于 1e16。于是再计算 f(x_new) 与 f(x) 必然得到完全相同的数值；继续缩小 α 只会加重这种停滞。程序应该报告精度受限，而不是无限尝试回溯。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="浮点更新可能不产生新点"><math display="block" aria-label="浮点更新可能不产生新点"><mrow><mi>fl</mi><mo>(</mo><mi>x</mi><mo>+</mo><mi>α</mi><mi>p</mi><mo>)</mo><mo>=</mo><mi>x</mi></mrow></math></div></div></section><section id="derivatives"><h2>为什么方向导数也可能不可信</h2><p>Armijo 与 Wolfe 条件依赖 φ′(0)=∇f(x)ᵀp 和 φ′(α)。如果梯度由差分近似而来，差分步长过小时相近函数值会相消，过大时截断误差又增加。使用解析导数或自动微分通常可以降低这一误差，但也不消除浮点数范围、溢出和目标求值噪声。</p><p>对强 Wolfe 来说，斜率数据的误差还可能让程序错误判断曲率条件。检查函数值和梯度的有限性，以及对方向导数进行必要的复核，比一味调小 c₁、c₂ 更重要。</p><figure><img src="../assets/figures/line-search-floating-point.svg" alt="当数值尺度增大，浮点相邻可表示数的间距也增大。相同的绝对移动量，在大尺度下可能根本改变不了存储的 x。"><figcaption>当数值尺度增大，浮点相邻可表示数的间距也增大。相同的绝对移动量，在大尺度下可能根本改变不了存储的 x。</figcaption></figure></section><section id="negative"><h2>负曲率与下降方向不是一个概念</h2><p>若 Hessian 有负特征值，沿对应方向的二次模型存在向下弯曲。负曲率方向满足 dᵀHd＜0，但未必满足 gᵀd＜0。对初始线搜索来说，下降方向条件是 gᵀp＜0，两类方向需要分清。</p><p>一些方法结合负梯度与负曲率信息，尝试避开非极小驻点；信赖域方法则能利用负曲率直接在有界球内选择更有利的步长。它们都需要附加的算法条件才能说明收敛到何种驻点。</p></section><section id="stop"><h2>什么情况应该立即停止并给出诊断</h2><p>一旦出现 f 或梯度不是有限数、x+αp=x、连续多次没有可区分的函数值变化、步长低于容忍阈值、或者试探次数达到上限，程序应明确区分这些失败类型。它们不是同一件事，也不应该被掩盖成“算法收敛”。</p><p>合理终止还应检查最优性残差，例如 ‖∇f(x)‖，并结合相对目标下降和实际位移做判断。极小梯度不一定代表已找到局部极小，尤其在 Hessian 不定或驻点是鞍点时。</p></section><section id="practice"><h2>如何记录可复核的数值结果</h2><p>一份能被别人复现的线搜索实验，至少应保存目标函数定义、初始化、下降方向、c₁/c₂、初始 α、每次试探的 φ 和 φ′、接受/拒绝原因、使用的精度与失败保护。</p><p>下面的 Python 例子只比较不同数量级下加 1 是否能够改变浮点值，它是表示精度实验，并非一条优化轨迹；不能直接据此断言某个优化算法必然失败。</p></section><section id="interactive"><h2>交互：调整参数观察判据</h2><p>思考：若 x+αp 与 x 在浮点运算下相等，继续缩小 α 是否有帮助？为什么只看函数值“没有下降”无法区别停滞与驻点？</p><div class="interactive-panel" data-demo="floatingstop"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="float-power">数值尺度 10^n 中的 n <output data-value-for="power">16</output></label><input id="float-power" data-key="power" type="range" min="10" max="18" step="1" value="16"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的断言</h2><p>仅观察双精度数值尺度导致的不可见更新；math.ulp 提供当前浮点数相邻表示间距，不涉及任何外部依赖。</p><pre><code>&quot;&quot;&quot;Show floating-point step stagnation at increasing magnitude.&quot;&quot;&quot;
+import math
+import sys
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.6. Notes and References</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>18_3.6._Notes_and_References</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 18_3.6._Notes_and_References
-</code></pre>
+def probe(power: int):
+    if not 0 &lt;= power &lt;= 18:
+        raise ValueError(&quot;power out of teaching range&quot;)
+    x = float(10 ** power)
+    proposed_step = 1.0
+    new_x = x + proposed_step
+    return x, new_x, new_x == x, math.ulp(x)
 
-    <h3>Python 文件</h3>
-    <pre><code># 18_3.6._Notes_and_References
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 18_3.6._Notes_and_References
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    for n in (12, 14, 15, 16, 17):
+        x, y, stuck, ulp = probe(n)
+        print(f&quot;10^{n}: x+1==x -&gt; {stuck}, ULP={ulp}&quot;)
+        assert math.isfinite(y)
+    assert probe(12)[2] is False
+    assert probe(16)[2] is True
+    assert probe(17)[3] &gt; probe(12)[3]
+    assert sys.float_info.radix == 2</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Chapter 3, Notes and References, pp. 62–63; Chapter 8 on derivative computation。本文实验、图形与解答独立编写。</div></section><footer class="article-footer"><p class="references">本页描述典型 IEEE 754 双精度行为；实际库的运算模式、子正规数和目标函数计算方式可能影响具体阈值。浮点停滞不等价于最优性收敛。</p><nav class="prev-next" aria-label="相邻内容"><a href="17_3.5.3._A_Line_Search_Algorithm_for_the_Wolfe_Conditions.html"><small>上一篇</small><strong>Wolfe 搜索算法</strong></a><a href="19_3.7._Exercises.html"><small>下一篇</small><strong>第三章原创练习</strong></a></nav></footer></article></main></div></body></html>

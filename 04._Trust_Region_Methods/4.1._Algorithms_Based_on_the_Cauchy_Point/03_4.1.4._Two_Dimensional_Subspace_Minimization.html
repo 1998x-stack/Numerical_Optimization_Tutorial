@@ -1,36 +1,38 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Dogleg 只考虑两段折线，而整个由梯度和 Newton 校正方向张成的二维平面包含所有 Dogleg 候选。若在该平面的信赖域截面上寻找最优步，预测下降不会比 Dogleg 差。"><title>4.1.4 二维子空间最小化：比 Dogleg 折线更大的搜索范围 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.1.4</span><a href="#section-1">从折线拓展为整个可行子空间</a><a href="#section-2">为什么模型下降不会差于 Dogleg</a><a href="#section-3">同一个二维模型的对照结果</a><a href="#section-4">为什么能对 λ 做二分</a><a href="#section-5">不能忽视不定 Hessian</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.1.4</div><h1>4.1.4 二维子空间最小化：比 Dogleg 折线更大的搜索范围</h1><p class="dek">Dogleg 只考虑两段折线，而整个由梯度和 Newton 校正方向张成的二维平面包含所有 Dogleg 候选。若在该平面的信赖域截面上寻找最优步，预测下降不会比 Dogleg 差。</p><div class="article-meta"><span>几何构造</span><span>数值推导</span><span>可复现实验</span></div></header><section id="section-1"><h2>从折线拓展为整个可行子空间</h2><p>设 B 对称正定、g≠0。Dogleg 的关键方向来自 g 和 B⁻¹g，其整条路径都落在 span{g,B⁻¹g}。与其只考察一条折线，不如在这个至多二维的子空间中直接最小化二次模型。</p><p>如果 g 与 B⁻¹g 共线，子空间实际上只有一维；在高维模型中，通常仍远小于原问题维数。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="约束于二维子空间与信赖域球的最小化"><math display="block" aria-label="约束于二维子空间与信赖域球的最小化"><mrow><munder><mo>min</mo><mrow><mi>p</mi><mo>∈</mo><mi>S</mi></mrow></munder><mo>(</mo><msup><mi>g</mi><mo>⊤</mo></msup><mi>p</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>p</mi><mo>⊤</mo></msup><mi>B</mi><mi>p</mi><mo>)</mo></mrow></math></div></div></section>
+<section id="section-2"><h2>为什么模型下降不会差于 Dogleg</h2><p>Dogleg 步是这个二维子空间的可行点，因此将搜索范围扩大到子空间后，最优模型值不可能更高。若 Dogleg 已经达到球内全局最优，则两种方法下降相同；否则二维方法可能进一步改善。</p><p>更大的候选范围可能增加每轮计算成本。单步模型下降更大不等于整个算法迭代一定更少，也不保证真实目标函数取得同样改进。</p><figure><img src="../../assets/figures/trust-region-subspace.svg" alt="Dogleg 的候选受折线路径限制；二维子空间内还可以到达更好的球内位置。图形仅表达包含关系，非精确数值轨迹。"><figcaption>Dogleg 的候选受折线路径限制；二维子空间内还可以到达更好的球内位置。图形仅表达包含关系，非精确数值轨迹。</figcaption></figure></section>
+<section id="section-3"><h2>同一个二维模型的对照结果</h2><p>继续用 g=(2,2)、B=diag(4,1)。在二维空间中 g 与 B⁻¹g 不共线，因此子空间恰好是整个 R²。球内的精确二次模型极小点满足 (B+λI)p=−g，λ≥0；当半径约束激活时 ‖p‖=Δ。</p><p>对 Δ=1.3，可令 p(λ)=(−2/(4+λ),−2/(1+λ)) 并用二分确定 λ≈0.631095，得到预测下降约 2.191309，大于相同设置下 Dogleg 的 1.965007。</p></section>
+<section id="section-4"><h2>为什么能对 λ 做二分</h2><p>对正定 B，λ 增大时 p(λ) 的范数单调缩小。先判断完整 Newton 步是否已在球内；若不在，则找到足够大的 λ 使范数不超过 Δ，再对 λ 区间进行二分。</p><p>这一推导之所以简单，是因为例子选取了二维正定对角 B。在高维问题中，二维子空间通常并不等于整个空间；而 B 不定时需要引入负曲率方向和特殊情形处理。</p></section>
+<section id="section-5"><h2>不能忽视不定 Hessian</h2><p>当 B 不定时，B⁻¹g 不再表示无约束模型的极小点。采用二维子空间仍然可能有用，但应对负特征值进行额外处理，并防止非奇异假设被悄悄破坏。</p><p>页面给出的程序只实现正定二维模型的标量乘子搜索，用来验证下界与模型下降，不能被当作通用高维信赖域子问题求解器。</p></section><section id="interactive"><h2>交互：改变参数并观察模型下降</h2><p>比较 Δ=1.3 与 Δ=2.5：后者是否还需要对 λ 进行二分？</p><div class="interactive-panel" data-demo="trsubspace"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="trsubspace-input">信赖域半径 Δ <output data-value-for="radius">1.3</output></label><input id="trsubspace-input" type="range" data-key="radius" min="0.5" max="2.5" step="0.1" value="1.3"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：模型与断言交叉验证</h2><p>完整代码仅依赖 Python 标准库；可独立运行，包含数值断言。</p><pre><code>&quot;&quot;&quot;Exact trust-region solution for an SPD two-dimensional model.&quot;&quot;&quot;
+from math import hypot
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.1.4. Two Dimensional Subspace Minimization</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_4.1.4._Two-Dimensional_Subspace_Minimization</h1>
-<pre><code>Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 03_4.1.4._Two-Dimensional_Subspace_Minimization
-</code></pre>
+def norm_at(lam):
+    return hypot(2/(4+lam),2/(1+lam))
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_4.1.4._Two-Dimensional_Subspace_Minimization
+def solve(radius):
+    if radius&lt;=0:
+        raise ValueError(&quot;radius must be positive&quot;)
+    if norm_at(0)&lt;=radius:
+        return (-0.5,-2.0),0.0
+    lo,hi=0.0,1.0
+    while norm_at(hi)&gt;radius:
+        hi*=2
+    for _ in range(90):
+        mid=(lo+hi)/2
+        if norm_at(mid)&gt;radius: lo=mid
+        else: hi=mid
+    lam=(lo+hi)/2
+    return (-2/(4+lam),-2/(1+lam)),lam
 
-"""
-Lecture: 04._Trust-Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point
-Content: 03_4.1.4._Two-Dimensional_Subspace_Minimization
-"""
+def reduction(p):
+    x,y=p
+    return -(2*x+2*y+0.5*(4*x*x+y*y))
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    for radius in (0.5,1.3,2.5):
+        p,lam=solve(radius)
+        print(radius,lam,p,reduction(p))
+        assert hypot(*p)&lt;=radius+1e-10 and lam&gt;=0
+    p,lam=solve(1.3)
+    assert abs(lam-0.6310945588223069)&lt;1e-8
+    assert abs(reduction(p)-2.1913087311268886)&lt;1e-8
+    assert reduction(p)&gt;1.9650065164267754</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 4, Section 4.1, Two-Dimensional Subspace Minimization, pp. 76–77。教学图、数值例子及代码独立构造。</div></section><footer class="article-footer"><p class="references">本例二维子空间恰好是整个 R²，不能据此推广说高维子空间法总是精确解。B 不定时需另行处理负曲率。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_4.1.3._The_Dogleg_Method.html"><small>上一篇</small><strong>Dogleg 方法</strong></a><a href="../4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html"><small>下一篇</small><strong>Cauchy 下降界</strong></a></nav></footer></article></main></div></body></html>

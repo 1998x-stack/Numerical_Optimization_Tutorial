@@ -1,36 +1,32 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="能够写出 Wolfe 不等式，并不意味着理解何时接受步长、何时需要修正方向。四个原创小问题从曲率区间、二次精确步长、Armijo 回溯和 Hessian 负曲率逐步检查这些区别。"><title>3.7 线搜索四个可独立推导的练习与解答 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.7</span><a href="#wolfeexercise">练习一：强 Wolfe 到底允许哪些步长</a><a href="#quadratic">练习二：二次函数上的精确线搜索</a><a href="#backtrack">练习三：为什么要进行三次 Armijo 试探</a><a href="#indefinite">练习四：Newton 方向可能指向上坡</a><a href="#cross">综合检查：不要把不同结论混成一个</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.7</div><h1>3.7 线搜索四个可独立推导的练习与解答</h1><p class="dek">能够写出 Wolfe 不等式，并不意味着理解何时接受步长、何时需要修正方向。四个原创小问题从曲率区间、二次精确步长、Armijo 回溯和 Hessian 负曲率逐步检查这些区别。</p><div class="article-meta"><span>概念与推导</span><span>反例与边界</span><span>运行验证</span></div></header><section id="wolfeexercise"><h2>练习一：强 Wolfe 到底允许哪些步长</h2><p>问题：定义 φ(α)=(α−2)²，起点 α=0，取 c₁=10⁻⁴、c₂=0.1。求使曲率条件成立的全部正 α，并确认其中 α=2 满足充分下降。</p><p>解析：φ′(α)=2(α−2)，φ′(0)=−4。强 Wolfe 曲率要求 |2(α−2)|≤0.4，所以 1.8≤α≤2.2。在 α=2 时，φ=0，而 Armijo 上界为 4−0.0008，故接受；“曲率允许区间”仍需和 Armijo 允许集合求交。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="强 Wolfe 曲率允许区间"><math display="block" aria-label="强 Wolfe 曲率允许区间"><mrow><mn>1.8</mn><mo>≤</mo><mi>α</mi><mo>≤</mo><mn>2.2</mn></mrow></math></div></div></section><section id="quadratic"><h2>练习二：二次函数上的精确线搜索</h2><p>问题：f(x,y)=½(4x²+y²)，从 (1,1) 沿负梯度 p=−g 走一步。求最佳 α 并验证该步使函数值严格下降。</p><p>解析：g=(4,1)，B=diag(4,1)。对一维模型求导等于零，得到 α*=gᵀg/(gᵀBg)=17/65≈0.261538；新点为 (−3/65,48/65)，函数值小于起点 2.5。该 α 是此方向上的精确极小步，不等于全局算法从任意点一步到达最优。</p><figure><img src="../assets/figures/line-search-exercises-map.svg" alt="从一维接受条件到多维 Hessian，分别检查步长准则和方向可接受性；这四道题及数值设定为独立创作。"><figcaption>从一维接受条件到多维 Hessian，分别检查步长准则和方向可接受性；这四道题及数值设定为独立创作。</figcaption></figure></section><section id="backtrack"><h2>练习三：为什么要进行三次 Armijo 试探</h2><p>问题：使用 φ(α)=(α−2)²、c=10⁻⁴、初始步长 α₀=8 和缩短比例 ρ=0.5。按照 Armijo 条件逐次判断是否接受。</p><p>解析：在 α=8 时 φ=36，远高于上界约 3.9968；在 α=4 时 φ=4，而上界约 3.9984，仍失败；在 α=2 时 φ=0，小于上界约 3.9992，通过。总计三次试探。回溯只验证充分下降，不自动保证 Wolfe 曲率条件。</p></section><section id="indefinite"><h2>练习四：Newton 方向可能指向上坡</h2><p>问题：给出 g=(1,2)、H=diag(2,−1)。解 H p=−g，并判断 p 是不是下降方向；再取 B=H+2I 重新计算。</p><p>解析：普通 Newton 步 pᴺ=(−0.5,2)，梯度内积 gᵀpᴺ=−0.5+4=3.5＞0，因此不是下降方向。B=diag(4,1) 正定，修正方向 p=(−0.25,−2)，梯度内积 −4.25＜0。正定修正只恢复局部下降性，步长仍需要检查。</p></section><section id="cross"><h2>综合检查：不要把不同结论混成一个</h2><p>练习一决定可接受的步长集合；练习二仅在一条线上的精确最小化；练习三展示了 Armijo 几何缩短；练习四则先修复方向本身。四个命题互不替代。</p><p>完成后建议自己重算每一项函数值、梯度和方向导数，再运行下方 Python 断言；若两者不一致，应先核对符号与系数，而不是调整代码让断言通过。</p></section><section id="interactive"><h2>交互：调整参数观察判据</h2><p>延伸问题：练习一中 c₂ 越小，强 Wolfe 曲率允许区间如何变化？练习四若不修改 H，而使用信赖域，负曲率能否反而帮助降低模型？</p><div class="interactive-panel" data-demo="lineexercises"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="line-exercise">练习编号 <output data-value-for="exercise">1</output></label><input id="line-exercise" data-key="exercise" type="range" min="1" max="4" step="1" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的断言</h2><p>程序对应上面的四道原创练习。它检验公式和算例，不充当通用线搜索或 Newton 迭代库。</p><pre><code>&quot;&quot;&quot;Four original exercises on Wolfe, exact steps, Armijo and Newton curvature.&quot;&quot;&quot;
+def strong_wolfe(alpha, c1=1e-4, c2=0.1):
+    phi = (alpha - 2.0)**2
+    return (phi &lt;= 4.0 - 4*c1*alpha
+            and abs(2*(alpha-2)) &lt;= 4*c2)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.7. Exercises</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>19_3.7._Exercises</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 19_3.7._Exercises
-</code></pre>
+def exact_step():
+    alpha = 17.0/65.0
+    x = (1.0-4*alpha, 1.0-alpha)
+    value = 0.5*(4*x[0]**2+x[1]**2)
+    return alpha, x, value
 
-    <h3>Python 文件</h3>
-    <pre><code># 19_3.7._Exercises
+def armijo_trials():
+    trials = []
+    for alpha in (8.0, 4.0, 2.0):
+        accepted = (alpha-2)**2 &lt;= 4-4e-4*alpha
+        trials.append((alpha, accepted))
+        if accepted:
+            break
+    return trials
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 19_3.7._Exercises
-"""
+def newton_slopes():
+    return 1*(-0.5)+2*2, 1*(-0.25)+2*(-2)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == &quot;__main__&quot;:
+    assert strong_wolfe(2.0)
+    assert not strong_wolfe(0.5)
+    a, x, value = exact_step()
+    print(&quot;exact:&quot;, a, x, value)
+    assert abs(a-17/65) &lt; 1e-12 and value &lt; 2.5
+    assert armijo_trials() == [(8.0,False),(4.0,False),(2.0,True)]
+    assert newton_slopes() == (3.5,-4.25)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Chapter 3, Exercises, pp. 63–65; Sections 3.1–3.5。本文实验、图形与解答独立编写。</div></section><footer class="article-footer"><p class="references">本页问题和答案是为独立学习而构造，不复制教材练习或解答手册；其中的结论只在明确给定的函数、方向和参数下成立。</p><nav class="prev-next" aria-label="相邻内容"><a href="18_3.6._Notes_and_References.html"><small>上一篇</small><strong>线搜索数值边界</strong></a><a href="../04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/00_4.1.1._The_Cauchy_Point.html"><small>下一篇</small><strong>4.1.1 Cauchy 点</strong></a></nav></footer></article></main></div></body></html>
