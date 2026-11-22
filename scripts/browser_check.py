@@ -59,6 +59,12 @@ ARTICLES = [
     "04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html",
     "04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.html",
     "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/00_5.1.1._Conjugate_Direction_Methods.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.html",
+    "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 

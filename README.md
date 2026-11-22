@@ -22,10 +22,11 @@
 | 第三章 3.5.3–3.7 | 已重构 | 强 Wolfe/zoom、浮点诊断与四道原创练习 |
 | 第四章 4.1.1–4.2.1 | 已重构（5 篇） | Cauchy 点、方向改善、Dogleg、二维子空间与下降界 |
 | 第四章 4.2.2–4.5.2 | 已重构（8 篇） | 全局驻点收敛、λ 根搜索、Hard Case、全局最优证书、局部 Newton、缩放与范数 |
-| 第四章 4.6–4.7 及第五章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第五章 5.1.1–5.1.6 | 已重构（6 篇） | 共轭方向法、CG 基本性质、实用形式、收敛速度、预条件与实用预条件器 |
+| 第五章 5.2–5.4 及第六章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 共五十篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6 共五十六篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -63,6 +64,19 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第八批：共轭梯度法 5.1
+
+本批六篇逐页重建 5.1 线性共轭梯度，均包含独立 HTML、Markdown、Python、可访问 SVG、参数交互与证据记录：
+
+- [5.1.1 共轭方向法](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/00_5.1.1._Conjugate_Direction_Methods.html)：Q-共轭方向与正定二次问题的 n 步终止。
+- [5.1.2 共轭梯度法的基本性质](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.html)：自动共轭、残余正交与 Krylov 子空间最优性。
+- [5.1.3 线性共轭梯度法的实用形式](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.html)：算法 5.2、向量递归与 O(n) 存储。
+- [5.1.4 收敛速度](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.html)：κ-界、能量范数与特征值有限终止。
+- [5.1.5 预条件](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.html)：变换后的系统与算法 5.3。
+- [5.1.6 实用预条件器](05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.html)：Jacobi、不完全 Cholesky、SSOR 与稀疏近似逆的取舍。
+
+**重要边界：**5.1 的性质与收敛界都以对称正定矩阵、精确线搜索和精确算术为前提；浮点环境下需要重启与预条件，非线性目标属于 5.2 节。本批的数值例子均为教学算例，不代表一般问题的迭代次数或性能。
 
 ## 第七批：信赖域收敛、Hard Case 与尺度
 

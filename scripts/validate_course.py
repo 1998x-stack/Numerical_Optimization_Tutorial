@@ -211,6 +211,30 @@ ARTICLES = [
      "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.md",
      "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.py",
      "evidence/chapter-4-5-2.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/00_5.1.1._Conjugate_Direction_Methods.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/00_5.1.1._Conjugate_Direction_Methods.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/00_5.1.1._Conjugate_Direction_Methods.py",
+     "evidence/chapter-5-1-1.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.py",
+     "evidence/chapter-5-1-2.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/02_5.1.3._A_Practical_Form_of_the_Conjugate_Gradient_Method.py",
+     "evidence/chapter-5-1-3.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.py",
+     "evidence/chapter-5-1-4.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.py",
+     "evidence/chapter-5-1-5.json"),
+    ("05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.html",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.md",
+     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.py",
+     "evidence/chapter-5-1-6.json"),
 ]
 
 
@@ -369,13 +393,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 共五十篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6 共五十六篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 50:
-        errors.append("index.html: expected exactly fifty featured modules (seven batches)")
+    if index.count('class="featured-card"') != 56:
+        errors.append("index.html: expected exactly fifty-six featured modules")
     return errors
 
 
