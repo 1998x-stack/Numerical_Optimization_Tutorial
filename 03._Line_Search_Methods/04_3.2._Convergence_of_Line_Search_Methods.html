@@ -1,36 +1,23 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Zoutendijk 定理如何把 Wolfe 步长条件、梯度 Lipschitz 连续性与搜索方向夹角连接起来，并给出趋于驻点的充分条件。"><title>3.2 线搜索方法的全局收敛：Zoutendijk 条件 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.2 · Convergence of Line Search Methods</span><a href="#problem">步长合适，方向也必须合适</a><a href="#angle">方向与最速下降方向的夹角</a><a href="#theorem">Zoutendijk 定理与证明主线</a><a href="#meaning">从级数有限到梯度趋零</a><a href="#limit">全局收敛不等于收敛到极小点</a><a href="#interactive">交互：角度下界为什么重要</a><a href="#code">Python 级数对照</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.2 · Convergence of Line Search Methods</div><h1>3.2 线搜索方法的全局收敛：Zoutendijk 条件</h1><p class="dek">合适的步长还不够，搜索方向也不能长期接近梯度的正交方向。Zoutendijk 条件把每一步的有效下降累积起来，揭示全局收敛真正依赖什么。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="problem"><h2>步长合适，方向也必须合适</h2><p>线搜索迭代写成 x<sub>k+1</sub>=x<sub>k</sub>+α<sub>k</sub>p<sub>k</sub>。Wolfe 条件控制 α<sub>k</sub>，但即使步长选择合理，如果 p<sub>k</sub> 越来越接近等高线切向方向，梯度也可能不再显著下降。全局收敛分析因此必须同时考察步长与方向。</p><figure><img src="../assets/figures/zoutendijk-condition.svg" alt="负梯度方向与一般下降方向形成夹角 theta，夹角接近九十度时方向的有效下降分量变小。"><figcaption>cos θ 衡量搜索方向在负梯度方向上的归一化投影。θ 越接近 90°，同样长度的搜索步越少沿最速下降方向前进。</figcaption></figure></section>
+<section id="angle"><h2>方向与最速下降方向的夹角</h2><p>令 g<sub>k</sub>=∇f(x<sub>k</sub>)，p<sub>k</sub> 为下降方向。定义 θ<sub>k</sub> 为 p<sub>k</sub> 与 −g<sub>k</sub> 的夹角，则 cos θ<sub>k</sub> 为正：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="搜索方向与负梯度的夹角余弦"><math display="block" aria-label="搜索方向与负梯度的夹角余弦"><mrow><mi>cos</mi><msub><mi>θ</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mo>−</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>p</mi><mi>k</mi></msub></mrow><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo><mo>‖</mo><msub><mi>p</mi><mi>k</mi></msub><mo>‖</mo></mrow></mfrac></mrow></math></div></div><p>最速下降方向 p<sub>k</sub>=−g<sub>k</sub> 时，cos θ<sub>k</sub>=1。若搜索方向几乎与梯度正交，cos θ<sub>k</sub> 接近 0，线搜索即使找到满足 Wolfe 的 α，也无法弥补方向本身缺少有效下降分量的问题。</p></section>
+<section id="theorem"><h2>Zoutendijk 定理与证明主线</h2><p>假设：f 在包含初始水平集 {x:f(x)≤f(x₀)} 的开邻域内连续可微；f 在整个空间有下界；∇f 在该邻域内 Lipschitz 连续；每个 p<sub>k</sub> 都是下降方向；α<sub>k</sub> 满足 Wolfe 条件。则有</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Zoutendijk 有界级数条件"><math display="block" aria-label="Zoutendijk 有界级数条件"><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mo>∞</mo></munderover><msup><mrow><mi>cos</mi><msub><mi>θ</mi><mi>k</mi></msub></mrow><mn>2</mn></msup><msup><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mi>∞</mi></mrow></math></div></div><p>证明的关键是两条不等式。Wolfe 曲率条件给出新旧梯度差在 p<sub>k</sub> 上的投影下界；Lipschitz 梯度给出同一投影的上界。合并后可得一个步长下界，再代入 Armijo 充分下降条件，得到</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="每次迭代的下降下界"><math display="block" aria-label="每次迭代的下降下界"><mrow><msub><mi>f</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>≤</mo><msub><mi>f</mi><mi>k</mi></msub><mo>−</mo><mfrac><mrow><msub><mi>c</mi><mn>1</mn></msub><mo>(</mo><mn>1</mn><mo>−</mo><msub><mi>c</mi><mn>2</mn></msub><mo>)</mo></mrow><mi>L</mi></mfrac><msup><mrow><mi>cos</mi><msub><mi>θ</mi><mi>k</mi></msub></mrow><mn>2</mn></msup><msup><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup></mrow></math></div></div><p>把每轮下降量相加，函数值始终不低于其下界，所以这些非负下降项的总和必须有限。这就是 Zoutendijk 条件。</p></section>
+<section id="meaning"><h2>从级数有限到梯度趋零</h2><p>若还能保证存在 δ&gt;0，使所有迭代都有 cos θ<sub>k</sub>≥δ（搜索方向不会长期接近与梯度正交），那么 Zoutendijk 级数有限立即推出 ‖∇f(x<sub>k</sub>)‖→0。最速下降法满足 cos θ<sub>k</sub>=1，因此在这些假设和 Wolfe 线搜索下，梯度范数趋于零。</p><p>对 Newton-like 方向 p<sub>k</sub>=−B<sub>k</sub><sup>−1</sup>g<sub>k</sub>，若 B<sub>k</sub> 正定，且存在 M 使 ‖B<sub>k</sub>‖‖B<sub>k</sub><sup>−1</sup>‖≤M，则 cos θ<sub>k</sub>≥1/M；因此也能得到梯度趋零。</p></section>
+<section id="limit"><h2>全局收敛不等于收敛到极小点</h2><p>这里的“全局收敛”指从所考虑的初始点出发，梯度范数趋于零，而不是保证极限点一定是局部极小点。驻点可能是鞍点或局部极大点。要得到更强结论，还需要方向策略利用负曲率信息等额外机制。</p><div class="note"><p><strong>不要过度解读：</strong>Zoutendijk 条件本身只保证加权梯度平方可求和。若 cos θ<sub>k</sub>→0，梯度未必趋零；必须再加入夹角有正下界的方向条件。</p></div></section><section id="interactive"><h2>交互：角度下界为什么重要</h2><p>比较两组构造序列。A 组的夹角余弦固定为 δ，梯度按 1/(k+1) 衰减；B 组梯度恒为 1，但 cosθ=1/(k+1)。两组加权平方和都收敛，只有 A 组能从角度下界推出梯度趋零。</p><div class="interactive-panel" data-demo="zoutendijk"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="zout-delta">A 组角度下界 δ <output data-value-for="delta">0.50</output></label><input id="zout-delta" data-key="delta" type="range" min="0.10" max="1.00" step="0.05" value="0.50"></div><div class="demo-control"><label for="zout-n">累加项数 N <output data-value-for="n">50</output></label><input id="zout-n" data-key="n" type="range" min="5" max="100" step="5" value="50"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>程序没有模拟某个具体优化器，而是构造两组满足加权级数收敛的数列，检验逻辑上为什么夹角正下界是推出梯度趋零的关键。</p><pre><code>"""Illustrate why the angle lower bound matters in Zoutendijk's condition."""
+def partial_sum_angle_bounded(n: int, delta: float) -&gt; float:
+    # cos(theta_k)=delta and ||g_k||=1/(k+1).
+    return sum((delta ** 2) / ((k + 1) ** 2) for k in range(n))
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.2. Convergence of Line Search Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>04_3.2._Convergence_of_Line_Search_Methods</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 04_3.2._Convergence_of_Line_Search_Methods
-</code></pre>
+def partial_sum_vanishing_angle(n: int) -&gt; float:
+    # ||g_k||=1 while cos(theta_k)=1/(k+1).
+    return sum(1.0 / ((k + 1) ** 2) for k in range(n))
 
-    <h3>Python 文件</h3>
-    <pre><code># 04_3.2._Convergence_of_Line_Search_Methods
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 04_3.2._Convergence_of_Line_Search_Methods
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    n, delta = 100, 0.5
+    bounded = partial_sum_angle_bounded(n, delta)
+    vanishing = partial_sum_vanishing_angle(n)
+    print("angle bounded: weighted sum =", bounded, "; gradient -&gt; 0")
+    print("angle vanishes: weighted sum =", vanishing, "; gradient stays 1")
+    assert bounded &lt; 1.0
+    assert vanishing &lt; 2.0
+    assert abs(partial_sum_angle_bounded(n, delta) -
+               delta ** 2 * partial_sum_vanishing_angle(n)) &lt; 1e-12</code></pre><p>思考：如果 ‖∇f(x_k)‖→0，是否能直接推出 x_k 收敛？如果函数有多个驻点，迭代点可能出现什么行为？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.2, “Convergence of Line Search Methods”, pp. 37–41。定理的假设必须与结论一并阅读；本文图示、数值例子和程序独立构造。</div></section><footer class="article-footer"><p class="references">Zoutendijk 定理依赖水平集邻域内的 Lipschitz 梯度、目标下界、下降方向与 Wolfe 步长。结论是梯度趋零，不是迭代点必然收敛到局部极小点。</p><nav class="prev-next" aria-label="相邻内容"><a href="03_3.1.3._Sufficient_Decrease_and_Backtracking.html"><small>上一篇 · 3.1.3</small><strong>充分下降与回溯：从大步长逐次缩短</strong></a><a href="05_3.3._Rate_of_Convergence.html"><small>下一篇 · 3.3</small><strong>收敛速度：线性、超线性与二次</strong></a></nav></footer></article></main></div></body></html>

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "B1",
+    "claim": "Armijo 充分下降条件为 φ(α)≤φ(0)+cαφ′(0)，其中 0<c<1。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.1.1, equation (3.4), pp. 33–34",
+    "status": "verified",
+    "notes": "本文将其作为回溯线搜索的接受判据。"
+  },
+  {
+    "id": "B2",
+    "claim": "几何回溯在初始步长 ᾱ 上反复乘以 ρ∈(0,1)，直到 Armijo 条件成立。",
+    "kind": "algorithm",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.1.3, Algorithm 3.1, p. 37",
+    "status": "verified",
+    "notes": "页面另加 max_trials 作为工程保护。"
+  },
+  {
+    "id": "B3",
+    "claim": "若 φ 在 0 处可微且 φ′(0)<0，则充分小的正 α 满足 Armijo 条件；几何缩短因此有限终止。",
+    "kind": "derived",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.1.3, finite acceptance discussion, pp. 37–38",
+    "status": "verified",
+    "notes": "使用方向导数极限的直接证明。"
+  },
+  {
+    "id": "B4",
+    "claim": "对 φ(α)=(4α−2)^2、c=10^-4、ᾱ=1、ρ=0.5，第一次 α=1 被拒绝，第二次 α=0.5 被接受。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析函数值与 Armijo 上界；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创一维教学例子。"
+  }
+]

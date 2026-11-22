@@ -173,6 +173,125 @@
         ' · 弱 Wolfe ' + (weak ? '通过' : '未通过') + ' · 强 Wolfe ' + (strong ? '通过' : '未通过') +
         ' · Goldstein ' + (gold ? '通过' : '未通过');
     });
+    if (kind === "wolfe") bind(root, el => {
+      const alpha = read(el, "alpha"), c1 = 1e-4, c2 = 0.9;
+      const phi = (4 * alpha - 2) ** 2, slope0 = -16, slope = 32 * alpha - 16;
+      const armijo = phi <= 4 + c1 * alpha * slope0 + 1e-12;
+      const weak = armijo && slope >= c2 * slope0;
+      const strong = armijo && Math.abs(slope) <= c2 * Math.abs(slope0);
+      output.innerHTML = '<strong>φ(α)=' + fmt(phi, 4) + '</strong> · φ′(α)=' + fmt(slope, 3) +
+        ' · Armijo ' + (armijo ? '通过' : '未通过') +
+        ' · 弱 Wolfe ' + (weak ? '通过' : '未通过') +
+        ' · 强 Wolfe ' + (strong ? '通过' : '未通过');
+    });
+    if (kind === "goldstein") bind(root, el => {
+      const alpha = read(el, "alpha"), c = 0.2;
+      const phi = 19 * alpha ** 3 - 28 * alpha ** 2 - alpha;
+      const slope0 = -1;
+      const lower = (1-c) * alpha * slope0, upper = c * alpha * slope0;
+      const accepted = phi >= lower - 1e-10 && phi <= upper + 1e-10;
+      output.innerHTML = '<strong>φ(α)=' + fmt(phi, 4) + '</strong> · Goldstein 区间 [' +
+        fmt(lower, 3) + ', ' + fmt(upper, 3) + '] · ' +
+        (accepted ? '候选步通过' : '候选步不通过') +
+        (Math.abs(alpha-1)<1e-8 ? ' · α=1 是本例的精确极小点' : '');
+    });
+    if (kind === "backtracking") bind(root, el => {
+      const alpha0 = read(el, "alpha0"), rho = read(el, "rho"), c = 1e-4;
+      let alpha = alpha0, trials = 0, accepted = false;
+      while (trials < 100) {
+        trials += 1;
+        const value = (4 * alpha - 2) ** 2;
+        if (value <= 4 + c * alpha * (-16) + 1e-12) { accepted = true; break; }
+        alpha *= rho;
+      }
+      const value = (4 * alpha - 2) ** 2;
+      output.innerHTML = '<strong>' + (accepted ? '接受 α=' + fmt(alpha, 5) : '未在 100 次内通过') +
+        '</strong> · 试探次数 ' + trials + ' · φ(α)=' + fmt(value, 5) +
+        ' · 最终步长 / 初始步长 = ' + fmt(alpha / alpha0, 4);
+    });
+    if (kind === "zoutendijk") bind(root, el => {
+      const delta = read(el, "delta"), n = Math.round(read(el, "n"));
+      let harmonic = 0;
+      for (let k = 1; k <= n; k++) harmonic += 1 / (k * k);
+      const sumA = delta * delta * harmonic;
+      const sumB = harmonic;
+      output.innerHTML = '<strong>A 组加权和 ≈ ' + fmt(sumA, 5) + '</strong> · 最后梯度范数 1/N=' +
+        fmt(1 / n, 5) + '，趋于 0 · <strong>B 组加权和 ≈ ' + fmt(sumB, 5) +
+        '</strong> · 梯度范数始终为 1；它说明缺少角度下界时不能推出梯度趋零。';
+    });
+    if (kind === "rates") bind(root, el => {
+      const n = Math.round(read(el, "steps"));
+      let linear = 0.5, superlinear = 0.5, quadratic = 0.5;
+      for (let k = 0; k < n; k++) {
+        linear *= 0.5;
+        superlinear = Math.pow(superlinear, 1.5);
+        quadratic *= quadratic;
+      }
+      const prevSuper = Math.pow(superlinear, 1 / 1.5);
+      const prevQuad = Math.sqrt(quadratic);
+      output.innerHTML = '<strong>第 ' + n + ' 轮误差：</strong>线性 ' + linear.toExponential(3) +
+        ' · 超线性 ' + superlinear.toExponential(3) + ' · 二次 ' + quadratic.toExponential(3) +
+        '<br>本轮相邻比值：线性 0.5 · 超线性 ' + fmt(superlinear / prevSuper, 5) +
+        ' · 二次 ' + fmt(quadratic / prevQuad, 5);
+    });
+    if (kind === "steepest") bind(root, el => {
+      const kappa = read(el, "kappa"), steps = Math.round(read(el, "steps"));
+      let x = [1, 1], f = 0.5 * (1 + kappa);
+      for (let k = 0; k < steps; k++) {
+        const g = [x[0], kappa * x[1]];
+        const numerator = g[0] * g[0] + g[1] * g[1];
+        if (numerator < 1e-28) break;
+        const denominator = g[0] * g[0] + kappa * g[1] * g[1];
+        const alpha = numerator / denominator;
+        x = [x[0] - alpha * g[0], x[1] - alpha * g[1]];
+        f = 0.5 * (x[0] * x[0] + kappa * x[1] * x[1]);
+      }
+      const factor = ((kappa - 1) / (kappa + 1)) ** 2;
+      output.innerHTML = '<strong>κ=' + fmt(kappa, 0) + '，第 ' + steps + ' 轮 f=' + f.toExponential(3) +
+        '</strong> · 理论最坏情况因子 ' + fmt(factor, 5) +
+        ' · 当前点 (' + fmt(x[0], 5) + ', ' + fmt(x[1], 5) + ')';
+    });
+    if (kind === "newton") bind(root, el => {
+      let x = read(el, "x0"), history = [x];
+      for (let k = 0; k < 6; k++) {
+        x -= (x + x ** 3) / (1 + 3 * x * x);
+        history.push(x);
+      }
+      const e = Math.abs(history[history.length - 1]);
+      const ratio = Math.abs(history[2]) / (Math.abs(history[1]) ** 2);
+      output.innerHTML = '<strong>x₆=' + fmt(x, 8) + '</strong> · |x₆−x*|=' + e.toExponential(3) +
+        ' · 第一次二次比值 e₂/e₁²=' + fmt(ratio, 5) +
+        ' · 误差序列：' + history.slice(0, 4).map(v => fmt(Math.abs(v), 5)).join(' → ');
+    });
+    if (kind === "quasi") bind(root, el => {
+      const scale = read(el, "scale"), Q = [[4,1],[1,3]];
+      let B = [[scale,0],[0,1]], x = [2,-1], records = [];
+      const dot = (a,b) => a[0]*b[0] + a[1]*b[1];
+      const mv = (A,v) => [A[0][0]*v[0]+A[0][1]*v[1], A[1][0]*v[0]+A[1][1]*v[1]];
+      const solve = (A,b) => {
+        const det = A[0][0]*A[1][1]-A[0][1]*A[1][0];
+        return [(A[1][1]*b[0]-A[0][1]*b[1])/det,(-A[1][0]*b[0]+A[0][0]*b[1])/det];
+      };
+      for (let k=0;k<5;k++) {
+        const g=mv(Q,x);
+        if (Math.hypot(g[0],g[1])<1e-10) break;
+        const p=solve(B,[-g[0],-g[1]]);
+        const Qp=mv(Q,p), alpha=-dot(g,p)/dot(p,Qp);
+        const s=[alpha*p[0],alpha*p[1]], xn=[x[0]+s[0],x[1]+s[1]], gn=mv(Q,xn);
+        const y=[gn[0]-g[0],gn[1]-g[1]], Bs=mv(B,s), sBs=dot(s,Bs), ys=dot(y,s);
+        if (sBs<=0 || ys<=0) break;
+        const Bn=B.map((row,i)=>row.map((v,j)=>v-Bs[i]*Bs[j]/sBs+y[i]*y[j]/ys));
+        const sec=mv(Bn,s), residual=Math.max(Math.abs(sec[0]-y[0]),Math.abs(sec[1]-y[1]));
+        const det=Bn[0][0]*Bn[1][1]-Bn[0][1]*Bn[1][0];
+        records.push({ys,residual,det}); B=Bn; x=xn;
+      }
+      const worst=records.reduce((m,r)=>Math.max(m,r.residual),0);
+      const minYs=records.reduce((m,r)=>Math.min(m,r.ys),Infinity);
+      output.innerHTML = '<strong>完成 ' + records.length + ' 次 BFGS 更新</strong> · 最小 yᵀs=' +
+        fmt(minYs, 5) + ' · 最大割线残差=' + worst.toExponential(2) +
+        ' · 最终 det(B)=' + fmt(records.length ? records[records.length-1].det : 0, 5) +
+        ' · x≈(' + fmt(x[0], 5) + ', ' + fmt(x[1], 5) + ')';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

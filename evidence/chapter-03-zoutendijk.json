@@ -1,0 +1,38 @@
+[
+  {
+    "id": "Z1",
+    "claim": "Zoutendijk 定理在目标有下界、梯度 Lipschitz、下降方向与 Wolfe 步长条件下给出加权梯度平方级数有限。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.2, Theorem 3.2 and equations (3.12)–(3.15), pp. 38–39",
+    "status": "verified",
+    "notes": "定理条件在正文逐项列出。"
+  },
+  {
+    "id": "Z2",
+    "claim": "若 cosθ_k 有严格正下界，则 Zoutendijk 条件推出梯度范数趋于零。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.2, equations (3.16)–(3.18), p. 39",
+    "status": "verified",
+    "notes": "梯度趋零不等于迭代点收敛到局部极小点。"
+  },
+  {
+    "id": "Z3",
+    "claim": "对正定且条件数一致有界的 Newton-like 矩阵方向，可得到夹角余弦正下界。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.2, equations (3.19)–(3.20), p. 40",
+    "status": "verified",
+    "notes": "需要 B_k 正定并具有一致有界条件数。"
+  },
+  {
+    "id": "Z4",
+    "claim": "数列 g_k=1/(k+1)、cosθ_k=δ 与 g_k=1、cosθ_k=1/(k+1) 都可使有限部分和保持有界，但只有前者梯度趋零。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "比较 p-series Σ1/(k+1)^2；配套 Python 断言",
+    "status": "derived",
+    "notes": "这两组数列仅用于解释逻辑蕴含，不声称来自某个具体优化算法。"
+  }
+]

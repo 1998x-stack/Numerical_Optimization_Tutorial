@@ -1,36 +1,26 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="用误差序列定义 Q-线性、超线性与二次收敛，区分局部收敛速度和全局收敛保证。"><title>3.3 收敛速度：线性、超线性与二次 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.3 · Rate of Convergence</span><a href="#question">为什么还要研究收敛速度</a><a href="#definitions">用误差序列定义收敛阶</a><a href="#compare">三种速度如何区分</a><a href="#global-local">全局收敛与局部速度并不冲突</a><a href="#interactive">交互：比较三种误差序列</a><a href="#code">Python 误差序列实验</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.3 · Rate of Convergence</div><h1>3.3 收敛速度：线性、超线性与二次</h1><p class="dek">“算法收敛了”只回答最终是否接近解；“收敛得多快”则回答误差每轮缩小多少。不同的收敛阶，描述的是误差递减的不同规律。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="question"><h2>为什么还要研究收敛速度</h2><p>设算法生成迭代点 x<sub>k</sub>，目标解为 x*。如果 ‖x<sub>k</sub>−x*‖→0，我们知道迭代点在靠近解；但这并不说明误差下降得快。比如每轮误差减半，与每轮把误差平方，二者都收敛，后者在误差足够小时会快得多。</p><p>收敛速度通常是局部概念：我们先假设迭代已经进入解附近，再研究后续误差的递推关系。它不能替代全局化策略，也不自动说明算法从任意初始点都能进入这个邻域。</p><figure><img src="../assets/figures/convergence-rates.svg" alt="半对数误差曲线比较线性、超线性和二次收敛，后两者在误差足够小时下降更快。"><figcaption>示意曲线从同一初始误差出发。线性收敛有近似固定的误差比例；超线性和二次收敛的相邻误差比例逐步趋于零。</figcaption></figure></section>
+<section id="definitions"><h2>用误差序列定义收敛阶</h2><p>记 e<sub>k</sub>=‖x<sub>k</sub>−x*‖，假设 e<sub>k</sub>&gt;0 且 e<sub>k</sub>→0。常用的 Q-收敛定义是：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Q 线性收敛"><math display="block" aria-label="Q 线性收敛"><mrow><munder><mo>lim sup</mo><mrow><mi>k</mi><mo>→</mo><mi>∞</mi></mrow></munder><mfrac><msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><msub><mi>e</mi><mi>k</mi></msub></mfrac><mo>≤</mo><mi>q</mi><mo>&lt;</mo><mn>1</mn></mrow></math></div></div>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Q 超线性收敛"><math display="block" aria-label="Q 超线性收敛"><mrow><munder><mo>lim</mo><mrow><mi>k</mi><mo>→</mo><mi>∞</mi></mrow></munder><mfrac><msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><msub><mi>e</mi><mi>k</mi></msub></mfrac><mo>=</mo><mn>0</mn></mrow></math></div></div>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Q 二次收敛"><math display="block" aria-label="Q 二次收敛"><mrow><msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>≤</mo><mi>C</mi><msubsup><mi>e</mi><mi>k</mi><mn>2</mn></msubsup></mrow></math></div></div>
+<p>Q-线性表示相邻误差最终以一个小于 1 的固定比例缩小；超线性表示这个比例趋于 0；二次收敛要求误差下一轮被当前误差的平方控制，C 是与 k 无关的常数。二次收敛必然超线性，但超线性不必然二次。</p></section>
+<section id="compare"><h2>三种速度如何区分</h2>
+<table><thead><tr><th>类型</th><th>典型递推</th><th>关键比值</th><th>直觉</th></tr></thead><tbody><tr><td>Q-线性</td><td>e<sub>k+1</sub>≈0.5e<sub>k</sub></td><td>e<sub>k+1</sub>/e<sub>k</sub>→q&lt;1</td><td>每轮按近似固定比例缩小</td></tr><tr><td>Q-超线性</td><td>e<sub>k+1</sub>=e<sub>k</sub><sup>1.5</sup></td><td>比值→0</td><td>每轮缩小的比例越来越强</td></tr><tr><td>Q-二次</td><td>e<sub>k+1</sub>≈Ce<sub>k</sub>²</td><td>e<sub>k+1</sub>/e<sub>k</sub>² 有界</td><td>误差位数在局部快速增加</td></tr></tbody></table>
+<p>还要区分 Q-线性与 R-线性。Q-线性直接约束相邻误差的比值；R-线性只要求误差能被某个几何序列 Cq<sup>k</sup> 从上方控制，允许误差本身有一定振荡。除非题目明确指定，讨论收敛阶时应写清采用哪一种定义。</p></section>
+<section id="global-local"><h2>全局收敛与局部速度并不冲突</h2><p>全局收敛分析回答：在给定假设下，算法从指定初始点出发是否能把梯度推向零或进入解附近？局部收敛速度分析回答：一旦迭代足够接近解，误差递推有多快？一种算法可以拥有可靠的全局化步骤，却只有线性局部速度；也可以有很快的局部 Newton 速度，却需要阻尼或信赖域才能安全地从远处开始。</p><div class="note"><p><strong>阅读定理时检查：</strong>“二次收敛”通常需要足够接近解、足够光滑和非奇异 Hessian 等条件。它不是对任意初始点、任意非凸函数和任意步长的保证。</p></div></section><section id="interactive"><h2>交互：比较三种误差序列</h2><p>从同一初始误差 e₀=0.5 出发，比较 eₖ₊₁=0.5eₖ、eₖ₊₁=eₖ^1.5 与 eₖ₊₁=eₖ²。改变迭代轮数，观察误差与相邻比值。</p><div class="interactive-panel" data-demo="rates"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="rates-steps">迭代轮数 k <output data-value-for="steps">6</output></label><input id="rates-steps" data-key="steps" type="range" min="1" max="10" step="1" value="6"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>这些递推是用来解释收敛阶定义的数学序列，不是某个具体优化器的实验数据。</p><pre><code>"""Compare Q-linear, Q-superlinear and Q-quadratic error recurrences."""
+def sequence(update, initial: float = 0.5, steps: int = 8):
+    values = [initial]
+    for _ in range(steps):
+        values.append(update(values[-1]))
+    return values
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.3. Rate of Convergence</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>05_3.3._Rate_of_Convergence</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 05_3.3._Rate_of_Convergence
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 05_3.3._Rate_of_Convergence
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 05_3.3._Rate_of_Convergence
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    linear = sequence(lambda e: 0.5 * e)
+    superlinear = sequence(lambda e: e ** 1.5)
+    quadratic = sequence(lambda e: e ** 2)
+    print("k=4 errors:", linear[4], superlinear[4], quadratic[4])
+    print("superlinear ratio:", superlinear[5] / superlinear[4])
+    print("quadratic ratio:", quadratic[5] / (quadratic[4] ** 2))
+    assert linear[4] == 0.03125
+    assert superlinear[5] / superlinear[4] &lt; superlinear[2] / superlinear[1]
+    assert abs(quadratic[5] / (quadratic[4] ** 2) - 1.0) &lt; 1e-12</code></pre><p>思考：如果 e_k=1/k，为什么它收敛到零，却不是 Q-线性？如果 e_{k+1}=e_k^1.5，为什么它超线性但不满足二次收敛定义？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.3, “Rate of Convergence”, pp. 41–42; convergence terminology summarized in Appendix A。本文数值例子与程序独立构造。</div></section><footer class="article-footer"><p class="references">本页讨论的是误差序列的局部收敛阶。对优化算法应用这些定义时，必须先确认迭代确实收敛到指定解，并满足相应局部正则性条件。</p><nav class="prev-next" aria-label="相邻内容"><a href="04_3.2._Convergence_of_Line_Search_Methods.html"><small>上一篇 · 3.2</small><strong>线搜索方法的全局收敛：Zoutendijk 条件</strong></a><a href="06_3.3.1._Convergence_Rate_of_Steepest_Descent.html"><small>下一篇 · 3.3.1</small><strong>最速下降法：条件数如何拖慢收敛</strong></a></nav></footer></article></main></div></body></html>

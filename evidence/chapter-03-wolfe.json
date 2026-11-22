@@ -1,0 +1,38 @@
+[
+  {
+    "id": "W1",
+    "claim": "Wolfe 条件由 Armijo 充分下降条件与单侧曲率条件组成，参数满足 0<c1<c2<1。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.1.1, equations (3.6a)–(3.6b), pp. 33–35",
+    "status": "verified",
+    "notes": "公式按第二版原文独立转写。"
+  },
+  {
+    "id": "W2",
+    "claim": "强 Wolfe 条件将曲率条件改为 |φ′(α)|≤c2|φ′(0)|，排除斜率过度转正的点。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.1.1, equation (3.7), pp. 34–35",
+    "status": "verified",
+    "notes": "前提是初始方向为下降方向。"
+  },
+  {
+    "id": "W3",
+    "claim": "若 φ 连续可微、方向下降、沿正射线有下界，则存在满足 Wolfe 与强 Wolfe 的步长区间。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Lemma 3.1, pp. 35–36",
+    "status": "verified",
+    "notes": "存在性不是特定简单搜索程序的实现保证。"
+  },
+  {
+    "id": "W4",
+    "claim": "对 φ(α)=(4α−2)^2，α=0.5 满足强 Wolfe；α=0.99 满足弱 Wolfe 但不满足强 Wolfe。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "解析计算 φ、φ′ 与 c1=10^-4、c2=0.9；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创一维二次教学例子。"
+  }
+]

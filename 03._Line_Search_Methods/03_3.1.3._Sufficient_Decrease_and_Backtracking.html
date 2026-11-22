@@ -1,36 +1,33 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Armijo 充分下降条件与几何回溯如何保证有限次试探后找到可接受步长，以及这一策略的适用边界。"><title>3.1.3 充分下降与回溯：从大步长逐次缩短 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.1.3 · Sufficient Decrease and Backtracking</span><a href="#problem">为什么只看函数值下降仍不够</a><a href="#armijo">Armijo 条件的几何意义</a><a href="#algorithm">回溯算法与有限终止</a><a href="#proof">为什么足够小的步长一定通过</a><a href="#example">一次完整的回溯过程</a><a href="#interactive">交互：改变初始步长与缩短比例</a><a href="#code">Python 回溯实现</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.1.3 · Sufficient Decrease and Backtracking</div><h1>3.1.3 充分下降与回溯：从大步长逐次缩短</h1><p class="dek">回溯线搜索不是盲目地把步长缩小，而是用一个可证明会在有限次内通过的充分下降条件，控制每次迭代的函数评估成本。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="problem"><h2>为什么只看函数值下降仍不够</h2><p>设当前点 x<sub>k</sub>、下降方向 p<sub>k</sub>，并定义 φ(α)=f(x<sub>k</sub>+αp<sub>k</sub>)。方向下降意味着 φ′(0)&lt;0，因此存在足够小的正步长使函数值下降。但仅检查 φ(α)&lt;φ(0) 过于宽松：一个极小的 α 也能通过，函数值虽下降，迭代却可能几乎停滞。</p><p>Armijo 条件把“足够下降”量化为与初始斜率和步长成正比的下降量。给定 c∈(0,1)，要求候选点落在起点切线模型的充分下降一侧。</p></section>
+<section id="armijo"><h2>Armijo 条件的几何意义</h2><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Armijo 充分下降条件"><math display="block" aria-label="Armijo 充分下降条件"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mi>c</mi><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><mn>0</mn><mo>&lt;</mo><mi>c</mi><mo>&lt;</mo><mn>1</mn></mrow></math></div></div><p>右侧是斜率为 cφ′(0) 的直线。由于 φ′(0)&lt;0 且 c&lt;1，这条线比原函数在 α=0 处的切线更平缓。候选步只有在函数曲线低于该线时才接受。常用的 c 值很小，例如 10⁻⁴；这意味着只要求一小部分线性预测下降真正兑现。</p><figure><img src="../assets/figures/backtracking-line-search.svg" alt="回溯线搜索从 alpha 等于 1 开始，Armijo 未通过后缩短到 0.5 并通过。"><figcaption>示例中 α=1 走过头而不满足 Armijo；乘以 ρ=0.5 后，α=0.5 到达一维极小点并通过。实际回溯不要求精确到达极小点。</figcaption></figure></section>
+<section id="algorithm"><h2>回溯算法与有限终止</h2><p>回溯只使用 Armijo 条件：先选初始步长 ᾱ&gt;0，再选择缩短因子 ρ∈(0,1)。若候选步不满足条件，就令 α←ρα 并重试。Newton 与拟 Newton 方法常从 ᾱ=1 开始；最速下降或共轭梯度方法也可以使用其他初始步长。</p><ol><li>输入下降方向 p<sub>k</sub>、初始步长 ᾱ、ρ∈(0,1) 和 c∈(0,1)。</li><li>计算 φ(α)，检查 Armijo 不等式。</li><li>若失败，缩短 α←ρα；若通过，接受 α<sub>k</sub>=α。</li></ol><p>若每次缩短比例固定为 ρ，接受步长不会比上一个被拒绝的步长小超过一个 ρ 因子。若 ρ 在固定区间 [ρ<sub>lo</sub>,ρ<sub>hi</sub>]⊂(0,1) 内变化，也可以保留类似的上下界控制。</p></section>
+<section id="proof"><h2>为什么足够小的步长一定通过</h2><p>因为 φ 在 0 处可微，</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="方向导数的极限定义"><math display="block" aria-label="方向导数的极限定义"><mrow><munder><mo>lim</mo><mrow><mi>α</mi><mo>→</mo><msup><mn>0</mn><mo>+</mo></msup></mrow></munder><mfrac><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>−</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mi>α</mi></mfrac><mo>=</mo><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>&lt;</mo><mi>c</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math></div></div><p>最后一个严格不等式成立，是因为 φ′(0)&lt;0 且 c&lt;1。于是当 α 足够小时，(φ(α)−φ(0))/α 会小于 cφ′(0)，也就是 Armijo 条件成立。几何序列 α<sub>j</sub>=ρ<sup>j</sup>ᾱ 会趋于 0，因此在精确算术下，回溯经过有限次试探后必然遇到一个可接受步长。</p><div class="note"><p><strong>实现提醒：</strong>有限终止定理依赖下降方向、可微性和精确的条件检查。浮点程序仍应设置最大试探次数、非有限数检查和最小步长保护；这些是数值工程防护，不替代理论假设。</p></div></section>
+<section id="example"><h2>一次完整的回溯过程</h2><p>取 φ(α)=(4α−2)²、φ(0)=4、φ′(0)=−16，c=10⁻⁴，ᾱ=1，ρ=0.5。第一次试探 α=1 时 φ(1)=4，而 Armijo 上界约为 3.9984，因此拒绝。第二次 α=0.5 时 φ(0.5)=0，上界约为 3.9992，因此接受。这里两次函数值试探就结束；这只是一个容易手算的示例，不代表一般问题只需两次评估。</p></section><section id="interactive"><h2>交互：改变初始步长与缩短比例</h2><p>固定 φ(α)=(4α−2)² 与 c=10⁻⁴。调整初始步长和 ρ，观察回溯次数、接受步长与最终函数值。</p><div class="interactive-panel" data-demo="backtracking"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="bt-alpha0">初始步长 ᾱ <output data-value-for="alpha0">1.00</output></label><input id="bt-alpha0" data-key="alpha0" type="range" min="0.25" max="2.00" step="0.05" value="1.00"></div><div class="demo-control"><label for="bt-rho">缩短比例 ρ <output data-value-for="rho">0.50</output></label><input id="bt-rho" data-key="rho" type="range" min="0.20" max="0.80" step="0.05" value="0.50"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>程序使用一个最大试探次数作为数值防护，并将每次试探都计入函数评估次数。对固定示例，默认参数会拒绝 α=1、接受 α=0.5。</p><pre><code>"""Armijo backtracking with a finite iteration guard."""
+def phi(alpha: float) -&gt; float:
+    return (4.0 * alpha - 2.0) ** 2
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.1.3. Sufficient Decrease and Backtracking</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_3.1.3._Sufficient_Decrease_and_Backtracking</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 03_3.1.3._Sufficient_Decrease_and_Backtracking
-</code></pre>
+def dphi0() -&gt; float:
+    return -16.0
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_3.1.3._Sufficient_Decrease_and_Backtracking
+def armijo(alpha: float, c: float = 1e-4) -&gt; bool:
+    return phi(alpha) &lt;= phi(0.0) + c * alpha * dphi0()
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 03_3.1.3._Sufficient_Decrease_and_Backtracking
-"""
+def backtracking(alpha0: float = 1.0, rho: float = 0.5,
+                 c: float = 1e-4, max_trials: int = 100):
+    if alpha0 &lt;= 0.0 or not (0.0 &lt; rho &lt; 1.0) or not (0.0 &lt; c &lt; 1.0):
+        raise ValueError("require alpha0 &gt; 0 and rho,c in (0,1)")
+    alpha = alpha0
+    for trials in range(1, max_trials + 1):
+        if armijo(alpha, c):
+            return alpha, trials
+        alpha *= rho
+    raise RuntimeError("backtracking exceeded max_trials")
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    alpha, trials = backtracking()
+    print(f"accepted alpha={alpha:.6f} after {trials} trials")
+    print(f"phi(alpha)={phi(alpha):.6f}")
+    assert alpha == 0.5
+    assert trials == 2
+    assert armijo(alpha)
+    assert not armijo(1.0)</code></pre><p>思考：有限终止证明中，为什么必须有 φ′(0)&lt;0？如果 p_k 不是下降方向，简单地不断缩短 α 能否保证 Armijo 通过？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.1.3, “Sufficient Decrease and Backtracking”, pp. 37–38。定理的假设必须与结论一并阅读；本文图示、数值例子和程序独立构造。</div></section><footer class="article-footer"><p class="references">回溯算法只保证 Armijo 充分下降，不保证 Wolfe 曲率条件。它的有限终止依赖 φ 在起点可微且 φ′(0)<0。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_3.1.2._The_Goldstein_Conditions.html"><small>上一篇 · 3.1.2</small><strong>Goldstein 条件：用函数值夹住步长</strong></a><a href="04_3.2._Convergence_of_Line_Search_Methods.html"><small>下一篇 · 3.2</small><strong>线搜索方法的全局收敛</strong></a></nav></footer></article></main></div></body></html>

@@ -1,36 +1,62 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="拟 Newton 搜索方向、割线条件、BFGS 正定更新与 Dennis–Moré 条件如何连接 Wolfe 线搜索和局部超线性收敛。"><title>3.3.3 拟 Newton 法：用梯度差近似曲率 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.3.3 · Quasi-Newton Methods</span><a href="#idea">为什么要近似 Hessian</a><a href="#secant">割线条件：让近似曲率解释梯度变化</a><a href="#bfgs">BFGS 如何保持正定性</a><a href="#superlinear">Dennis–Moré 条件与超线性收敛</a><a href="#unit">为什么必须优先尝试单位步长</a><a href="#interactive">交互：BFGS 的割线更新</a><a href="#code">Python 二维 BFGS 实验</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.3.3 · Quasi-Newton Methods</div><h1>3.3.3 拟 Newton 法：用梯度差近似曲率</h1><p class="dek">Newton 法需要 Hessian；拟 Newton 法不直接求 Hessian，而是从相邻迭代的位移与梯度变化中学习曲率，并在合适的 Wolfe 线搜索下获得超线性收敛。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="idea"><h2>为什么要近似 Hessian</h2><p>Newton 方向需要求解 H<sub>k</sub>p<sub>k</sub>=−g<sub>k</sub>。当 Hessian 的计算或存储成本较高时，可以改用对称正定矩阵 B<sub>k</sub> 近似 Hessian，并定义 p<sub>k</sub>=−B<sub>k</sub><sup>−1</sup>g<sub>k</sub>。只要 B<sub>k</sub> 正定，方向就是下降方向。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="拟 Newton 搜索方向"><math display="block" aria-label="拟 Newton 搜索方向"><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mo>−</mo><msubsup><mi>B</mi><mi>k</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow></math></div></div><p>拟 Newton 更新的目标不是逐元素重建 Hessian，而是让 B<sub>k</sub> 在新获得的方向信息上足够准确。每次迭代只需保存向量 s<sub>k</sub> 和 y<sub>k</sub>，便可构造低秩修正。</p></section>
+<section id="secant"><h2>割线条件：让近似曲率解释梯度变化</h2><p>定义步长位移 s<sub>k</sub>=x<sub>k+1</sub>−x<sub>k</sub>，梯度变化 y<sub>k</sub>=g<sub>k+1</sub>−g<sub>k</sub>。若 Hessian 在这段线段上近似常数，则 y<sub>k</sub>≈H<sub>k</sub>s<sub>k</sub>。拟 Newton 方法要求新矩阵满足割线方程：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="割线条件"><math display="block" aria-label="割线条件"><mrow><msub><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><msub><mi>s</mi><mi>k</mi></msub><mo>=</mo><msub><mi>y</mi><mi>k</mi></msub></mrow></math></div></div>
+<p>这个方程只约束 B<sub>k+1</sub> 在一个方向 s<sub>k</sub> 上的作用，不能唯一决定整个矩阵。因此更新公式还需要额外准则，例如尽量少改变旧矩阵、保持对称与正定。</p></section>
+<section id="bfgs"><h2>BFGS 如何保持正定性</h2><p>一个经典的 Hessian 近似更新是 BFGS：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="BFGS Hessian 更新"><math display="block" aria-label="BFGS Hessian 更新"><mrow><msub><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>B</mi><mi>k</mi></msub><mo>−</mo><mfrac><mrow><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac><mo>+</mo><mfrac><mrow><msub><mi>y</mi><mi>k</mi></msub><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup></mrow><mrow><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac></mrow></math></div></div>
+<p>若 B<sub>k</sub> 正定且曲率条件 y<sub>k</sub>ᵀs<sub>k</sub>&gt;0 成立，BFGS 更新保持正定。弱 Wolfe 曲率条件不仅限制步长，也会给拟 Newton 更新提供正曲率信息。因为 s<sub>k</sub>=α<sub>k</sub>p<sub>k</sub>，且 g<sub>k</sub>ᵀp<sub>k</sub>&lt;0，弱 Wolfe 不等式给出</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Wolfe 曲率条件推出正曲率"><math display="block" aria-label="Wolfe 曲率条件推出正曲率"><mrow><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>s</mi><mi>k</mi></msub><mo>=</mo><msub><mi>α</mi><mi>k</mi></msub><msup><mrow><mo>(</mo><msub><mi>g</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><msub><mi>g</mi><mi>k</mi></msub><mo>)</mo></mrow><mo>⊤</mo></msup><msub><mi>p</mi><mi>k</mi></msub><mo>≥</mo><msub><mi>α</mi><mi>k</mi></msub><mo>(</mo><msub><mi>c</mi><mn>2</mn></msub><mo>−</mo><mn>1</mn><mo>)</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>p</mi><mi>k</mi></msub><mo>&gt;</mo><mn>0</mn></mrow></math></div></div><p>由于 c<sub>2</sub>−1&lt;0 且 g<sub>k</sub>ᵀp<sub>k</sub>&lt;0，右侧严格为正。因此若 B<sub>k</sub> 正定，BFGS 更新保持正定，下一轮方向仍为下降方向。</p></section>
+<section id="superlinear"><h2>Dennis–Moré 条件与超线性收敛</h2><p>拟 Newton 法不必让 B<sub>k</sub> 在所有方向都收敛到 H*。足够的条件是：沿实际搜索方向，近似 Hessian 与真实 Hessian 的差相对步长越来越小：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Dennis–Moré 型方向一致性条件"><math display="block" aria-label="Dennis–Moré 型方向一致性条件"><mrow><munder><mo>lim</mo><mrow><mi>k</mi><mo>→</mo><mi>∞</mi></mrow></munder><mfrac><mrow><mo>‖</mo><mo>(</mo><msub><mi>B</mi><mi>k</mi></msub><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>)</mo><msub><mi>p</mi><mi>k</mi></msub><mo>‖</mo></mrow><mrow><mo>‖</mo><msub><mi>p</mi><mi>k</mi></msub><mo>‖</mo></mrow></mfrac><mo>=</mo><mn>0</mn></mrow></math></div></div>
+<p>若 x_k 收敛到 x*、∇f(x*)=0 且 H*=∇²f(x*) 正定，方向满足上面的 Dennis–Moré 条件，并使用 0<c₁≤1/2、c₁<c₂<1 的 Wolfe 参数，则 α=1 在足够后期会成为可接受步长；若算法此后持续接受单位步长，迭代就超线性收敛。BFGS 是满足这一结构的经典方法，但其完整全局与局部收敛理论还依赖更多假设。</p></section>
+<section id="unit"><h2>为什么必须优先尝试单位步长</h2><p>单位步长不是装饰性的默认值。局部超线性理论说明：在接近解后，α=1 最终满足 Wolfe 条件。若线搜索每次都从一个极小的上界开始，或从不尝试 α=1，就可能主动错过 Newton 型快速收敛区间。实际拟 Newton 线搜索通常先试 α=1，若通过则直接接受，否则再括区间和缩短。</p><div class="note"><p><strong>本节结论：</strong>拟 Newton 的快速局部收敛来自“方向上的 Hessian 近似足够准确”与“最终采用单位步长”的配合；单独写出 BFGS 更新式，并不能自动推出超线性收敛。</p></div></section><section id="interactive"><h2>交互：BFGS 的割线更新</h2><p>在 Q=[[4,1],[1,3]] 的二维二次目标上，从 B₀=diag(s,1) 开始，使用精确线搜索和 BFGS 更新。改变 s，观察割线残差、yᵀs 与更新矩阵是否保持正定。</p><div class="interactive-panel" data-demo="quasi"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="bfgs-scale">初始矩阵尺度 s <output data-value-for="scale">1.00</output></label><input id="bfgs-scale" data-key="scale" type="range" min="0.50" max="3.00" step="0.05" value="1.00"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>这是一个二维正定二次目标上的最小 BFGS 实验。它检查曲率正性、割线方程残差和更新矩阵正定性；不以两维有限步收敛代替一般非线性问题的超线性收敛证明。</p><pre><code>"""A small 2-D BFGS experiment with exact line search on a quadratic."""
+def dot(a, b):
+    return a[0] * b[0] + a[1] * b[1]
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.3.3. Quasi Newton Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>08_3.3.3._Quasi-Newton_Methods</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 08_3.3.3._Quasi-Newton_Methods
-</code></pre>
+def matvec(A, x):
+    return (A[0][0] * x[0] + A[0][1] * x[1],
+            A[1][0] * x[0] + A[1][1] * x[1])
 
-    <h3>Python 文件</h3>
-    <pre><code># 08_3.3.3._Quasi-Newton_Methods
+def solve2(A, b):
+    det = A[0][0] * A[1][1] - A[0][1] * A[1][0]
+    if det &lt;= 0.0:
+        raise ValueError("B must remain positive definite")
+    return ((A[1][1] * b[0] - A[0][1] * b[1]) / det,
+            (-A[1][0] * b[0] + A[0][0] * b[1]) / det)
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 08_3.3.3._Quasi-Newton_Methods
-"""
+def bfgs_demo(scale: float = 1.0):
+    Q = ((4.0, 1.0), (1.0, 3.0))
+    B = [[scale, 0.0], [0.0, 1.0]]
+    x = (2.0, -1.0)
+    records = []
+    for _ in range(5):
+        g = matvec(Q, x)
+        if (dot(g, g) ** 0.5) &lt; 1e-10:
+            break
+        p = solve2(B, (-g[0], -g[1]))
+        alpha = -dot(g, p) / dot(p, matvec(Q, p))
+        s = (alpha * p[0], alpha * p[1])
+        x_new = (x[0] + s[0], x[1] + s[1])
+        g_new = matvec(Q, x_new)
+        y = (g_new[0] - g[0], g_new[1] - g[1])
+        Bs = matvec(B, s)
+        sBs, ys = dot(s, Bs), dot(y, s)
+        if sBs &lt;= 0.0 or ys &lt;= 0.0:
+            raise ArithmeticError("BFGS curvature condition failed")
+        B_new = [[B[i][j] - Bs[i] * Bs[j] / sBs + y[i] * y[j] / ys
+                  for j in range(2)] for i in range(2)]
+        residual = matvec(B_new, s)
+        secant_error = max(abs(residual[i] - y[i]) for i in range(2))
+        det = B_new[0][0] * B_new[1][1] - B_new[0][1] * B_new[1][0]
+        records.append((ys, secant_error, B_new[0][0], det))
+        B, x = B_new, x_new
+    return x, records
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    x, records = bfgs_demo()
+    print("final x:", x)
+    print("curvature y^T s:", [r[0] for r in records])
+    print("secant residuals:", [r[1] for r in records])
+    assert len(records) &gt;= 2
+    assert all(r[0] &gt; 0.0 for r in records)
+    assert all(r[1] &lt; 1e-10 for r in records)
+    assert all(r[2] &gt; 0.0 and r[3] &gt; 0.0 for r in records)</code></pre><p>思考：为什么 yᵀs>0 对 BFGS 保持正定性至关重要？如果线搜索只满足 Armijo 而不满足曲率条件，是否仍能无条件保证这个内积为正？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.3.3, “Quasi-Newton Methods”, pp. 46–48, Theorems 3.6–3.7。本文数值例子与程序独立构造。</div></section><footer class="article-footer"><p class="references">超线性收敛需要迭代收敛到 Hessian 正定的解、方向近似满足 Dennis–Moré 条件，并在后期接受单位步长。二维精确线搜索实验只验证更新代数，不是一般非线性收敛证明。</p><nav class="prev-next" aria-label="相邻内容"><a href="07_3.3.2._Newton’s_Method.html"><small>上一篇 · 3.3.2</small><strong>Newton 法：为什么局部可以二次收敛</strong></a><a href="09_3.4._Newton’s_Method_with_Hessian_Modification.html"><small>下一篇 · 3.4</small><strong>Hessian 修改：让 Newton 方向恢复下降性</strong></a></nav></footer></article></main></div></body></html>

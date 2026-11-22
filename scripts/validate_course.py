@@ -83,6 +83,38 @@ ARTICLES = [
      "03._Line_Search_Methods/00_3.1._Step_Length.md",
      "03._Line_Search_Methods/00_3.1._Step_Length.py",
      "evidence/chapter-03-step-length.json"),
+    ("03._Line_Search_Methods/01_3.1.1._The_Wolfe_Conditions.html",
+     "03._Line_Search_Methods/01_3.1.1._The_Wolfe_Conditions.md",
+     "03._Line_Search_Methods/01_3.1.1._The_Wolfe_Conditions.py",
+     "evidence/chapter-03-wolfe.json"),
+    ("03._Line_Search_Methods/02_3.1.2._The_Goldstein_Conditions.html",
+     "03._Line_Search_Methods/02_3.1.2._The_Goldstein_Conditions.md",
+     "03._Line_Search_Methods/02_3.1.2._The_Goldstein_Conditions.py",
+     "evidence/chapter-03-goldstein.json"),
+    ("03._Line_Search_Methods/03_3.1.3._Sufficient_Decrease_and_Backtracking.html",
+     "03._Line_Search_Methods/03_3.1.3._Sufficient_Decrease_and_Backtracking.md",
+     "03._Line_Search_Methods/03_3.1.3._Sufficient_Decrease_and_Backtracking.py",
+     "evidence/chapter-03-backtracking.json"),
+    ("03._Line_Search_Methods/04_3.2._Convergence_of_Line_Search_Methods.html",
+     "03._Line_Search_Methods/04_3.2._Convergence_of_Line_Search_Methods.md",
+     "03._Line_Search_Methods/04_3.2._Convergence_of_Line_Search_Methods.py",
+     "evidence/chapter-03-zoutendijk.json"),
+    ("03._Line_Search_Methods/05_3.3._Rate_of_Convergence.html",
+     "03._Line_Search_Methods/05_3.3._Rate_of_Convergence.md",
+     "03._Line_Search_Methods/05_3.3._Rate_of_Convergence.py",
+     "evidence/chapter-03-convergence-rates.json"),
+    ("03._Line_Search_Methods/06_3.3.1._Convergence_Rate_of_Steepest_Descent.html",
+     "03._Line_Search_Methods/06_3.3.1._Convergence_Rate_of_Steepest_Descent.md",
+     "03._Line_Search_Methods/06_3.3.1._Convergence_Rate_of_Steepest_Descent.py",
+     "evidence/chapter-03-steepest-descent.json"),
+    ("03._Line_Search_Methods/07_3.3.2._Newton’s_Method.html",
+     "03._Line_Search_Methods/07_3.3.2._Newton’s_Method.md",
+     "03._Line_Search_Methods/07_3.3.2._Newton’s_Method.py",
+     "evidence/chapter-03-newton.json"),
+    ("03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.html",
+     "03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.md",
+     "03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.py",
+     "evidence/chapter-03-quasi-newton.json"),
 ]
 
 
@@ -241,13 +273,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1 共十八篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.3.3 共二十六篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 18:
-        errors.append("index.html: expected exactly eighteen featured modules (three batches)")
+    if index.count('class="featured-card"') != 26:
+        errors.append("index.html: expected exactly twenty-six featured modules (four batches)")
     return errors
 
 

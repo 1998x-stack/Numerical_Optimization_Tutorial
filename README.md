@@ -16,10 +16,12 @@
 | 第二章 2.1：解、局部极小、非光滑 | 已重构 | 解的概念、Hessian 判别、次梯度与 L1 模型 |
 | 第二章 2.2：算法概览与练习 | 已重构 | 线搜索、信赖域、方向、局部模型、尺度与原创练习 |
 | 第三章 3.1：步长选择 | 已重构 | Armijo、弱/强 Wolfe、Goldstein 与回溯 |
-| 第三章 3.1.1 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第三章 3.1.1–3.1.3 | 已重构 | Wolfe、Goldstein、充分下降与回溯 |
+| 第三章 3.2–3.3.3 | 已重构 | Zoutendijk 全局收敛、收敛速度、最速下降、Newton 与拟 Newton |
+| 第三章 3.4 及后续至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1 共十八篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2 与第三章 3.1–3.3.3 共二十六篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -57,6 +59,21 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第四批：第三章步长条件与收敛分析
+
+本批八篇均为独立页面，包含 HTML、同步 Markdown、可运行 Python、原创 SVG、交互实验与证据账本：
+
+1. [3.1.1 Wolfe 条件](03._Line_Search_Methods/01_3.1.1._The_Wolfe_Conditions.html)：Armijo 充分下降、弱/强 Wolfe 曲率条件与可接受步长存在性。
+2. [3.1.2 Goldstein 条件](03._Line_Search_Methods/02_3.1.2._The_Goldstein_Conditions.html)：函数值上下界、与 Wolfe 的差异，以及 Goldstein 下界排除精确一维极小点的构造反例。
+3. [3.1.3 充分下降与回溯](03._Line_Search_Methods/03_3.1.3._Sufficient_Decrease_and_Backtracking.html)：Armijo 几何意义、有限终止证明与回溯实现。
+4. [3.2 线搜索方法的全局收敛](03._Line_Search_Methods/04_3.2._Convergence_of_Line_Search_Methods.html)：Zoutendijk 定理、夹角余弦与梯度趋零的条件。
+5. [3.3 收敛速度](03._Line_Search_Methods/05_3.3._Rate_of_Convergence.html)：Q-线性、超线性、二次与 R-线性。
+6. [3.3.1 最速下降法](03._Line_Search_Methods/06_3.3.1._Convergence_Rate_of_Steepest_Descent.html)：精确线搜索、能量范数收缩界与条件数。
+7. [3.3.2 Newton 法](03._Line_Search_Methods/07_3.3.2._Newton’s_Method.html)：局部二次收敛假设、单位步长和 Hessian 不定时的失败模式。
+8. [3.3.3 拟 Newton 法](03._Line_Search_Methods/08_3.3.3._Quasi_Newton_Methods.html)：割线条件、BFGS 正定性、Wolfe 曲率与 Dennis–Moré 超线性条件。
+
+**阅读边界：**全局收敛与局部收敛速度是不同结论；Newton/拟 Newton 的快速局部速度不等于任意初始点都能直接接受单位步长。所有数值例子和图解均独立构造，不是教材实验或解答手册。
 
 ## 学习路线
 

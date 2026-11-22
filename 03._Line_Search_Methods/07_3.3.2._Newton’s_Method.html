@@ -1,36 +1,38 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Newton 方向的局部二次收敛条件、Hessian Lipschitz 假设、单位步长接受，以及 Hessian 不定时方向可能上升的反例。"><title>3.3.2 Newton 法：为什么局部可以二次收敛 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.3.2 · Newton’s Method</span><a href="#direction">Newton 方向与二阶模型</a><a href="#theorem">局部二次收敛需要哪些假设</a><a href="#intuition">误差为什么会被平方</a><a href="#global">为什么远离解时不能盲目走完整步</a><a href="#interactive">交互：观察 Newton 误差递减</a><a href="#code">Python 局部与非下降反例</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.3.2 · Newton’s Method</div><h1>3.3.2 Newton 法：为什么局部可以二次收敛</h1><p class="dek">Newton 法用 Hessian 校正梯度方向，能在解附近迅速消除误差；但 Hessian 若不正定，Newton 方向甚至可能不是下降方向。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="direction"><h2>Newton 方向与二阶模型</h2><p>在当前点 x<sub>k</sub>，对目标函数作二阶 Taylor 近似。若 Hessian H<sub>k</sub>=∇²f(x<sub>k</sub>) 非奇异，令二次模型的梯度为零，得到 Newton 方向 p<sub>k</sub><sup>N</sup>。实际实现应解线性系统 H<sub>k</sub>p<sub>k</sub><sup>N</sup>=−g<sub>k</sub>，而不是显式计算矩阵逆。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Newton 方向线性系统"><math display="block" aria-label="Newton 方向线性系统"><mrow><msub><mi>H</mi><mi>k</mi></msub><msubsup><mi>p</mi><mi>k</mi><mi>N</mi></msubsup><mo>=</mo><mo>−</mo><msub><mi>g</mi><mi>k</mi></msub></mrow><mspace linebreak="newline"/><mrow><msub><mi>H</mi><mi>k</mi></msub><mo>=</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo></mrow></math></div></div><p>若 H<sub>k</sub> 正定，则 g<sub>k</sub>ᵀp<sub>k</sub><sup>N</sup>=−g<sub>k</sub>ᵀH<sub>k</sub><sup>−1</sup>g<sub>k</sub>&lt;0，Newton 方向是下降方向。但 Hessian 不定时，这个结论不成立。</p></section>
+<section id="theorem"><h2>局部二次收敛需要哪些假设</h2><p>设 x* 是局部解，满足 ∇f(x*)=0 且 H*=∇²f(x*) 正定。再假设 Hessian 在 x* 的邻域内 Lipschitz 连续，并从足够接近 x* 的初始点开始。则纯 Newton 迭代使用完整步长 α<sub>k</sub>=1 时，迭代点局部二次收敛：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Newton 局部二次误差界"><math display="block" aria-label="Newton 局部二次误差界"><mrow><mo>‖</mo><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><msup><mi>x</mi><mo>*</mo></msup><mo>‖</mo><mo>≤</mo><mi>C</mi><msup><mrow><mo>‖</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msup><mi>x</mi><mo>*</mo></msup><mo>‖</mo></mrow><mn>2</mn></msup></mrow></math></div></div>
+<p>这里 C 在解的某个邻域内固定。正定 Hessian 保证局部模型具有正确的曲率；Lipschitz Hessian 控制 Taylor 余项；初始点足够近则保证迭代留在这个局部邻域中。若步长通过 Wolfe 线搜索选择，并且算法总是先尝试 α=1，那么足够靠近解后，单位步长最终会被接受。</p></section>
+<section id="intuition"><h2>误差为什么会被平方</h2><p>Newton 方程让当前点处的一阶模型残差精确抵消：g<sub>k</sub>+H<sub>k</sub>p<sub>k</sub><sup>N</sup>=0。真实梯度与这个局部线性预测之间的差，来自 Hessian 沿着短线段变化的部分。若 Hessian Lipschitz 连续，这个变化量与步长长度成正比；再乘一次步长，误差就成为二阶量。</p><p>因此局部误差满足 e<sub>k+1</sub>≤Ce<sub>k</sub>²。若当前误差已经是 10⁻²，下一轮在常数适当时就可能到 10⁻⁴；误差足够小时，正确位数会快速增加。</p><figure><img src="../assets/figures/newton-local-convergence.svg" alt="Newton 法在局部区域内从较大误差迅速收敛，误差每轮近似按平方缩小。"><figcaption>图中点列展示误差量级从 10⁻¹ 降至 10⁻²、10⁻⁴、10⁻⁸ 的示意过程；具体常数由目标函数局部曲率决定。</figcaption></figure></section>
+<section id="global"><h2>为什么远离解时不能盲目走完整步</h2><p>局部定理不保证任意初始点都能直接使用 Newton 步。若当前 Hessian 不定，Newton 方向可能使目标上升；即使 Hessian 正定，远离解时二次模型也可能不准确。实际算法常结合线搜索或信赖域：线搜索可能修改 Hessian 以获得下降方向，再寻找可接受步长；信赖域则限制模型只在局部区域内指导步子。</p><div class="note"><p><strong>核心区分：</strong>“Newton 局部二次收敛”是一条有条件的局部速度结论，不是全局收敛保证。全局化机制负责把迭代安全地带入局部收敛区域。</p></div></section><section id="interactive"><h2>交互：观察 Newton 误差递减</h2><p>使用 f(x)=½x²+¼x⁴，其唯一极小点为 0，Hessian 在邻域内 Lipschitz 且 f″(0)=1。改变起点，执行完整 Newton 步，观察误差比值。</p><div class="interactive-panel" data-demo="newton"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="newton-x0">初始点 x₀ <output data-value-for="x0">1.00</output></label><input id="newton-x0" data-key="x0" type="range" min="0.10" max="2.00" step="0.05" value="1.00"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>第一部分展示满足局部定理条件的光滑一维函数；第二部分构造 Hessian 为负的点，验证 Newton 方向可能不是下降方向。</p><pre><code>"""Local Newton convergence and an indefinite-Hessian non-descent example."""
+def f(x: float) -&gt; float:
+    return 0.5 * x**2 + 0.25 * x**4
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.3.2. Newton’s Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>07_3.3.2._Newton’s_Method</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 07_3.3.2._Newton’s_Method
-</code></pre>
+def grad(x: float) -&gt; float:
+    return x + x**3
 
-    <h3>Python 文件</h3>
-    <pre><code># 07_3.3.2._Newton’s_Method
+def hess(x: float) -&gt; float:
+    return 1.0 + 3.0 * x**2
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 07_3.3.2._Newton’s_Method
-"""
+def newton(x: float, steps: int = 6):
+    history = [x]
+    for _ in range(steps):
+        x = x - grad(x) / hess(x)
+        history.append(x)
+    return history
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    history = newton(1.0)
+    errors = [abs(x) for x in history]
+    ratios = [errors[k + 1] / (errors[k] ** 2) for k in range(3)]
+    print("Newton iterates:", history[:5])
+    print("e[k+1] / e[k]^2:", ratios)
+    assert errors[1] &lt; errors[0]
+    assert errors[3] &lt; 0.02
+    assert ratios[-1] &lt; ratios[0]
+
+    x = 0.1
+    g = 4.0 * x**3 - 2.0 * x
+    h = 12.0 * x**2 - 2.0
+    p = -g / h
+    assert h &lt; 0.0
+    assert g * p &gt; 0.0  # Newton direction is not a descent direction.</code></pre><p>思考：如果 Hessian 在解处正定但不 Lipschitz 连续，二次收敛证明中哪一步会失去控制？如果 Hessian 奇异，Newton 线性系统会发生什么？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.3.2, “Newton’s Method”, pp. 44–46, Theorem 3.5。本文数值例子与程序独立构造。</div></section><footer class="article-footer"><p class="references">局部二次收敛要求解处 Hessian 正定、邻域内 Hessian Lipschitz、初始点足够近并最终采用完整 Newton 步。远离解时可能需要 Hessian 修改或信赖域。</p><nav class="prev-next" aria-label="相邻内容"><a href="06_3.3.1._Convergence_Rate_of_Steepest_Descent.html"><small>上一篇 · 3.3.1</small><strong>最速下降法：条件数如何拖慢收敛</strong></a><a href="08_3.3.3._Quasi_Newton_Methods.html"><small>下一篇 · 3.3.3</small><strong>拟 Newton 法：用梯度差近似曲率</strong></a></nav></footer></article></main></div></body></html>

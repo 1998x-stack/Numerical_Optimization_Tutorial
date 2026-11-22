@@ -1,0 +1,38 @@
+[
+  {
+    "id": "SD1",
+    "claim": "对 f(x)=1/2 x^TQx−b^Tx 且 Q 对称正定，最速下降精确线搜索步长为 (g_k^Tg_k)/(g_k^TQg_k)。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.3.1, equations (3.24)–(3.26), pp. 42–43",
+    "status": "verified",
+    "notes": "页面的二维对角模型是这一公式的特例。"
+  },
+  {
+    "id": "SD2",
+    "claim": "强凸二次目标上的 Q-能量范数平方收缩因子不超过 ((λmax−λmin)/(λmax+λmin))^2。",
+    "kind": "theorem",
+    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "locator": "Chapter 3, Section 3.3.1, Theorem 3.3, equation (3.29), p. 43",
+    "status": "verified",
+    "notes": "条件数 κ=λmax/λmin；目标函数差与能量范数平方成正比。"
+  },
+  {
+    "id": "SD3",
+    "claim": "当 κ=1 时上述收缩因子为零；κ 增大时最坏情况因子趋近于 1。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "收缩因子代数化简与 Python 数值计算",
+    "status": "derived",
+    "notes": "用于解释等高线圆度与收敛慢化之间的关系。"
+  },
+  {
+    "id": "SD4",
+    "claim": "二维对角目标 f(x,y)=1/2(x^2+κy^2) 上的精确线搜索迭代由代码中的闭式步长直接得到。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "二维向量更新与目标函数直接计算；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创教学模型，不是教材数值实验复现。"
+  }
+]
