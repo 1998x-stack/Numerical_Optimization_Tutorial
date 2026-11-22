@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.2.2-1",
+    "claim": "Theorems 4.5–4.6 distinguish liminf gradient norm zero at eta=0 and full gradient convergence for positive eta",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.2, Convergence to Stationary Points, Theorems 4.5–4.6, pp. 79–83",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.2.2-2",
+    "claim": "Bounded B and Lipschitz gradient imply a quadratic-order model discrepancy",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.2, Convergence to Stationary Points, Theorems 4.5–4.6, pp. 79–83",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.2.2-3",
+    "claim": "At x=2 and radius 0.5, the one-dimensional trial has predicted decrease 0.425 and actual decrease 0.46875",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  },
+  {
+    "id": "tr-4.2.2-4",
+    "claim": "Quality ratio may exceed one because the model can underpredict actual decrease",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  }
+]

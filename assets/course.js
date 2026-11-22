@@ -465,6 +465,95 @@
       output.innerHTML='<strong>Δ='+fmt(D,2)+'：Cauchy 下降='+fmt(reduction,6)+'</strong>'+
         ' · 理论下界='+fmt(low,6)+' · 下降 ≥ 下界：'+(reduction+1e-12>=low?'成立':'不成立');
     });
+
+    if (kind === "tr-stationary") bind(root, el => {
+      const D=read(el,"delta"),t=1;
+      const f=y=>.5*(y-1)**2+.1*(y-1)**4;
+      const g=1.4,h=2.2,p=Math.max(-D,Math.min(D,-g/h));
+      const pred=-g*p-.5*h*p*p,act=f(2)-f(2+p),rho=act/pred;
+      output.innerHTML='<strong>Δ='+fmt(D,2)+'，p='+fmt(p,5)+'</strong> · 预测下降 '+fmt(pred,5)+
+        ' · 实际下降 '+fmt(act,5)+' · ρ='+fmt(rho,5)+(rho>=.1?' · 达到 η=0.1':' · 不接受');
+    });
+    if (kind === "tr-secular") bind(root, el => {
+      const D=read(el,"delta"),p=l=>[-2/(4+l),-2/(1+l)];
+      const n=l=>Math.hypot(...p(l));
+      let lambda=0;
+      if(n(0)>D) {
+        let lo=0,hi=1;
+        while(n(hi)>D)hi*=2;
+        for(let k=0;k<64;k++){
+          const m=(lo+hi)/2;
+          if(n(m)>D)lo=m;else hi=m;
+        }
+        lambda=(lo+hi)/2;
+      }
+      const v=p(lambda);
+      const drop=-(2*v[0]+2*v[1]+.5*(4*v[0]*v[0]+v[1]*v[1]));
+      output.innerHTML='<strong>λ='+fmt(lambda,6)+'</strong> · p=('+
+        fmt(v[0],5)+', '+fmt(v[1],5)+') · ‖p‖='+fmt(n(lambda),5)+
+        ' · 模型下降 '+fmt(drop,6);
+    });
+    if (kind === "tr-hardcase") bind(root, el => {
+      const D=read(el,"delta");
+      const x=Math.sqrt(Math.max(0,D*D-1/9)),y=-1/3;
+      const q=y-x*x+.5*y*y;
+      output.innerHTML='<strong>临界 λ=2，p=(±'+fmt(x,6)+', '+fmt(y,5)+')</strong>'+
+        ' · ‖p‖='+fmt(Math.hypot(x,y),5)+' · 模型最小值 '+fmt(q,6)+
+        ' · 开区间 λ>2 的最小范数步无法到达该半径';
+    });
+    if (kind === "tr-certificate") bind(root, el => {
+      const angle=read(el,"theta")*Math.PI/180,radius=1.6;
+      const v=[radius*Math.cos(angle),radius*Math.sin(angle)];
+      const star=[Math.sqrt(35)/3,-1/3],q=p=>p[1]-p[0]*p[0]+.5*p[1]*p[1];
+      const first=1.5*(v[1]-star[1])**2,second=4-radius*radius;
+      const diff=q(v)-q(star);
+      output.innerHTML='<strong>q(v)−q(p*)='+fmt(diff,6)+'</strong>'+
+        ' · 曲率项 '+fmt(first,6)+' + 球面互补项 '+fmt(second,6)+
+        ' · 两项非负，解析证书成立';
+    });
+    if (kind === "tr-nearly-exact") bind(root, el => {
+      const t=read(el,"t"),drop=t*t+5/18,ratio=drop/(25/6);
+      output.innerHTML='<strong>t='+fmt(t,2)+'，预测下降='+fmt(drop,6)+'</strong>'+
+        ' · 最优下降 25/6 · 比例 '+fmt(100*ratio,2)+'%'+
+        (ratio>=.6?' · 满足 c₁=0.6':' · 未达到 c₁=0.6')+
+        ' · ‖p‖='+fmt(Math.hypot(t,1/3),5);
+    });
+    if (kind === "tr-newton-local") bind(root, el => {
+      const x=read(el,"x"),g=x+.3*x*x+.2*x**3,h=1+.6*x+.6*x*x;
+      const n=-g/h,D=.3,p=Math.max(-D,Math.min(D,n));
+      const f=z=>.5*z*z+.1*z**3+.05*z**4;
+      const pred=-g*p-.5*h*p*p,rho=(f(x)-f(x+p))/pred;
+      output.innerHTML='<strong>完整 Newton 步 '+fmt(n,6)+'</strong>'+
+        ' · Δ='+fmt(D,2)+' · 使用步 '+fmt(p,6)+
+        ' · ρ='+fmt(rho,5)+' · '+(Math.abs(n)<=D?'完整 Newton 步可行':'需要截断');
+    });
+    if (kind === "tr-scaling") bind(root, el => {
+      const d=read(el,"scale"),g=[10/d,1],B=[100/(d*d),1],r=1;
+      const p=l=>[-g[0]/(B[0]+l),-g[1]/(B[1]+l)];
+      const n=l=>Math.hypot(...p(l));
+      let lambda=0;
+      if(n(0)>r){
+        let lo=0,hi=1;
+        while(n(hi)>r)hi*=2;
+        for(let k=0;k<65;k++){const m=(lo+hi)/2;if(n(m)>r)lo=m;else hi=m;}
+        lambda=(lo+hi)/2;
+      }
+      const v=p(lambda),original=[v[0]/d,v[1]];
+      const drop=-(10*original[0]+original[1]+.5*(100*original[0]**2+original[1]**2));
+      output.innerHTML='<strong>D=diag('+fmt(d,0)+',1)</strong> · 缩放后 B̃=diag('+
+        fmt(B[0],4)+',1) · p=('+fmt(original[0],5)+','+fmt(original[1],5)+
+        ') · ‖Dp‖='+fmt(n(lambda),5)+' · 模型下降 '+fmt(drop,6);
+    });
+    if (kind === "tr-norms") bind(root, el => {
+      const D=read(el,"delta"),X=[.2,.3];
+      const p=[Math.max(-Math.min(X[0],D),Math.min(D,-.5)),
+               Math.max(-Math.min(X[1],D),Math.min(D,-.5))];
+      const n1=Math.abs(p[0])+Math.abs(p[1]),n2=Math.hypot(...p),ni=Math.max(Math.abs(p[0]),Math.abs(p[1]));
+      const drop=-(p[0]+2*p[1]+p[0]**2+2*p[1]**2);
+      output.innerHTML='<strong>盒内最优 p=('+fmt(p[0],3)+','+fmt(p[1],3)+')</strong>'+
+        ' · 预测下降 '+fmt(drop,5)+' · ‖p‖₁='+fmt(n1,4)+
+        '，‖p‖₂='+fmt(n2,4)+'，‖p‖∞='+fmt(ni,4);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

@@ -1,36 +1,33 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.4. Local Convergence of Trust Region Newton Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>06_4.4._Local_Convergence_of_Trust-Region_Newton_Methods</h1>
-<pre><code>Lecture: /04._Trust-Region_Methods
-Content: 06_4.4._Local_Convergence_of_Trust-Region_Newton_Methods
-</code></pre>
-
-    <h3>Python 文件</h3>
-    <pre><code># 06_4.4._Local_Convergence_of_Trust-Region_Newton_Methods
-
-"""
-Lecture: /04._Trust-Region_Methods
-Content: 06_4.4._Local_Convergence_of_Trust-Region_Newton_Methods
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="信赖域远离最优点时限制过大的 Newton 步；在 Hessian 正定的局部极小点附近，Newton 步趋于零且模型越来越可信，球约束最终不再阻碍快速局部收敛。"><title>4.4 信赖域 Newton：从截断步到局部超线性收敛 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="主导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">完整目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.4</span><a href="#s1">Newton 步与球约束的竞争</a><a href="#s2">模型的三阶偏差如何带来高接受率</a><a href="#s3">超线性与二次速度的逻辑边界</a><a href="#s4">曲率随位置变化的可运行示例</a><a href="#s5">什么时候快速局部速度不能照搬</a><a href="#interactive">交互检验</a><a href="#code">Python 实验</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.4</div><h1>4.4 信赖域 Newton：从截断步到局部超线性收敛</h1><p class="dek">信赖域远离最优点时限制过大的 Newton 步；在 Hessian 正定的局部极小点附近，Newton 步趋于零且模型越来越可信，球约束最终不再阻碍快速局部收敛。</p></header><section id="s1"><h2>Newton 步与球约束的竞争</h2><p>模型 mₖ(p)=f(xₖ)+gₖᵀp+½pᵀHₖp，Hₖ=∇²f(xₖ)，选择 ‖p‖≤Δₖ。若 Hₖ 正定，完整 Newton 步 pᴺₖ=−Hₖ⁻¹gₖ 是二次模型的无约束最优点。远离解时，它可能超出球；局部收敛后 pᴺₖ 趋于零。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="完整 Newton 搜索方向"><math display="block" aria-label="完整 Newton 搜索方向"><mrow><msubsup><mi>p</mi><mi>k</mi><mi>N</mi></msubsup><mo>=</mo><mo>−</mo><msup><msub><mi>H</mi><mi>k</mi></msub><mrow><mo>−</mo><mn>1</mn></mrow></msup><msub><mi>g</mi><mi>k</mi></msub></mrow></math></div></div></section>
+<section id="s2"><h2>模型的三阶偏差如何带来高接受率</h2><p>当 Hessian 在严格局部最小点附近 Lipschitz 连续，真实目标与二次模型的差具有 O(‖p‖³) 的上界。合适的二次预测下降通常在 ‖p‖² 量级，因此 |ρₖ−1| 可控制在 O(‖p‖)。这解释了为何局部小步会具有高模型质量比。</p><figure><img src="../assets/figures/trust-newton-local.svg" alt="远处完整 Newton 步可能超出小半径信赖域而被截断；接近最优点时 Newton 步足够短，完全落在球内。"><figcaption>远处完整 Newton 步可能超出小半径信赖域而被截断；接近最优点时 Newton 步足够短，完全落在球内。</figcaption></figure></section>
+<section id="s3"><h2>超线性与二次速度的逻辑边界</h2><p>若子问题近似步满足 ‖pₖ−pᴺₖ‖=o(‖pᴺₖ‖)，在定理的局部假设下可以获得超线性收敛。要直接继承 Newton 的二次收敛，还需要最终精确采用完整 Newton 步，并满足解处 Hessian 正定及局部 Lipschitz 条件。一个小 o 近似本身不推出二次收敛。</p></section>
+<section id="s4"><h2>曲率随位置变化的可运行示例</h2><p>取 f(x)=½x²+0.1x³+0.05x⁴，梯度 g=x+0.3x²+0.2x³，Hessian H=1+0.6x+0.6x²=0.6(x+0.5)²+0.85＞0。它有唯一最优点 x*=0。</p><p>从 x₀=0.8 且 Δ₀=0.3 开始，Newton 方向约 −0.58712，第一步会被截断为 −0.3。使用实际/预测下降比更新半径后，后续完整 Newton 步得以接受，并迅速接近零。</p></section>
+<section id="s5"><h2>什么时候快速局部速度不能照搬</h2><p>如果 Hₖ 奇异、不定，或模型近似与真实 Hessian 差距较大，Newton 方向可能并非二次模型的极小方向。若外层算法错误地将 Δ 固定为非常小，也可能反复截断完整 Newton 步。应记录梯度范数、ρ、Δ 与是否放行完整 Newton 步。</p></section><section id="interactive"><h2>交互：完整 Newton 步何时进入信赖域</h2><p>选择当前位置，固定半径 Δ=0.3，直接比较 Newton 步长度与可行半径。</p><div class="interactive-panel" data-demo="tr-newton-local"><div class="demo-controls"><div class="demo-control"><label for="tr-newton-local-input">当前点 x <output data-value-for="x">0.8</output></label><input id="tr-newton-local-input" data-key="x" type="range" min="0.1" max="1.2" step="0.1" value="0.8"></div></div><div class="demo-output" data-output aria-live="polite">计算中…</div></div></section><section id="code"><h2>Python：模拟有界半径与 Newton 方向</h2><p>程序执行真实/预测下降比检查，记录截断及完整步的不同阶段。</p><pre><code>&quot;&quot;&quot;Trust-region Newton iteration for a strictly convex nonquadratic example.&quot;&quot;&quot;
+def f(x): return .5*x*x+.1*x**3+.05*x**4
+def g(x): return x+.3*x*x+.2*x**3
+def H(x): return 1+.6*x+.6*x*x
+def run(x=.8,delta=.3):
+    history=[]
+    for i in range(20):
+        grad,curv=g(x),H(x)
+        if abs(grad)&lt;1e-13: break
+        newton=-grad/curv
+        p=max(-delta,min(delta,newton))
+        prediction=-grad*p-.5*curv*p*p
+        if prediction&lt;=0: raise RuntimeError(&quot;nonpositive decrease&quot;)
+        rho=(f(x)-f(x+p))/prediction
+        history.append((x,delta,p,newton,rho))
+        if rho&gt;=.1: x+=p
+        if rho&lt;.25: delta*=.25
+        elif rho&gt;.75 and abs(abs(p)-delta)&lt;1e-12:
+            delta=min(5.,2*delta)
+    return x,history
+if __name__==&quot;__main__&quot;:
+    x,history=run()
+    print(&quot;final&quot;,x,&quot;iterations&quot;,len(history))
+    for row in history: print(row)
+    assert abs(x)&lt;1e-10
+    assert history[0][2]==-.3
+    assert abs(history[0][3])&gt;.3
+    assert any(abs(p-n)&lt;1e-12 for _,_,p,n,_ in history[1:])
+    assert abs(history[-1][-1]-1)&lt;1e-5</code></pre><div class="references"><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, Numerical Optimization, 2nd ed.</a>，Section 4.4, Local Convergence of Trust-Region Newton Methods, Theorem 4.9, pp. 92–95。</div></section><footer class="article-footer"><p>本例 Hessian 始终正定；推广结论须保留相应二阶和局部假设。</p><nav class="prev-next"><a href="05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.html"><small>上一篇</small><strong>近精确子问题解</strong></a><a href="4.5._Other_Enhancements/00_4.5.1._Scaling.html"><small>下一篇</small><strong>尺度变换</strong></a></nav></footer></article></main></div></body></html>

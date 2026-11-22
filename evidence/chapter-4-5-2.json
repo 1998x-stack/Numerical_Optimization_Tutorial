@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.5.2-1",
+    "claim": "原书允许以 L1、L2、L∞ 及其缩放版本来定义信赖域",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.5, Trust Regions in Other Norms, equation (4.62), pp. 97–98",
+    "status": "verified",
+    "notes": "独立例子。"
+  },
+  {
+    "id": "tr-4.5.2-2",
+    "claim": "采用 L∞ 与非负变量界可得到逐坐标盒约束",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.5, Trust Regions in Other Norms, equation (4.62), pp. 97–98",
+    "status": "verified",
+    "notes": "独立例子。"
+  },
+  {
+    "id": "tr-4.5.2-3",
+    "claim": "p=(-0.2,-0.3) 的三种范数为 0.5、sqrt(0.13)、0.3",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "本页模型的直接计算",
+    "status": "derived",
+    "notes": "独立例子。"
+  },
+  {
+    "id": "tr-4.5.2-4",
+    "claim": "所构造二次模型的盒内最优步为 (-0.2,-0.3)，预测下降 0.58",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "本页模型的直接计算",
+    "status": "derived",
+    "notes": "独立例子。"
+  }
+]

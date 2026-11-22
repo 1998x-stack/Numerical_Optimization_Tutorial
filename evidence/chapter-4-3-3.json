@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.3.3-1",
+    "claim": "(4.52a) 要求近精确步取得相对最优模型下降的固定比例",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, conditions (4.52) and Theorem 4.8, pp. 91–92",
+    "status": "verified",
+    "notes": "本页独立表达和构造。"
+  },
+  {
+    "id": "tr-4.3.3-2",
+    "claim": "Theorem 4.8 的二阶必要条件结论依赖精确 Hessian 与额外假设",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, conditions (4.52) and Theorem 4.8, pp. 91–92",
+    "status": "verified",
+    "notes": "本页独立表达和构造。"
+  },
+  {
+    "id": "tr-4.3.3-3",
+    "claim": "在本页二维模型中，t=1.5 的下降比例约为 60.67%",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "本页数值算例和 Python 断言",
+    "status": "derived",
+    "notes": "本页独立表达和构造。"
+  },
+  {
+    "id": "tr-4.3.3-4",
+    "claim": "梯度为零并不排除 Hessian 负曲率提供模型下降",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "本页数值算例和 Python 断言",
+    "status": "derived",
+    "notes": "本页独立表达和构造。"
+  }
+]

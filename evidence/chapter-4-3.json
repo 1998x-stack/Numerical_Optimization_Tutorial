@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.3-1",
+    "claim": "Trust-region global minimizers satisfy shifted normal equations and a positive-semidefinite shifted Hessian",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, Iterative Solution of the Subproblem, Algorithm 4.3 and equations (4.37)–(4.44), pp. 83–87",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.3-2",
+    "claim": "For lambda above minus the minimal eigenvalue, the shifted step norm is continuous and nonincreasing",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, Iterative Solution of the Subproblem, Algorithm 4.3 and equations (4.37)–(4.44), pp. 83–87",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.3-3",
+    "claim": "For g=(2,2), B=diag(4,1), Delta=1.3 the secular root is approximately 0.63109456",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  },
+  {
+    "id": "tr-4.3-4",
+    "claim": "The corresponding predicted reduction is approximately 2.19130873",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  }
+]

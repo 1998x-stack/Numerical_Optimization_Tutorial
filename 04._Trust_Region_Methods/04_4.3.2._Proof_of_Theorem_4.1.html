@@ -1,36 +1,34 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="一个满足一阶驻点条件的球内步长，不一定是非凸二次模型的全局最优解。信赖域的关键特殊性是：只要找到合适的非负乘子，使修正 Hessian 半正定且满足互补条件，就能给出可验证的全局最优证书。"><title>4.3.2 信赖域全局最优证书：从乘子条件到模型不等式 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">课程目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 04 · 4.3.2</span><a href="#s1">先陈述需要证明的充分必要条件</a><a href="#s2">核心恒等式：把全局性还原成两个非负项</a><a href="#s3">必要性为何不是普通凸优化的直接推论</a><a href="#s4">半正定但奇异的情况不要误称唯一解</a><a href="#s5">数值示例：证书可以给出一个可测试的下界</a><a href="#interactive">互动推演</a><a href="#code">Python 数值复核</a><a href="../index.html#chapters">返回完整目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 04 · 4.3.2</div><h1>4.3.2 信赖域全局最优证书：从乘子条件到模型不等式</h1><p class="dek">一个满足一阶驻点条件的球内步长，不一定是非凸二次模型的全局最优解。信赖域的关键特殊性是：只要找到合适的非负乘子，使修正 Hessian 半正定且满足互补条件，就能给出可验证的全局最优证书。</p><div class="article-meta"><span>问题与模型</span><span>独立推导</span><span>边界检查</span></div></header><section id="s1"><h2>先陈述需要证明的充分必要条件</h2><p>考虑 min q(p)=gᵀp+½pᵀBp，‖p‖≤Δ，B 为实对称矩阵。一个全局最小点 p* 存在 λ≥0，使 (B+λI)p*=−g、B+λI 半正定、‖p*‖≤Δ、λ(Δ−‖p*‖)=0。</p><p>与普通的边界 KKT 一阶条件不同，B+λI 半正定这一额外要求是区分全局最优与可能的局部非全局驻点的关键。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="信赖域全局最优性条件"><math display="block" aria-label="信赖域全局最优性条件"><mrow><mo>(</mo><mi>B</mi><mo>+</mo><mi>λ</mi><mi>I</mi><mo>)</mo><msup><mi>p</mi><mo>*</mo></msup><mo>=</mo><mo>−</mo><mi>g</mi><mo>,</mo><mspace width='.5em'/><mi>λ</mi><mo>≥</mo><mn>0</mn></mrow></math></div></div></section>
+<section id="s2"><h2>核心恒等式：把全局性还原成两个非负项</h2><p>设 v 为任意可行点，令 d=v−p*。对 q(v)−q(p*) 展开，并利用 g+Bp*=−λp*，可以整理为两个项：½dᵀ(B+λI)d 与 (λ/2)(‖p*‖²−‖v‖²)。</p><p>第一项由于 B+λI 半正定而非负。若 λ=0，第二项为零；若 λ＞0，互补条件要求 ‖p*‖=Δ，而任何可行 v 都满足 ‖v‖≤Δ，因此第二项也非负。故 q(v)≥q(p*)，证明充分性。</p><div class="equation"><div class="math-scroll" role="region" tabindex="0" aria-label="两个非负项的恒等式"><math display="block" aria-label="两个非负项的恒等式"><mrow><mi>q</mi><mo>(</mo><mi>v</mi><mo>)</mo><mo>−</mo><mi>q</mi><mo>(</mo><msup><mi>p</mi><mo>*</mo></msup><mo>)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>d</mi><mo>⊤</mo></msup><mo>(</mo><mi>B</mi><mo>+</mo><mi>λ</mi><mi>I</mi><mo>)</mo><mi>d</mi><mo>+</mo><mfrac><mi>λ</mi><mn>2</mn></mfrac><mo>(</mo><msup><mi>Δ</mi><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>‖</mo><mi>v</mi><mo>‖</mo></mrow><mn>2</mn></msup><mo>)</mo></mrow></math></div></div><figure><img src="../assets/figures/trust-optimality-certificate.svg" alt="修正曲率项与边界互补项同时非负，所以任意球内测试步的模型值不低于证书点。单独检查梯度为零或单独检查球面可行都不够。"><figcaption>修正曲率项与边界互补项同时非负，所以任意球内测试步的模型值不低于证书点。单独检查梯度为零或单独检查球面可行都不够。</figcaption></figure></section>
+<section id="s3"><h2>必要性为何不是普通凸优化的直接推论</h2><p>如果 B 本身不定，原二次函数并不凸，因此不能直接引用凸问题的 KKT 充分性。一个重要的结构性结论是球约束二次问题没有一般非凸约束问题常见的对偶间隙。</p><p>在 B 的特征基中考察 p(λ)=−(B+λI)⁻¹g：若 Newton 步已可行且 B 半正定，可取 λ=0；若否则搜索 λ＞max{0,−μ_min} 使 ‖p(λ)‖=Δ；如果此搜索到最小特征值边界仍无法到达球面，就进入 Hard Case，取奇异边界乘子并补充零空间分量。这样构造满足证书条件的点。</p></section>
+<section id="s4"><h2>半正定但奇异的情况不要误称唯一解</h2><p>无约束二次函数 q(p) 取得最小值，当且仅当 B 半正定且 g 属于 B 的值域；这时满足 Bp=−g 的点都是全局最小点。只有 B 正定时才保证无约束最小点唯一。</p><p>对于信赖域问题，证书允许 B+λI 奇异。零空间的自由度不必破坏全局性，但会出现多个最优解，因此不应把求逆作为条件的一部分。</p></section>
+<section id="s5"><h2>数值示例：证书可以给出一个可测试的下界</h2><p>回到 B=diag(−2,1)、g=(0,1)、Δ=2。取 λ=2、p*=(√35/3,−1/3)。则 B+λI=diag(0,3)，半正定；乘子方程成立；p* 在球面上。</p><p>任取球内 v，q(v)−q(p*)=½·3(v_y+1/3)²+ (2/2)(4−‖v‖²)≥0。Python 会对一个完整的角度网格进行采样，同时直接核查上述恒等式；有限采样只是补充，真正的全局性来自解析证书。</p></section><section id="interactive"><h2>交互：调整参数，核查结论</h2><p>改变球内测试点 v 的角度，观察差值 q(v)−q(p*) 与两项非负证书为何一致；能否仅靠网格采样证明全局最优？</p><div class="interactive-panel" data-demo="tr-certificate"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="tr-certificate-input">球内测试点角度 θ（度） <output data-value-for="theta">60</output></label><input id="tr-certificate-input" type="range" data-key="theta" min="0" max="180" step="15" value="60"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：复现结果与断言</h2><p>以下代码只依赖 Python 标准库；它复核本页算例，并对假设不满足的输入进行明确处理。</p><pre><code>&quot;&quot;&quot;Verify an exact global trust-region certificate and its identity.&quot;&quot;&quot;
+from math import sqrt,cos,sin,pi,hypot
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>4.3.2. Proof of Theorem 4.1</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>04_4.3.2._Proof_of_Theorem_4.1</h1>
-<pre><code>Lecture: /04._Trust-Region_Methods
-Content: 04_4.3.2._Proof_of_Theorem_4.1
-</code></pre>
+DELTA=2.0
+LAM=2.0
+STAR=(sqrt(35)/3,-1/3)
 
-    <h3>Python 文件</h3>
-    <pre><code># 04_4.3.2._Proof_of_Theorem_4.1
+def q(p):
+    x,y=p
+    return y-x*x+.5*y*y
 
-"""
-Lecture: /04._Trust-Region_Methods
-Content: 04_4.3.2._Proof_of_Theorem_4.1
-"""
+def gap_identity(v):
+    d=(v[0]-STAR[0],v[1]-STAR[1])
+    first=.5*3*d[1]*d[1] # B+lambda I = diag(0,3)
+    second=.5*LAM*(DELTA**2-v[0]**2-v[1]**2)
+    return first+second
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__==&quot;__main__&quot;:
+    assert abs(hypot(*STAR)-DELTA)&lt;1e-12
+    assert abs(3*STAR[1]+1)&lt;1e-12
+    for radius in (0.0,.5,1.0,2.0):
+        for angle in range(0,360,15):
+            t=angle*pi/180
+            v=(radius*cos(t),radius*sin(t))
+            observed=q(v)-q(STAR)
+            predicted=gap_identity(v)
+            assert abs(observed-predicted)&lt;1e-11
+            assert observed&gt;=-1e-11
+    print(&quot;certificate passed; model optimum:&quot;,q(STAR))
+    assert abs(q(STAR)+25/6)&lt;1e-12</code></pre><div class="references"><strong>数学依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd ed.</a>，Section 4.3, Proof of Theorem 4.1 and Lemma 4.7, pp. 89–91; theorem conditions (4.8)。本文数值、图形和解释独立构造。</div></section><footer class="article-footer"><p class="references">页面给出证书的完整充分性推导，并通过谱方法解释必要性的构造逻辑；没有将网格数值采样冒充定理证明。</p><nav class="prev-next" aria-label="相邻内容"><a href="03_4.3.1._The_Hard_Case.html"><small>上一篇</small><strong>Hard Case</strong></a><a href="05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.html"><small>下一篇</small><strong>近精确子问题解</strong></a></nav></footer></article></main></div></body></html>

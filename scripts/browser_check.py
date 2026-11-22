@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the course portal and forty-two standalone articles."""
+"""Playwright QA for the course portal and fifty standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -51,6 +51,14 @@ ARTICLES = [
     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/02_4.1.3._The_Dogleg_Method.html",
     "04._Trust_Region_Methods/4.1._Algorithms_Based_on_the_Cauchy_Point/03_4.1.4._Two_Dimensional_Subspace_Minimization.html",
     "04._Trust_Region_Methods/4.2._Global_Convergence/00_4.2.1._Reduction_Obtained_by_the_Cauchy_Point.html",
+    "04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.html",
+    "04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.html",
+    "04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.html",
+    "04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.html",
+    "04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.html",
+    "04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.html",
+    "04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.html",
+    "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -161,7 +169,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, forty-two article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, fifty article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 

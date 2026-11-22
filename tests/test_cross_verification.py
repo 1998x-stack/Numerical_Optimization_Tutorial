@@ -349,5 +349,80 @@ class CrossVerificationTests(unittest.TestCase):
         self.assertFalse(strong(0.5))
         self.assertTrue(strong(2.0))
 
+
+    def test_seventh_batch_python_and_svg_reproducibility(self):
+        import runpy
+        from xml.etree import ElementTree
+        files = [
+        "04._Trust_Region_Methods/4.2._Global_Convergence/01_4.2.2._Convergence_to_Stationary_Points.py",
+        "04._Trust_Region_Methods/02_4.3._Iterative_Solution_of_the_Subproblem.py",
+        "04._Trust_Region_Methods/03_4.3.1._The_Hard_Case.py",
+        "04._Trust_Region_Methods/04_4.3.2._Proof_of_Theorem_4.1.py",
+        "04._Trust_Region_Methods/05_4.3.3._Convergence_of_Algorithms_Based_on_Nearly_Exact_Solutions.py",
+        "04._Trust_Region_Methods/06_4.4._Local_Convergence_of_Trust_Region_Newton_Methods.py",
+        "04._Trust_Region_Methods/4.5._Other_Enhancements/00_4.5.1._Scaling.py",
+        "04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.py"
+]
+        figures = [
+        "trust-stationary-ratio.svg",
+        "trust-secular-equation.svg",
+        "trust-hard-case.svg",
+        "trust-optimality-certificate.svg",
+        "trust-nearly-exact.svg",
+        "trust-newton-local.svg",
+        "trust-scaling-ellipse.svg",
+        "trust-norm-geometry.svg"
+]
+        for path in files:
+            with self.subTest(example=path):
+                runpy.run_path(str(ROOT / path), run_name="__main__")
+        for name in figures:
+            with self.subTest(diagram=name):
+                figure = ElementTree.parse(ROOT / "assets/figures" / name).getroot()
+                self.assertTrue(figure.tag.endswith("svg"))
+                self.assertIn("viewBox", figure.attrib)
+
+    def test_hard_case_multipliers_and_global_certificate(self):
+        radius=2.
+        p=(math.sqrt(35)/3.,-1./3.)
+        self.assertAlmostEqual(math.hypot(*p),radius)
+        self.assertAlmostEqual(3*p[1],-1.)
+        q=lambda x:x[1]-x[0]**2+0.5*x[1]**2
+        self.assertAlmostEqual(q(p),-25./6.)
+        for rad in (0,.5,1.,2.):
+            for n in range(24):
+                angle=n*math.pi/12
+                v=(rad*math.cos(angle),rad*math.sin(angle))
+                first=1.5*(v[1]-p[1])**2
+                second=4.-rad**2
+                self.assertAlmostEqual(q(v)-q(p),first+second)
+                self.assertGreaterEqual(first+second,-1e-12)
+
+    def test_scaling_and_norm_feasibility_checks(self):
+        g=(10.,1.)
+        D=(10.,1.)
+        B=(100.,1.)
+        scaled_g=(g[0]/D[0],g[1]/D[1])
+        scaled_B=(B[0]/D[0]**2,B[1]/D[1]**2)
+        self.assertEqual(scaled_g,(1.,1.))
+        self.assertEqual(scaled_B,(1.,1.))
+        p=(-.2,-.3)
+        self.assertAlmostEqual(math.hypot(*p),math.sqrt(.13))
+        self.assertGreater(math.hypot(*p),.3)
+        self.assertLessEqual(max(map(abs,p)),.3)
+
+    def test_eta_ratio_and_nearly_exact_quality(self):
+        g,h=1.4,2.2
+        p=-.5
+        predicted=-g*p-.5*h*p*p
+        actual=.6-(.5*.5**2+.1*.5**4)
+        self.assertAlmostEqual(predicted,.425)
+        self.assertAlmostEqual(actual,.46875)
+        self.assertGreater(actual/predicted,1.)
+        exact=25./6.
+        ratio=(1.5**2+5./18.)/exact
+        self.assertGreater(ratio,.6)
+        self.assertLess((.5**2+5./18.)/exact,.6)
+
 if __name__ == "__main__":
     unittest.main()

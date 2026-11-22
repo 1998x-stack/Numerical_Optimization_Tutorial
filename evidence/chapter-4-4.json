@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.4-1",
+    "claim": "Theorem 4.9 connects asymptotically Newton-like steps and superlinear trust-region convergence",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.4, Local Convergence of Trust-Region Newton Methods, Theorem 4.9, pp. 92–95",
+    "status": "verified",
+    "notes": "独立中文推导和模型示例。"
+  },
+  {
+    "id": "tr-4.4-2",
+    "claim": "Under sufficient local assumptions, eventual exact Newton steps inherit quadratic convergence",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.4, Local Convergence of Trust-Region Newton Methods, Theorem 4.9, pp. 92–95",
+    "status": "verified",
+    "notes": "独立中文推导和模型示例。"
+  },
+  {
+    "id": "tr-4.4-3",
+    "claim": "The example polynomial has H=0.6(x+0.5)^2+0.85>0",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Python 示例的直接断言",
+    "status": "derived",
+    "notes": "独立中文推导和模型示例。"
+  },
+  {
+    "id": "tr-4.4-4",
+    "claim": "At x=0.8 and delta=0.3 the first Newton step is truncated; later full steps converge to zero",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Python 示例的直接断言",
+    "status": "derived",
+    "notes": "独立中文推导和模型示例。"
+  }
+]

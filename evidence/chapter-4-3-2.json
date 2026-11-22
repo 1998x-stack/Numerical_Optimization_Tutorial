@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tr-4.3.2-1",
+    "claim": "Theorem 4.1 characterizes global trust-region subproblem solutions using a nonnegative multiplier and a positive-semidefinite shifted matrix",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, Proof of Theorem 4.1 and Lemma 4.7, pp. 89–91; theorem conditions (4.8)",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.3.2-2",
+    "claim": "Lemma 4.7 covers existence and uniqueness of minimizers for positive-semidefinite quadratic forms",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Section 4.3, Proof of Theorem 4.1 and Lemma 4.7, pp. 89–91; theorem conditions (4.8)",
+    "status": "verified",
+    "notes": "与第二版所列节的定理假设对照；此处独立重写。"
+  },
+  {
+    "id": "tr-4.3.2-3",
+    "claim": "The algebraic two-term gap identity is nonnegative at every feasible point under the certificate assumptions",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  },
+  {
+    "id": "tr-4.3.2-4",
+    "claim": "The 2D hard-case certificate has global minimum -25/6 and is verified against independent feasible samples",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "原创示例与随文 Python 独立断言",
+    "status": "derived",
+    "notes": "确定性教学算例，不代表外部基准数据。"
+  }
+]
