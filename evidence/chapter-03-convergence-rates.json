@@ -3,7 +3,7 @@
     "id": "R1",
     "claim": "Q-线性收敛可由相邻误差比值最终小于某个 q<1 描述；Q-超线性要求该比值趋于零。",
     "kind": "definition",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Appendix A, convergence definitions; Chapter 3, Section 3.3, pp. 41–42",
     "status": "verified",
     "notes": "正文明确采用误差范数 e_k 的 Q-收敛记法。"
@@ -30,7 +30,7 @@
     "id": "R4",
     "claim": "局部收敛速度分析与全局化分析回答不同问题，快速局部方法可能仍需要全局化策略。",
     "kind": "derived",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3, pp. 41–42",
     "status": "verified",
     "notes": "结合章节中 steepest descent 与 Newton 的对比解释。"

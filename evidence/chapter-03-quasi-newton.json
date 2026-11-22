@@ -3,7 +3,7 @@
     "id": "Q1",
     "claim": "拟 Newton 方向 p_k=−B_k^{-1}g_k，其中 B_k 为逐次更新的对称正定 Hessian 近似。",
     "kind": "definition",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.3, equation (3.34), pp. 46–47",
     "status": "verified",
     "notes": "正定性使方向保持下降。"
@@ -12,7 +12,7 @@
     "id": "Q2",
     "claim": "若迭代收敛到梯度为零且 Hessian 正定的点、方向满足 Dennis–Moré 条件并采用 0<c1≤1/2 的 Wolfe 参数，则单位步长最终可接受；持续接受单位步长时可得超线性收敛。",
     "kind": "theorem",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.3, Theorem 3.6, equations (3.35)–(3.36), pp. 46–47",
     "status": "verified",
     "notes": "需要迭代收敛到梯度为零且 Hessian 正定的点，并满足 Wolfe 参数条件。"
@@ -21,7 +21,7 @@
     "id": "Q3",
     "claim": "单位步长迭代的超线性收敛与 Dennis–Moré 方向条件等价。",
     "kind": "theorem",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.3, Theorem 3.7, pp. 47–48",
     "status": "verified",
     "notes": "条件沿实际搜索方向成立，不要求矩阵在所有方向逐元素收敛。"
@@ -30,7 +30,7 @@
     "id": "Q4",
     "claim": "BFGS 更新满足割线方程，并在 B_k 正定且 y_k^T s_k>0 时保持正定。",
     "kind": "derived",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "BFGS Hessian update, Chapter 2, equation (2.19); secant relation and curvature discussion in Chapter 3, Section 3.3.3",
     "status": "derived",
     "notes": "完整更新公式属于 BFGS 结构；本页用二维二次例子独立验证。"
@@ -39,7 +39,7 @@
     "id": "Q5",
     "claim": "在弱 Wolfe 曲率条件与下降方向下，y_k^T s_k>0，因此 BFGS 在 B_k 正定时保持正定。",
     "kind": "derived",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.3 and Wolfe curvature equation (3.6b); direct algebraic derivation",
     "status": "derived",
     "notes": "使用 s_k=alpha_k p_k、alpha_k>0、g_k^T p_k<0 与 c2<1。"

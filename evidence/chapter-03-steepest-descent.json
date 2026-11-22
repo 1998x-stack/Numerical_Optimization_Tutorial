@@ -3,7 +3,7 @@
     "id": "SD1",
     "claim": "对 f(x)=1/2 x^TQx−b^Tx 且 Q 对称正定，最速下降精确线搜索步长为 (g_k^Tg_k)/(g_k^TQg_k)。",
     "kind": "theorem",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.1, equations (3.24)–(3.26), pp. 42–43",
     "status": "verified",
     "notes": "页面的二维对角模型是这一公式的特例。"
@@ -12,7 +12,7 @@
     "id": "SD2",
     "claim": "强凸二次目标上的 Q-能量范数平方收缩因子不超过 ((λmax−λmin)/(λmax+λmin))^2。",
     "kind": "theorem",
-    "source_url": "https://convexoptimization.com/TOOLS/nocedal.pdf",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
     "locator": "Chapter 3, Section 3.3.1, Theorem 3.3, equation (3.29), p. 43",
     "status": "verified",
     "notes": "条件数 κ=λmax/λmin；目标函数差与能量范数平方成正比。"
