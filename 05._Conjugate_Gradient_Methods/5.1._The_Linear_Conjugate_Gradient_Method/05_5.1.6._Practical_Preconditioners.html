@@ -1,36 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="从对角（Jacobi）到不完全 Cholesky、SSOR 与稀疏近似逆：实用预条件器在代价与谱改善之间取舍，没有放之四海皆准的选择。"><title>5.1.6 实用预条件器：从 Jacobi 到不完全分解 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.6</span><a href="#section-1">从对角到不完全分解</a><a href="#section-2">对角预条件</a><a href="#section-3">不完全 Cholesky</a><a href="#section-4">块、SSOR 与稀疏近似逆</a><a href="#section-5">一个可复现算例</a><a href="#section-6">边界与工程注意</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.6</div><h1>5.1.6 实用预条件器：从 Jacobi 到不完全分解</h1><p class="dek">从对角（Jacobi）到不完全 Cholesky、SSOR 与稀疏近似逆：实用预条件器在代价与谱改善之间取舍，没有放之四海皆准的选择。选择取决于问题的稀疏结构与每次求解 Mz=r 的可承受成本。</p><div class="article-meta"><span>分类与取舍</span><span>稀疏结构</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>从对角到不完全分解</h2><p>预条件是“用便宜的 M 近似 Q”。最便宜的选择只看 Q 的对角；最强的选择是完全分解 Q，但那与直接求解无异。实用预条件器都落在这两极之间，用结构信息换取谱改善。下图把常见选择按“每轮代价”和“对谱的改善”排列。</p><figure><img src="../../assets/figures/practical-preconditioners.svg" alt="一张二维散点图：对角预条件代价低但作用弱，不完全分解与稀疏近似逆代价高但作用强，理想 M=Q 需要 O(n³)。"><figcaption>常见预条件器在代价与有效性上的大致位置。横轴是每轮求解 Mz=r 的代价，纵轴是对谱的改善；点的位置是定性示意，用于比较取舍方向，不是实测性能数据。</figcaption></figure></section>
+<section id="section-2"><h2>对角预条件</h2><p>取 M=diag(Q)，即只保留对角，称为对角预条件或 Jacobi 预条件。求解 Mz=r 只需逐分量相除，代价 O(n)。它能消除对角尺度的差异：如果 Q 的非对角结构相对均匀，而各行尺度相差很大，Jacobi 就能显著降低有效条件数。</p><p>但当尺度差异来自非对角结构时，Jacobi 可能毫无帮助。一个典型反例是一维 Laplacian：它的对角是常数，因而 M 只是单位阵的倍数，M⁻¹Q 与 Q 只差一个标量，条件数完全不变。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="对角预条件"><math display="block" aria-label="对角预条件"><mrow><mi>M</mi><mo>=</mo><mo>diag</mo><mo>(</mo><mi>Q</mi><mo>)</mo><mo>,</mo><mspace width="1em"/><msub><mi>M</mi><mrow><mi>i</mi><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>Q</mi><mrow><mi>i</mi><mi>i</mi></mrow></msub><mo>,</mo><mspace width="1em"/><mo>(</mo><msup><mi>M</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>r</mi><msub><mo>)</mo><mi>i</mi></msub><mo>=</mo><msub><mi>r</mi><mi>i</mi></msub><mo>/</mo><msub><mi>Q</mi><mrow><mi>i</mi><mi>i</mi></mrow></msub><mo>.</mo></mrow></math></div></div></section>
+<section id="section-3"><h2>不完全 Cholesky</h2><p>不完全 Cholesky（IC）取 Q 的 Cholesky 分解 Q=LLᵀ，但强制 L 的稀疏结构与 Q 的下三角部分一致，或在消元时丢掉小于容差的元素。于是 M=LLᵀ 是 Q 的近似，而求解 Mz=r 只需两次三角形回代，代价与非零元个数成正比。</p><p>IC 通常比 Jacobi 强得多，因为它利用了非对角结构。两个风险必须注意：其一，一般矩阵的不完全分解可能中途遇到负主元而“中断”（breakdown）；其二，保留的填充越多，M 越接近 Q，但设置代价与存储也越大。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="不完全 Cholesky 预条件"><math display="block" aria-label="不完全 Cholesky 预条件"><mrow><mi>Q</mi><mo>=</mo><mi>L</mi><msup><mi>L</mi><mo>⊤</mo></msup><mo>+</mo><mi>E</mi><mo>,</mo><mspace width="1em"/><mi>M</mi><mo>=</mo><mi>L</mi><msup><mi>L</mi><mo>⊤</mo></msup><mo>,</mo><mspace width="1em"/><mtext>L 稀疏且易解。</mtext></mrow></math></div></div></section>
+<section id="section-4"><h2>块、SSOR 与稀疏近似逆</h2><p>对角预条件只用了对角，IC 用了非零结构。另外几类常见选择：块预条件把 Q 的对角块当成 M，适合天然分块的问题；SSOR 用一次对称 Gauss–Seidel 扫描构造 M，既用对角也用三角部分；稀疏近似逆（SPAI）直接近似 Q⁻¹，求解 Mz=r 变成一次稀疏矩阵-向量乘积，便于并行，代价在构造阶段。</p><p>SSOR 的标准形式取 Q=D+L+Lᵀ（D 为对角，L 为严格下三角），M=(1/(ω(2−ω)))(D+ωL)D⁻¹(D+ωL)ᵀ，其中 ω∈(0,2) 是松弛参数。求解 Mz=r 需要两次三角形回代。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 230" style="width:100%;height:auto;display:block" role="img" aria-labelledby="pps-title pps-desc"><title id="pps-title">预条件器的稀疏结构对比</title><desc id="pps-desc">三个 5×5 稀疏结构：左边是三对角 Q，中间是不完全 Cholesky 因子 L（无填充），右边是带填充的 L。对角线为青色，非对角为蓝色，填充为橙色。</desc><rect width="640" height="230" rx="16" fill="#f7f4ee"/><rect x="55" y="55" width="120" height="120" fill="#fff" stroke="#c9c2b4"/><rect x="250" y="55" width="120" height="120" fill="#fff" stroke="#c9c2b4"/><rect x="445" y="55" width="120" height="120" fill="#fff" stroke="#c9c2b4"/><g fill="#126e66"><rect x="56" y="56" width="22" height="22"/><rect x="80" y="80" width="22" height="22"/><rect x="104" y="104" width="22" height="22"/><rect x="128" y="128" width="22" height="22"/><rect x="152" y="152" width="22" height="22"/><rect x="251" y="56" width="22" height="22"/><rect x="275" y="80" width="22" height="22"/><rect x="299" y="104" width="22" height="22"/><rect x="323" y="128" width="22" height="22"/><rect x="347" y="152" width="22" height="22"/><rect x="446" y="56" width="22" height="22"/><rect x="470" y="80" width="22" height="22"/><rect x="494" y="104" width="22" height="22"/><rect x="518" y="128" width="22" height="22"/><rect x="542" y="152" width="22" height="22"/></g><g fill="#3b5b9a"><rect x="80" y="56" width="22" height="22"/><rect x="104" y="80" width="22" height="22"/><rect x="128" y="104" width="22" height="22"/><rect x="152" y="128" width="22" height="22"/><rect x="56" y="80" width="22" height="22"/><rect x="80" y="104" width="22" height="22"/><rect x="104" y="128" width="22" height="22"/><rect x="128" y="152" width="22" height="22"/><rect x="275" y="56" width="22" height="22"/><rect x="299" y="80" width="22" height="22"/><rect x="323" y="104" width="22" height="22"/><rect x="347" y="128" width="22" height="22"/><rect x="251" y="80" width="22" height="22"/><rect x="275" y="104" width="22" height="22"/><rect x="299" y="128" width="22" height="22"/><rect x="323" y="152" width="22" height="22"/><rect x="470" y="56" width="22" height="22"/><rect x="494" y="80" width="22" height="22"/><rect x="518" y="104" width="22" height="22"/><rect x="542" y="128" width="22" height="22"/><rect x="446" y="80" width="22" height="22"/><rect x="470" y="104" width="22" height="22"/><rect x="494" y="128" width="22" height="22"/><rect x="518" y="152" width="22" height="22"/></g><g fill="#bd633f"><rect x="494" y="56" width="22" height="22"/><rect x="518" y="80" width="22" height="22"/><rect x="542" y="104" width="22" height="22"/></g><g font-size="14" font-family="system-ui, sans-serif" fill="#263a33"><text x="115" y="200" text-anchor="middle">Q（三对角）</text><text x="310" y="200" text-anchor="middle">L（无填充）</text><text x="505" y="200" text-anchor="middle">L（带填充）</text></g><g font-size="13" font-family="system-ui, sans-serif" fill="#5b6b64"><text x="55" y="224">青色=对角，蓝色=非对角，橙色=额外填充。</text></g></svg><p class="caption">左边是三对角矩阵 Q 的稀疏结构；中间是与其下三角结构一致的不完全因子 L（无填充）；右边是允许额外填充的 L。填充越多，M=LLᵀ 越接近 Q，但设置代价与存储也越大。</p></div></section>
+<section id="section-5"><h2>一个可复现算例</h2><p>取一维 Laplacian Q=tridiag(−1,2,−1)，规模 n=10。它的特征值有闭式：μ_k=2−2cos(kπ/(n+1))，k=1,…,n，所以 κ(Q)=cot²(π/(2(n+1)))≈48.4。</p><p>对角预条件在这里不起作用：Q 的对角是常数 2，M=2I，于是 M⁻¹Q=Q/2，与 Q 只差一个标量，条件数仍为 48.4。这说明只看对角无法利用非对角结构。</p><p>若用不完全 Cholesky 但不允许填充，对三对角矩阵而言因子仍是双对角（无填充），因此 IC 恰好等于精确 Cholesky，M=Q，κ(M⁻¹Q)=1。同一个问题上，预条件器的强弱完全取决于它是否保留了有用的结构。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="一维 Laplacian 的特征值"><math display="block" aria-label="一维 Laplacian 的特征值"><mrow><msub><mi>μ</mi><mi>k</mi></msub><mo>=</mo><mn>2</mn><mo>−</mo><mn>2</mn><mi>cos</mi><mo>(</mo><mfrac><mrow><mi>k</mi><mi>π</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>)</mo><mo>,</mo><mspace width="1em"/><mi>κ</mi><mo>(</mo><mi>Q</mi><mo>)</mo><mo>=</mo><msup><mi>cot</mi><mn>2</mn></msup><mo>(</mo><mfrac><mi>π</mi><mrow><mn>2</mn><mo>(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>)</mo></mrow></mfrac><mo>)</mo><mo>.</mo></mrow></math></div></div></section>
+<section id="section-6"><h2>边界与工程注意</h2><p>没有“最好”的预条件器：要在设置代价、存储、每轮求解成本、并行性与鲁棒性之间权衡。IC 可能在零或负主元处中断；SSOR 的 ω 需要调参；SPAI 的构造可能比一次 CG 还贵。工程上常从 Jacobi 开始，再根据实测的谱与迭代次数决定是否升级。</p><p>本页程序只用一维 Laplacian 的闭式特征值对比“只对角”与“保留结构”两种情形，它不实现 IC 或 SSOR，也不声称对一般问题给出最优预条件器。</p></section>
+<section id="interactive"><h2>交互：问题规模与条件数</h2><p>拖动滑块改变一维 Laplacian 的规模 n。面板给出无预条件（=Jacobi）的条件数与“保留三对角结构的精确分解”后的条件数，观察前者随 n 增长而后者恒为 1。</p><div class="interactive-panel" data-demo="cg-pprec"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="pp-n">问题规模 n <output data-value-for="n">10</output></label><input id="pp-n" type="range" data-key="n" min="4" max="40" step="1" value="10"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：两种预条件在同一问题上的对比</h2><p>程序只用标准库。它用一维 Laplacian 的闭式特征值断言三件事：κ(Q) 等于 cot²(π/(2(n+1)))，Jacobi 不改变条件数，而保留三对角结构的精确分解给出 κ=1。</p><pre><code>&quot;&quot;&quot;Compare no-fill preconditioners on the 1D Laplacian via closed-form spectra.&quot;&quot;&quot;
+from math import cos, pi, tan
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.6. Practical Preconditioners</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>05_5.1.6._Practical_Preconditioners</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 05_5.1.6._Practical_Preconditioners
-</code></pre>
+def laplacian_eigs(n):
+    return [2 - 2*cos(k*pi/(n + 1)) for k in range(1, n + 1)]
 
-    <h3>Python 文件</h3>
-    <pre><code># 05_5.1.6._Practical_Preconditioners
+def condition(eigs):
+    return max(eigs) / min(eigs)
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 05_5.1.6._Practical_Preconditioners
-"""
+if __name__ == &quot;__main__&quot;:
+    n = 10
+    eigs = laplacian_eigs(n)
+    kappa_q = condition(eigs)
+    # Jacobi: M = 2I, so M^{-1}Q = Q/2 and the condition number is unchanged.
+    kappa_jacobi = condition([e/2 for e in eigs])
+    # Exact tridiagonal factorization keeps the pattern, so M = Q and kappa = 1.
+    kappa_exact = 1.0
+    assert abs(kappa_q - 1/tan(pi/(2*(n + 1)))**2) &lt; 1e-9
+    assert abs(kappa_jacobi - kappa_q) &lt; 1e-9
+    assert kappa_exact == 1.0
+    print(&quot;kappa(Q) =&quot;, round(kappa_q, 4), &quot;| Jacobi =&quot;, round(kappa_jacobi, 4), &quot;| exact =&quot;, kappa_exact)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1（Practical preconditioners），pp. 118–120。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">实用预条件器的选择取决于问题的稀疏结构与成本预算；本页只对比了“只对角”与“保留结构”两种极端，不构成通用建议。</p><nav class="prev-next" aria-label="相邻内容"><a href="04_5.1.5._Preconditioning.html"><small>上一篇</small><strong>预条件</strong></a><a href="../5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.html"><small>下一篇</small><strong>Fletcher–Reeves 方法</strong></a></nav></footer></article></main></div></body></html>
 
-</code></pre>
-  </div>
-</body>
-</html>
-  

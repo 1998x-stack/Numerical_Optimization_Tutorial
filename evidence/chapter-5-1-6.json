@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.1.6-1",
+    "claim": "对角（Jacobi）预条件 M=diag(Q) 每轮代价 O(n)，只利用对角尺度",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, pp. 118–119",
+    "status": "verified",
+    "notes": "核对原书关于对角预条件的说明，独立表达。"
+  },
+  {
+    "id": "5.1.6-2",
+    "claim": "不完全 Cholesky 取 M=LL^T，L 保持 Q 的稀疏结构或按容差丢元素，求解为两次三角回代",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, pp. 119–120",
+    "status": "verified",
+    "notes": "核对原书对 IC 与其中断风险的讨论，独立表达。"
+  },
+  {
+    "id": "5.1.6-3",
+    "claim": "SSOR 预条件 M=(1/(ω(2−ω)))(D+ωL)D^{-1}(D+ωL)^T",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 5, Section 5.1, pp. 119–120",
+    "status": "verified",
+    "notes": "核对原书 SSOR 形式，独立表达。"
+  },
+  {
+    "id": "5.1.6-4",
+    "claim": "一维 Laplacian n=10 时 κ(Q)=cot²(π/22)≈48.4；Jacobi 不改变它；无填充精确分解给出 κ=1",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 断言",
+    "status": "derived",
+    "notes": "由 Laplacian 闭式特征值独立计算；教学算例。"
+  }
+]

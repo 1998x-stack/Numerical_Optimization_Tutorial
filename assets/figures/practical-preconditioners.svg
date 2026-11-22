@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="ppc-title ppc-desc">
+<title id="ppc-title">常见预条件器在代价与有效性上的位置</title>
+<desc id="ppc-desc">横轴是每轮求解 Mz=r 的代价，纵轴是对谱的改善。对角预条件便宜但作用弱；不完全分解与稀疏近似逆更贵但更强。</desc>
+<rect width="640" height="400" rx="18" fill="#fbfaf6"/>
+<line x1="80" y1="340" x2="575" y2="340" stroke="#263a33" stroke-width="1.5"/>
+<line x1="80" y1="340" x2="80" y2="35" stroke="#263a33" stroke-width="1.5"/>
+<g stroke="#e6dfd2" stroke-width="1"><line x1="80" y1="245" x2="560" y2="245"/><line x1="80" y1="150" x2="560" y2="150"/><line x1="80" y1="55" x2="560" y2="55"/><line x1="200" y1="40" x2="200" y2="340"/><line x1="320" y1="40" x2="320" y2="340"/><line x1="440" y1="40" x2="440" y2="340"/></g>
+<g font-size="14" font-family="system-ui, sans-serif" fill="#263a33">
+<text x="330" y="372" text-anchor="middle">每轮求解 Mz=r 的代价 →</text>
+<text x="30" y="190" font-size="13" fill="#5b6b64" transform="rotate(-90 30 190)">对谱的改善 →</text>
+</g>
+<g font-size="14" font-family="system-ui, sans-serif">
+<circle cx="128" cy="280" r="7" fill="#126e66"/><text x="140" y="285" fill="#263a33">对角（Jacobi）</text>
+<circle cx="176" cy="250" r="7" fill="#126e66"/><text x="188" y="255" fill="#263a33">块对角</text>
+<circle cx="200" cy="205" r="7" fill="#3b5b9a"/><text x="212" y="210" fill="#263a33">SSOR</text>
+<circle cx="368" cy="130" r="7" fill="#3b5b9a"/><text x="380" y="135" fill="#263a33">不完全 Cholesky</text>
+<circle cx="440" cy="160" r="7" fill="#3b5b9a"/><text x="452" y="165" fill="#263a33">稀疏近似逆</text>
+<circle cx="488" cy="85" r="7" fill="#bd633f"/><text x="500" y="90" fill="#263a33">带填充的 IC</text>
+<circle cx="560" cy="45" r="7" fill="#bd633f"/><text x="548" y="40" text-anchor="end" fill="#263a33">理想 M=Q（需 O(n³)）</text>
+</g>
+</svg>

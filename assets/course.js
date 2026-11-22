@@ -681,6 +681,13 @@
         (kappa < 1.0001 ? '1' : fmt(kappa,2)) + '</strong><br>' +
         '停止迭代次数 ' + iters + '（容差 1e-10）<br>最终误差 ‖x−x*‖=' + err.toExponential(2);
     });
+    if (kind === "cg-pprec") bind(root, el => {
+      const n = read(el, "n");
+      const kappaQ = 1 / Math.pow(Math.tan(Math.PI/(2*(n+1))), 2);
+      output.innerHTML = '<strong>n=' + fmt(n, 0) + '</strong><br>' +
+        '无预条件 / Jacobi：κ(Q)=' + fmt(kappaQ, 2) +
+        '<br>保留三对角结构的精确分解：κ(M⁻¹Q)=1';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
