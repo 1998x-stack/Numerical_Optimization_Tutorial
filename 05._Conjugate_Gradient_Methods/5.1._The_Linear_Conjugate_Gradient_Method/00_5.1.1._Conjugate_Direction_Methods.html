@@ -1,36 +1,44 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="对对称正定二次目标，只要搜索方向两两关于 Q 共轭，沿每个方向精确搜索一次，就能在第 n 步抵达精确解。这是共轭梯度法的理论起点。"><title>5.1.1 共轭方向法：把 n 维二次问题拆成 n 个一维搜索 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.1.1</span><a href="#section-1">正定二次目标与线性方程组</a><a href="#section-2">关于 Q 共轭的方向</a><a href="#section-3">精确搜索下 n 步终止</a><a href="#section-4">二维可复现算例</a><a href="#section-5">这是共轭梯度法的起点</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.1.1</div><h1>5.1.1 共轭方向法：把 n 维二次问题拆成 n 个一维搜索</h1><p class="dek">对对称正定二次目标，只要搜索方向两两关于 Q 共轭，沿每个方向精确搜索一次，就能在第 n 步抵达精确解。这把一个 n 维问题归约成 n 个可独立求解的一维问题，也是共轭梯度法的理论起点。</p><div class="article-meta"><span>几何构造</span><span>定理与推导</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>正定二次目标与线性方程组</h2><p>考虑二次目标 φ(x)=½xᵀQx−bᵀx，其中 Q 是对称正定矩阵（SPD），b 给定。Q 正定保证 φ 严格凸，且当 Qx=b 时 φ 取到唯一最小值。梯度是 ∇φ(x)=Qx−b，令梯度为零即得线性方程组 Qx=b。</p><p>因此&quot;极小化正定二次函数&quot;和&quot;解对称正定线性方程组&quot;是同一个问题。最优值可以写成 φ(x*)=−½bᵀQ⁻¹b，它只依赖 Q 与 b。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="正定二次目标与梯度"><math display="block" aria-label="正定二次目标与梯度"><mrow><mi>φ</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>x</mi><mo>⊤</mo></msup><mi>Q</mi><mi>x</mi><mo>−</mo><msup><mi>b</mi><mo>⊤</mo></msup><mi>x</mi><mo>,</mo><mspace width="1em"/><mi>∇</mi><mi>φ</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>Q</mi><mi>x</mi><mo>−</mo><mi>b</mi><mo>.</mo></mrow></math></div></div></section>
+<section id="section-2"><h2>关于 Q 共轭的方向</h2><p>设 p₀,…,p_{n−1} 为非零向量。若对所有 i≠j 都有 pᵢᵀQpⱼ=0，就称这组方向关于 Q 共轭（也称 Q-正交）。把欧氏内积 ⟨u,v⟩=uᵀv 换成 Q-内积 ⟨u,v⟩_Q=uᵀQv，共轭就是这组新内积下的正交性；当 Q=I 时它退化为普通正交。</p><p>当 Q 正定时，Q-内积是真正的内积，因此一组两两共轭的非零方向必线性无关，恰好构成 Rⁿ 的一组基。下面的定理正是利用这一点。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="共轭方向定义"><math display="block" aria-label="共轭方向定义"><mrow><msubsup><mi>p</mi><mi>i</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn><mspace width="1em"/><mo>(</mo><mi>i</mi><mo>≠</mo><mi>j</mi><mo>)</mo><mo>,</mo><mspace width="1.5em"/><msup><mi>u</mi><mo>⊤</mo></msup><mi>Q</mi><mi>v</mi><mo>=</mo><msub><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo></mrow><mi>Q</mi></msub><mo>.</mo></mrow></math></div></div></section>
+<section id="section-3"><h2>精确搜索下 n 步终止</h2><p>定理（Nocedal &amp; Wright, Theorem 5.1）。设 Q 对称正定，p₀,…,p_{n−1} 关于 Q 共轭。从任意起点 x₀ 出发，沿这些方向依次做精确线搜索，则第 n 步的迭代点就是唯一解 x*。</p><p>推导骨架如下。因为共轭方向构成 Rⁿ 的基，唯一解可写为 x*=x₀+Σₖ αₖpₖ。用 pₖᵀQ 左乘并利用共轭性，交叉项全部消失，得到整段步长 αₖ=pₖᵀQ(x*−x₀)/(pₖᵀQpₖ)。另一方面，第 k 步在射线 xₖ+tpₖ 上最小化 φ 得到的最优步长是 αₖ=−gₖᵀpₖ/(pₖᵀQpₖ)。两者相等，于是每一步的贪心精确搜索恰好恢复整段展开的系数。</p><p>等价的说法是：第 k 步之后梯度 gₖ 与 p₀,…,p_{k−1} 全部正交，而第 n 个梯度 gₙ 与所有基方向正交，因此只能是零向量，即 xₙ=x*。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="精确线搜索步长"><math display="block" aria-label="精确线搜索步长"><mrow><msub><mi>α</mi><mi>k</mi></msub><mo>=</mo><mo>−</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>p</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><mo>(</mo><msub><mi>x</mi><mo>*</mo></msub><mo>−</mo><msub><mi>x</mi><mi>0</mi></msub><mo>)</mo></mrow><mrow><msubsup><mi>p</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>p</mi><mi>k</mi></msub></mrow></mfrac><mo>,</mo><mspace width="0.6em"/><msub><mi>g</mi><mi>k</mi></msub><mo>=</mo><mi>Q</mi><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><mi>b</mi><mo>.</mo></mrow></math></div></div><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" style="width:100%;height:auto;display:block" role="img" aria-labelledby="cgd2-title cgd2-desc"><title id="cgd2-title">误差向量按共轭方向分解</title><desc id="cgd2-desc">把 x*−x0=(1,2) 分解为 α0p0=(5/3,0) 与 α1p1=(−2/3,2) 之和，说明精确搜索恰好恢复展开系数。</desc><rect width="660" height="340" rx="16" fill="#f7f4ee"/><line x1="96" y1="250" x2="300" y2="250" stroke="#e0d9cb" stroke-width="1.5"/><line x1="120" y1="60" x2="120" y2="290" stroke="#e0d9cb" stroke-width="1.5"/><line x1="120" y1="250" x2="270" y2="250" stroke="#126e66" stroke-width="5"/><line x1="270" y1="250" x2="210" y2="70" stroke="#bd633f" stroke-width="5"/><line x1="120" y1="250" x2="210" y2="70" stroke="#263a33" stroke-width="4" stroke-dasharray="8 6"/><circle cx="120" cy="250" r="7" fill="#263a33"/><circle cx="270" cy="250" r="7" fill="#126e66"/><circle cx="210" cy="70" r="8" fill="#263a33"/><g fill="#263a33" font-size="17" font-family="system-ui, sans-serif"><text x="76" y="274">x₀</text><text x="278" y="272" fill="#126e66">x₁</text><text x="216" y="60">x*</text><text x="150" y="240" fill="#126e66">α₀p₀ = (5/3, 0)</text><text x="230" y="170" fill="#bd633f">α₁p₁ = (−2/3, 2)</text><text x="132" y="150">x*−x₀ = (1, 2)</text></g></svg><p class="caption">误差向量 x*−x₀ 沿共轭基分解为 α₀p₀+α₁p₁。第 k 次精确搜索逐项消去一个分量，因此 n 个方向后误差归零——这是 Theorem 5.1 的几何读法。</p></div></section>
+<section id="section-4"><h2>二维可复现算例</h2><p>取 Q=[[3,1],[1,3]]、b=(5,7)，则 x*=Q⁻¹b=(1,2)。起点 x₀=(0,0)，初始梯度 g₀=Qx₀−b=(−5,−7)。</p><p>选 p₀=(1,0)：p₀ᵀQp₀=3，g₀ᵀp₀=−5，故 α₀=5/3，x₁=x₀+α₀p₀=(5/3,0)。再取 p₁=(1,−3)：检查 p₁ᵀQp₀=(1,−3)ᵀ(3,1)=3−3=0，确实与 p₀ 关于 Q 共轭；注意 p₀·p₁=1≠0，它们并不正交。此时 g₁=Qx₁−b=(0,−16/3)，p₁ᵀQp₁=24，g₁ᵀp₁=16，所以 α₁=−2/3，x₂=x₁+α₁p₁=(1,2)=x*。两步结束。</p><p>作为对照，若误用 p₁=(0,1)，则 p₁ᵀQp₀=(0,1)ᵀ(3,1)=1≠0，共轭性不成立，两步不会恰好落在 x*。这正是定理假设不可省略的体现。</p><figure><img src="../../assets/figures/conjugate-directions.svg" alt="倾斜的等值线椭圆以 x*=(1,2) 为中心；从 x0 沿 p0=(1,0) 到 x1，再沿 p1=(1,-3) 到中心 x*，第二步到达。"><figcaption>同一个二维正定二次问题中，p₀ 与 p₁ 关于 Q 共轭但彼此不正交。沿两条共轭方向各做一次精确搜索，第二步即落在等值线中心 x*；右侧标注了 Q 与共轭性检查。</figcaption></figure></section>
+<section id="section-5"><h2>这是共轭梯度法的起点，也是它的边界</h2><p>共轭方向法要求方向提前给定；定理 5.1 依赖 Q 正定、方向精确共轭以及沿射线精确线搜索。共轭梯度法要解决的正是这个前提：它不预先构造共轭方向，而是在迭代中利用梯度信息自动生成一组共轭方向，从而在正定二次问题上仍然 n 步终止，且无需显式构造或存储全部方向。</p><p>对一般非线性函数，不存在固定的 Q，也就没有全局的“n 步终止”。那时需要 5.2 节的重启策略与全局收敛分析。本页的程序只处理一个固定的二维正定二次问题，用来核对精确步长与终止结论；它不是通用求解器，也不覆盖舍入误差、病态条件数或大规模情形。</p></section>
+<section id="interactive"><h2>交互：改变第二个方向的斜率</h2><p>固定 p₀=(1,0)，把第二个方向取为 p₁=(1,t)，拖动滑块改变 t。观察什么时候两步迭代恰好落到 x*=(1,2)：这恰好发生在共轭条件 p₁ᵀQp₀=3+t=0，即 t=−3 时。</p><div class="interactive-panel" data-demo="cg-conjugate"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgc-slope">第二个方向 p₁=(1,t) 中的 t <output data-value-for="slope">-3.0</output></label><input id="cgc-slope" type="range" data-key="slope" min="-6" max="0" step="0.1" value="-3"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：精确步长与断言交叉验证</h2><p>下面的程序只依赖标准库。它先验证 p₀ 与 p₁ 关于 Q 共轭但彼此不正交，然后依次做两次精确线搜索，断言第二步结果与理论步长 α₀=5/3、α₁=−2/3 完全一致。</p><pre><code>&quot;&quot;&quot;Conjugate direction method on a 2x2 positive definite quadratic.&quot;&quot;&quot;
+from math import sqrt
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.1.1. Conjugate Direction Methods</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_5.1.1._Conjugate_Direction_Methods</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 00_5.1.1._Conjugate_Direction_Methods
-</code></pre>
+Q = ((3.0, 1.0), (1.0, 3.0))
+b = (5.0, 7.0)
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_5.1.1._Conjugate_Direction_Methods
+def matvec(M, v):
+    return (M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1])
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method
-Content: 00_5.1.1._Conjugate_Direction_Methods
-"""
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def gradient(x):
+    qx = matvec(Q, x)
+    return (qx[0] - b[0], qx[1] - b[1])
+
+def exact_step(x, p):
+    return -dot(gradient(x), p) / dot(p, matvec(Q, p))
+
+def run(x0, directions):
+    x = x0
+    alphas = []
+    for p in directions:
+        a = exact_step(x, p)
+        alphas.append(a)
+        x = (x[0] + a*p[0], x[1] + a*p[1])
+    return x, alphas
+
+if __name__ == &quot;__main__&quot;:
+    p0, p1 = (1.0, 0.0), (1.0, -3.0)
+    assert abs(dot(p0, matvec(Q, p1))) &lt; 1e-12
+    assert abs(dot(p0, p1) - 1.0) &lt; 1e-12
+    x_star, alphas = run((0.0, 0.0), (p0, p1))
+    assert sqrt((x_star[0]-1.0)**2 + (x_star[1]-2.0)**2) &lt; 1e-12
+    assert abs(alphas[0] - 5/3) &lt; 1e-12
+    assert abs(alphas[1] + 2/3) &lt; 1e-12
+    print(&quot;x* =&quot;, x_star, &quot;alpha =&quot;, [round(a, 6) for a in alphas])</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.1（含 Theorem 5.1 与共轭方向法的定义），pp. 105–109。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">共轭方向法的 n 步终止严格依赖 Q 对称正定、方向关于 Q 共轭以及精确线搜索三个前提；缺任一条则结论失效。</p><nav class="prev-next" aria-label="相邻内容"><a href="../../04._Trust_Region_Methods/4.5._Other_Enhancements/01_4.5.2._Trust_Regions_in_Other_Norms.html"><small>上一篇</small><strong>信赖域中的其他范数</strong></a><a href="01_5.1.2._Basic_Properties_of_the_Conjugate_Gradient_Method.html"><small>下一篇</small><strong>共轭梯度法的基本性质</strong></a></nav></footer></article></main></div></body></html>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 360" role="img" aria-labelledby="cgd-title cgd-desc">
+<title id="cgd-title">共轭方向法在两步内到达二维正定二次问题的精确解</title>
+<desc id="cgd-desc">倾斜的等值线椭圆以 x*=(1,2) 为中心。从 x0=(0,0) 先沿 p0=(1,0) 精确搜索到 x1，再沿与 p0 关于 Q 共轭的 p1=(1,-3) 搜索，第二步即到达中心 x*。</desc>
+<rect width="880" height="360" rx="18" fill="#fbfaf6"/>
+<line x1="170" y1="180" x2="620" y2="180" stroke="#ddd6c8" stroke-width="1.5"/>
+<line x1="400" y1="40" x2="400" y2="325" stroke="#ddd6c8" stroke-width="1.5"/>
+<ellipse cx="400" cy="180" rx="169.5" ry="119.8" transform="rotate(45 400 180)" fill="none" stroke="#9dc3ba" stroke-width="2.5"/>
+<ellipse cx="400" cy="180" rx="143.8" ry="101.6" transform="rotate(45 400 180)" fill="none" stroke="#9dc3ba" stroke-width="2"/>
+<line x1="345" y1="290" x2="437" y2="290" stroke="#126e66" stroke-width="4"/>
+<line x1="437" y1="290" x2="400" y2="180" stroke="#bd633f" stroke-width="4"/>
+<circle cx="345" cy="290" r="7" fill="#263a33"/>
+<circle cx="437" cy="290" r="7" fill="#126e66"/>
+<circle cx="400" cy="180" r="9" fill="#bd633f"/>
+<circle cx="400" cy="180" r="3.5" fill="#fbfaf6"/>
+<g fill="#263a33" font-size="17" font-family="system-ui, sans-serif">
+<text x="296" y="318">x₀=(0,0)</text>
+<text x="446" y="284">x₁=(5/3,0)</text>
+<text x="411" y="170" fill="#bd633f">x*=(1,2)</text>
+<text x="330" y="278" fill="#126e66">p₀=(1,0)</text>
+<text x="446" y="242" fill="#bd633f">p₁=(1,−3)</text>
+</g>
+<g fill="#263a33" font-size="16" font-family="system-ui, sans-serif">
+<text x="628" y="92" font-weight="700">Q = [[3,1],[1,3]]</text>
+<text x="628" y="120">等值线是倾斜椭圆，中心在 x*。</text>
+<text x="628" y="148">p₀ᵗQp₁ = 0：两方向关于 Q 共轭。</text>
+<text x="628" y="176">p₀·p₁ = 1 ≠ 0：它们并不正交。</text>
+<text x="628" y="208" fill="#126e66">沿 p₀ 精确搜索 → x₁</text>
+<text x="628" y="234" fill="#bd633f">沿 p₁ 精确搜索 → x*（第 2 步）</text>
+<text x="628" y="270" font-size="15" fill="#5b6b64">二维正定二次问题：n=2 步终止。</text>
+<text x="628" y="294" font-size="15" fill="#5b6b64">教学算例，非算法基准测试。</text>
+</g>
+</svg>

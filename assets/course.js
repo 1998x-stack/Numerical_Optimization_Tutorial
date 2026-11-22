@@ -554,6 +554,24 @@
         ' · 预测下降 '+fmt(drop,5)+' · ‖p‖₁='+fmt(n1,4)+
         '，‖p‖₂='+fmt(n2,4)+'，‖p‖∞='+fmt(ni,4);
     });
+    if (kind === "cg-conjugate") bind(root, el => {
+      const t = read(el, "slope");
+      const Q = [[3, 1], [1, 3]], b = [5, 7];
+      const mv = v => [Q[0][0]*v[0] + Q[0][1]*v[1], Q[1][0]*v[0] + Q[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0] + u[1]*v[1];
+      const grad = x => { const q = mv(x); return [q[0]-b[0], q[1]-b[1]]; };
+      let x = [0, 0];
+      const p0 = [1, 0];
+      let a = -dot(grad(x), p0) / dot(p0, mv(p0));
+      x = [x[0] + a*p0[0], x[1] + a*p0[1]];
+      const p1 = [1, t];
+      a = -dot(grad(x), p1) / dot(p1, mv(p1));
+      x = [x[0] + a*p1[0], x[1] + a*p1[1]];
+      const conj = 3 + t, err = Math.hypot(x[0]-1, x[1]-2);
+      output.innerHTML = '<strong>p₁=(1,' + fmt(t,1) + ')，x₂=(' + fmt(x[0],4) + ', ' +
+        fmt(x[1],4) + ')</strong> · p₁ᵗQp₀=' + fmt(conj,3) + ' · 与 x* 距离 ' + err.toExponential(2) +
+        (err < 1e-9 ? ' · 共轭，两步命中 x*' : ' · 不共轭');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
