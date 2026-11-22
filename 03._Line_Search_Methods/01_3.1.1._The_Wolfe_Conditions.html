@@ -1,97 +1,48 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Wolfe 条件用充分下降和曲率条件筛选非精确步长，并以强 Wolfe 条件限制过度越过一维极小点的候选步。"><title>3.1.1 Wolfe 条件：让步长既下降又不过短 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.1.1 · Wolfe Conditions</span><a href="#problem">为什么单纯下降还不够</a><a href="#weak">弱 Wolfe：充分下降与曲率</a><a href="#strong">强 Wolfe：不允许斜率过度转正</a><a href="#exist">什么时候一定找得到可接受步长</a><a href="#example">同一条曲线上的两种接受结果</a><a href="#interactive">交互：弱 Wolfe 与强 Wolfe</a><a href="#code">Python 数值检查</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.1.1 · Wolfe Conditions</div><h1>3.1.1 Wolfe 条件：让步长既下降又不过短</h1><p class="dek">只要求函数值变小，算法可能接受几乎不动的步子；只追求大步，又可能越过有用区域。Wolfe 条件把“下降多少”和“还剩多少下降空间”放进同一套检查。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="problem"><h2>为什么单纯下降还不够</h2>
+<p>在迭代点 <em>x</em><sub>k</sub> 处，给定一个下降方向 <em>p</em><sub>k</sub>，满足 ∇f(x<sub>k</sub>)ᵀp<sub>k</sub>&lt;0。线搜索把多维目标限制到一条射线上，定义 φ(α)=f(x<sub>k</sub>+αp<sub>k</sub>)，其中 α&gt;0。链式法则给出 φ′(0)=∇f(x<sub>k</sub>)ᵀp<sub>k</sub>&lt;0。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="沿搜索方向的一维函数与初始负斜率"><math display="block" aria-label="沿搜索方向的一维函数与初始负斜率"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>=</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>α</mi><msub><mi>p</mi><mi>k</mi></msub><mo>)</mo><mo>,</mo><mspace width=".5em"/><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><msup><mrow><mi>∇</mi><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>)</mo></mrow><mo>⊤</mo></msup><msub><mi>p</mi><mi>k</mi></msub><mo>&lt;</mo><mn>0</mn></mrow></math></div></div>
+<p>若只要求 φ(α)&lt;φ(0)，那么任意足够小的 α 都可能被接受。算法每次确实下降，却可能因为每一步都太短而几乎没有进展。Wolfe 条件增加曲率检查：在已经获得足够下降之后，还要确认沿当前方向继续前进的边际收益没有大到“现在停下明显太早”。</p>
+<figure><img src="../assets/figures/wolfe-conditions.svg" alt="左图比较目标函数曲线与 Armijo 充分下降线，右图显示弱 Wolfe 和强 Wolfe 对新点斜率的不同约束。"><figcaption>Armijo 检查函数值是否足够下降；曲率检查则读取新点沿搜索方向的斜率。两项约束解决的是不同问题。</figcaption></figure></section>
+<section id="weak"><h2>弱 Wolfe：充分下降与曲率</h2>
+<p>设 0&lt;c₁&lt;c₂&lt;1。第一项是 Armijo 充分下降条件，第二项是弱 Wolfe 曲率条件。因为初始斜率为负，右侧 c₂φ′(0) 仍为负数；新点的斜率可以仍然为负，但不能比这个阈值更负。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Wolfe 两个条件"><math display="block" aria-label="Wolfe 两个条件"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><msub><mi>c</mi><mn>1</mn></msub><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mi>α</mi><mo>)</mo><mo>≥</mo><msub><mi>c</mi><mn>2</mn></msub><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><mn>0</mn><mo>&lt;</mo><msub><mi>c</mi><mn>1</mn></msub><mo>&lt;</mo><msub><mi>c</mi><mn>2</mn></msub><mo>&lt;</mo><mn>1</mn></mrow></math></div></div>
+<p>几何上，Armijo 约束 φ(α) 落在一条初始切线的“充分下降侧”；曲率条件要求候选点不要仍处于斜率很陡的区域。它并不要求 φ′(α) 必须为正，也不要求 α 是一维极小点。</p>
+<div class="note"><p><strong>符号检查：</strong>φ′(0)&lt;0，因此 φ′(α)≥c₂φ′(0) 是“斜率不再过度负”，不是“新斜率必须为正”。把负号方向读反，会直接把 Wolfe 条件解释错。</p></div></section>
+<section id="strong"><h2>强 Wolfe：不允许斜率过度转正</h2>
+<p>弱 Wolfe 允许 φ′(α) 变成很大的正数，只要它大于负阈值即可。候选点可能已经越过一维极小点很远。强 Wolfe 把曲率条件改成绝对值约束，同时限制斜率不能太负、也不能过度为正。</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="强 Wolfe 曲率条件"><math display="block" aria-label="强 Wolfe 曲率条件"><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><msub><mi>c</mi><mn>1</mn></msub><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><mo>|</mo><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mi>α</mi><mo>)</mo><mo>|</mo><mo>≤</mo><msub><mi>c</mi><mn>2</mn></msub><mo>|</mo><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>|</mo></mrow></math></div></div>
+<p>强 Wolfe 是弱 Wolfe 的更强要求。常见实现会用较大的 c₂（例如 Newton 或拟 Newton 方向常取 0.9），而非线性共轭梯度的参数选择通常更严格。参数是算法设计选择，不是自然常数；必须连同方向生成方式与具体搜索算法理解。</p></section>
+<section id="exist"><h2>什么时候一定找得到可接受步长</h2>
+<p>存在性结论依赖假设：φ 连续可微、初始方向是下降方向，并且沿正射线目标函数有下界。当 0&lt;c₁&lt;c₂&lt;1 时，满足弱 Wolfe 与强 Wolfe 条件的步长集合都非空。直觉是：Armijo 线最终会与有下界的 φ 相交；由中值定理，在相交前的某个点，方向导数会落入曲率允许范围。光滑性再保证附近存在一段可接受区间。</p>
+<p>这是一条存在性定理，不等于“每个简单回溯实现都能找到 Wolfe 步”。普通 Armijo 回溯只检查充分下降，不检查曲率；要满足 Wolfe，通常需要括区间、插值与 zoom 等步骤，后续算法章节再展开。</p></section>
+<section id="example"><h2>同一条曲线上的两种接受结果</h2>
+<p>令 φ(α)=(4α−2)²，φ(0)=4，φ′(0)=−16。取 c₁=10⁻⁴、c₂=0.9。α=0.5 到达一维极小点，斜率为 0，弱与强 Wolfe 都通过。α=0.99 仍满足 Armijo，且新斜率 15.68 大于 −14.4，所以弱 Wolfe 通过；但 |15.68| 大于 14.4，强 Wolfe 拒绝它。这展示了强条件如何排除过度越过极小点的步长。</p></section>
+<section id="interactive"><h2>交互：弱 Wolfe 与强 Wolfe</h2><p>固定 φ(α)=(4α−2)²、初始斜率 −16。拖动 α，分别检查 Armijo、弱 Wolfe 和强 Wolfe；这个例子中弱条件会接受一部分已经越过极小点的候选步。</p><div class="interactive-panel" data-demo="wolfe"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="wolfe-alpha">候选步长 α <output data-value-for="alpha">0.50</output></label><input id="wolfe-alpha" data-key="alpha" type="range" min="0.05" max="1.20" step="0.01" value="0.50"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：可复现的数值检查</h2><p>程序将同一个候选步长分别送入三个判据，避免把“弱 Wolfe 通过”误当成“强 Wolfe 也通过”。</p><pre><code>"""Compare weak and strong Wolfe conditions on a one-dimensional line."""
+def phi(alpha: float) -&gt; float:
+    return (4.0 * alpha - 2.0) ** 2
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.1.1. The Wolfe Conditions</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_3.1.1._The_Wolfe_Conditions</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 01_3.1.1._The_Wolfe_Conditions
-</code></pre>
-<h3>01_3.1.1._Wolfe条件</h3>
-<p>在数值优化中的线搜索方法章节中，第3.1.1节详细讨论了Wolfe条件（Wolfe Conditions）。Wolfe条件是步长选择中的重要准则，用于确保每一步的迭代既有足够的函数值下降，又能保持合理的梯度变化，从而保证算法的收敛性和效率。</p>
-<h4>Wolfe条件简介</h4>
-<p>Wolfe条件分为两个主要部分：Armijo条件（又称为充分减小条件）和曲率条件。满足Wolfe条件的步长能够在减少目标函数值的同时，避免步长过小导致的收敛速度过慢。</p>
-<ol>
-<li>
-<p><strong>Armijo条件</strong>
-Armijo条件确保步长在目标函数值上有显著的减少，具体表达式为：
-$$
-f(x_k + \alpha p_k) \leq f(x_k) + c_1 \alpha \nabla f(x_k)^T p_k
-$$
-其中，$0 &lt; c_1 &lt; 1$ 是一个小常数，通常取值为 $10^{-4}$ 或 $10^{-3}$。该条件保证每一步的函数值减少量至少为方向导数的一个固定比例。</p>
-</li>
-<li>
-<p><strong>曲率条件</strong>
-曲率条件确保步长不会太小，从而在前进方向上有足够的下降速率，具体表达式为：
-$$
-\nabla f(x_k + \alpha p_k)^T p_k \geq c_2 \nabla f(x_k)^T p_k
-$$
-其中，$c_1 &lt; c_2 &lt; 1$，常用取值为 $c_2 = 0.9$。曲率条件保证了新点的梯度在搜索方向上不会减少太多。</p>
-</li>
-</ol>
-<h4>Wolfe条件的作用</h4>
-<p>Wolfe条件在步长选择中起到平衡的作用：</p>
-<ul>
-<li><strong>避免步长过大</strong>：通过Armijo条件，保证了每一步的步长足够小，以确保目标函数值的有效减少。</li>
-<li><strong>避免步长过小</strong>：通过曲率条件，保证了每一步的步长不会过小，从而在优化过程中保持良好的前进效率。</li>
-</ul>
-<p>满足Wolfe条件的步长能够在多种优化算法中应用，包括最速下降法、共轭梯度法和拟牛顿法等。</p>
-<h4>Wolfe条件的几何解释</h4>
-<p>几何上，Wolfe条件可以被解释为在搜索方向上的有效减少和适当曲率的保证。Armijo条件确保了在每一步迭代中，新的迭代点不会偏离目标函数的下降趋势；曲率条件则保证了新的迭代点在梯度方向上有足够的减少。</p>
-<ol>
-<li><strong>有效减少</strong>：Armijo条件确保步长在目标函数值上的显著减少，这在几何上意味着新的迭代点沿着搜索方向前进时，目标函数值会显著下降。</li>
-<li><strong>适当曲率</strong>：曲率条件确保新的迭代点在梯度方向上有足够的下降速率，这在几何上意味着新的迭代点不仅在函数值上减少，而且在梯度方向上也保持足够的减少速率。</li>
-</ol>
-<h4>Wolfe条件的实现</h4>
-<p>在实际实现中，满足Wolfe条件的步长选择可以通过迭代算法实现，如回溯线搜索（Backtracking Line Search）或其他自适应步长选择算法。这些算法在每一步迭代中调整步长，直到满足Wolfe条件。</p>
-<ol>
-<li>
-<p><strong>回溯线搜索</strong>：回溯线搜索是一种常见的方法，通过逐步减小步长，直到满足Armijo条件和曲率条件。具体步骤如下：</p>
-<ul>
-<li>选择初始步长 $\alpha = \alpha_0$，通常取 $\alpha_0 = 1$。</li>
-<li>检查是否满足Armijo条件和曲率条件。</li>
-<li>如果不满足，则将步长乘以一个常数因子 $\rho$（如 $\rho = 0.5$），重复上述步骤，直到条件满足。</li>
-</ul>
-</li>
-<li>
-<p><strong>自适应步长选择</strong>：自适应步长选择算法在每一步迭代中，根据前几次迭代的效果动态调整步长，从而提高算法的收敛性和效率。这些方法通常结合数值实验和理论分析，选择最优步长。</p>
-</li>
-</ol>
-<h3>详细分析</h3>
-<h4>1. 参数选择的影响</h4>
-<p>Wolfe条件中的参数 $c_1$ 和 $c_2$ 对步长选择有显著影响。参数 $c_1$ 较小时，Armijo条件更严格，步长更小；而参数 $c_2$ 较大时，曲率条件更严格，步长也会较小。合理选择 $c_1$ 和 $c_2$ 能平衡算法的收敛速度和稳定性。</p>
-<h4>2. Wolfe条件在不同算法中的应用</h4>
-<p>不同的优化算法可能对Wolfe条件有不同的需求。例如，在共轭梯度法中，满足Wolfe条件的步长能够保证共轭性，从而提高收敛速度；而在拟牛顿法中，Wolfe条件保证了近似Hessian矩阵的正定性，从而提高算法的稳定性。</p>
-<h4>3. 数值稳定性和精度</h4>
-<p>在实际应用中，数值误差和计算精度可能影响步长的选择。特别是在高维优化问题中，数值误差可能导致梯度计算和步长选择的不准确。采用高精度数值方法和细致的数值分析可以提高步长选择的可靠性。</p>
-<h4>4. Wolfe条件的扩展</h4>
-<p>Wolfe条件可以根据具体问题进行扩展和调整。例如，在非凸优化问题中，可以采用修正的Wolfe条件，以避免陷入局部最优。此外，还可以结合其他条件（如Goldstein条件）进一步优化步长选择策略。</p>
-<h3>结论</h3>
-<p>Wolfe条件是步长选择中的重要准则，确保了每一步迭代的有效性和效率。通过满足Armijo条件和曲率条件，Wolfe条件在多种优化算法中发挥了重要作用。理解和掌握Wolfe条件对于实现高效、稳定的优化算法具有重要意义。</p>
+def dphi(alpha: float) -&gt; float:
+    return 32.0 * alpha - 16.0
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_3.1.1._The_Wolfe_Conditions
+def conditions(alpha: float, c1: float = 1e-4, c2: float = 0.9):
+    if not (0.0 &lt; c1 &lt; c2 &lt; 1.0):
+        raise ValueError("require 0 &lt; c1 &lt; c2 &lt; 1")
+    f0, slope0 = phi(0.0), dphi(0.0)
+    armijo = phi(alpha) &lt;= f0 + c1 * alpha * slope0
+    weak = armijo and dphi(alpha) &gt;= c2 * slope0
+    strong = armijo and abs(dphi(alpha)) &lt;= c2 * abs(slope0)
+    return armijo, weak, strong
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 01_3.1.1._The_Wolfe_Conditions
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    at_minimum = conditions(0.50)
+    overshot = conditions(0.99)
+    print("alpha=0.50:", at_minimum, "phi' =", dphi(0.50))
+    print("alpha=0.99:", overshot, "phi' =", dphi(0.99))
+    assert at_minimum == (True, True, True)
+    assert overshot == (True, True, False)
+    assert abs(dphi(0.99)) &gt; 0.9 * abs(dphi(0.0))</code></pre><p>思考：为什么弱 Wolfe 的曲率不等式允许 φ′(α) 为正？如果 c₂ 从 0.9 降到 0.1，强 Wolfe 对候选斜率的容许区间会怎样变化？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.1.1, “The Wolfe Conditions”, pp. 33–36。教材中的定理与条件以原文假设为准；本文图示、数值例子和程序独立构造。</div></section>
+<footer class="article-footer"><p class="references">Wolfe 条件要求方向为下降方向；若 φ′(0)≥0，下面的标准不等式不再表达通常的下降线搜索问题。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_3.1._Step_Length.html"><small>上一篇 · 3.1</small><strong>步长选择：沿着下降方向走多远</strong></a><a href="02_3.1.2._The_Goldstein_Conditions.html"><small>下一篇 · 3.1.2</small><strong>Goldstein 条件：用函数值夹住步长</strong></a></nav></footer></article></main></div></body></html>

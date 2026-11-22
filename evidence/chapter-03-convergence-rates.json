@@ -1,0 +1,38 @@
+[
+  {
+    "id": "R1",
+    "claim": "Q-线性收敛可由相邻误差比值最终小于某个 q<1 描述；Q-超线性要求该比值趋于零。",
+    "kind": "definition",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Appendix A, convergence definitions; Chapter 3, Section 3.3, pp. 41–42",
+    "status": "verified",
+    "notes": "正文明确采用误差范数 e_k 的 Q-收敛记法。"
+  },
+  {
+    "id": "R2",
+    "claim": "Q-二次收敛要求 e_{k+1}≤C e_k^2，因而蕴含 Q-超线性收敛。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "由 e_k→0 与二次误差界直接推出比值 e_{k+1}/e_k→0",
+    "status": "derived",
+    "notes": "假设误差最终非零；若有限步精确到解则结论更直接。"
+  },
+  {
+    "id": "R3",
+    "claim": "递推 e_{k+1}=0.5e_k 是 Q-线性，e_{k+1}=e_k^1.5 是超线性但非二次，e_{k+1}=e_k^2 是二次。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "直接计算相邻误差比与二次误差常数；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创误差序列教学例子。"
+  },
+  {
+    "id": "R4",
+    "claim": "局部收敛速度分析与全局化分析回答不同问题，快速局部方法可能仍需要全局化策略。",
+    "kind": "derived",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Section 3.3, pp. 41–42",
+    "status": "verified",
+    "notes": "结合章节中 steepest descent 与 Newton 的对比解释。"
+  }
+]

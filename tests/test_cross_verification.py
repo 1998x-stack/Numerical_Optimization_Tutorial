@@ -130,5 +130,122 @@ class CrossVerificationTests(unittest.TestCase):
         self.assertLessEqual(lower, phi(alpha))
         self.assertLessEqual(phi(alpha), upper)
 
+
+    def test_wolfe_weak_and_strong_conditions(self):
+        phi = lambda a: (4*a-2)**2
+        derivative = lambda a: 32*a-16
+        def conditions(a):
+            armijo = phi(a) <= phi(0)+1e-4*a*derivative(0)+1e-12
+            weak = armijo and derivative(a) >= 0.9*derivative(0)
+            strong = armijo and abs(derivative(a)) <= 0.9*abs(derivative(0))
+            return armijo, weak, strong
+        self.assertEqual(conditions(0.5), (True, True, True))
+        self.assertEqual(conditions(0.99), (True, True, False))
+
+    def test_goldstein_can_exclude_exact_line_minimizer(self):
+        phi = lambda a: 19*a**3-28*a**2-a
+        derivative = lambda a: 57*a**2-56*a-1
+        c, alpha = 0.2, 1.0
+        lower = phi(0)+(1-c)*alpha*derivative(0)
+        upper = phi(0)+c*alpha*derivative(0)
+        self.assertEqual(derivative(1), 0)
+        self.assertEqual(phi(1), -10)
+        self.assertFalse(lower <= phi(1) <= upper)
+        self.assertLess(phi(1), lower)
+
+    def test_armijo_backtracking_finite_example(self):
+        phi = lambda a: (4*a-2)**2
+        armijo = lambda a: phi(a) <= phi(0)+1e-4*a*(-16)
+        alpha, rho, trials = 1.0, 0.5, 0
+        while trials < 100 and not armijo(alpha):
+            alpha *= rho
+            trials += 1
+        trials += 1
+        self.assertEqual(alpha, 0.5)
+        self.assertEqual(trials, 2)
+        self.assertTrue(armijo(alpha))
+
+    def test_zoutendijk_angle_bound_implication(self):
+        n, delta = 10000, 0.5
+        series = sum(1/(k*k) for k in range(1, n+1))
+        bounded_angle_sum = delta**2 * series
+        vanishing_angle_sum = series
+        self.assertLess(bounded_angle_sum, 1.0)
+        self.assertLess(vanishing_angle_sum, 2.0)
+        self.assertLess(1/n, 1e-3)
+        gradient_a_last, gradient_b_last = 1/n, 1.0
+        self.assertLess(gradient_a_last, 1e-3)
+        self.assertEqual(gradient_b_last, 1.0)
+
+    def test_convergence_order_definitions(self):
+        linear = [0.5]
+        superlinear = [0.5]
+        quadratic = [0.5]
+        for _ in range(6):
+            linear.append(0.5*linear[-1])
+            superlinear.append(superlinear[-1]**1.5)
+            quadratic.append(quadratic[-1]**2)
+        self.assertAlmostEqual(linear[5]/linear[4], 0.5)
+        self.assertLess(superlinear[6]/superlinear[5], superlinear[2]/superlinear[1])
+        self.assertAlmostEqual(quadratic[6]/(quadratic[5]**2), 1.0)
+
+    def test_steepest_descent_condition_number_bound(self):
+        for kappa in (1.0, 25.0, 100.0):
+            x = (1.0, 1.0)
+            values = [0.5*(x[0]**2+kappa*x[1]**2)]
+            for _ in range(10):
+                g = (x[0], kappa*x[1])
+                numerator = g[0]**2+g[1]**2
+                if numerator < 1e-28:
+                    break
+                alpha = numerator/(g[0]**2+kappa*g[1]**2)
+                x = (x[0]-alpha*g[0], x[1]-alpha*g[1])
+                values.append(0.5*(x[0]**2+kappa*x[1]**2))
+            factor = ((kappa-1)/(kappa+1))**2
+            ratios = [values[i+1]/values[i] for i in range(len(values)-1)]
+            self.assertTrue(all(r <= factor+1e-12 for r in ratios))
+
+    def test_newton_local_quadratic_and_indefinite_direction(self):
+        grad = lambda x: x+x**3
+        hess = lambda x: 1+3*x*x
+        x = 1.0
+        errors = [abs(x)]
+        for _ in range(5):
+            x -= grad(x)/hess(x)
+            errors.append(abs(x))
+        ratios = [errors[k+1]/(errors[k]**2) for k in range(3)]
+        self.assertLess(ratios[-1], ratios[0])
+        x = 0.1
+        g, h = 4*x**3-2*x, 12*x*x-2
+        p = -g/h
+        self.assertLess(h, 0)
+        self.assertGreater(g*p, 0)
+
+    def test_bfgs_secant_equation_and_positive_definiteness(self):
+        Q = ((4.0,1.0),(1.0,3.0))
+        B = [[1.0,0.0],[0.0,1.0]]
+        x = (2.0,-1.0)
+        def dot(a,b): return a[0]*b[0]+a[1]*b[1]
+        def mv(A,v): return (A[0][0]*v[0]+A[0][1]*v[1],A[1][0]*v[0]+A[1][1]*v[1])
+        for _ in range(2):
+            g=mv(Q,x)
+            p=(-g[0],-g[1])
+            alpha=-dot(g,p)/dot(p,mv(Q,p))
+            s=(alpha*p[0],alpha*p[1])
+            xn=(x[0]+s[0],x[1]+s[1])
+            gn=mv(Q,xn)
+            y=(gn[0]-g[0],gn[1]-g[1])
+            Bs=mv(B,s)
+            sBs,ys=dot(s,Bs),dot(y,s)
+            self.assertGreater(sBs,0)
+            self.assertGreater(ys,0)
+            Bn=[[B[i][j]-Bs[i]*Bs[j]/sBs+y[i]*y[j]/ys for j in range(2)] for i in range(2)]
+            sec=mv(Bn,s)
+            self.assertLess(max(abs(sec[i]-y[i]) for i in range(2)),1e-10)
+            det=Bn[0][0]*Bn[1][1]-Bn[0][1]*Bn[1][0]
+            self.assertGreater(Bn[0][0],0)
+            self.assertGreater(det,0)
+            B,x=Bn,xn
+
 if __name__ == "__main__":
     unittest.main()

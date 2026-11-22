@@ -1,36 +1,44 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Goldstein 条件用函数值上下界同时限制下降幅度与步长长度，并揭示它与 Wolfe 条件在拟牛顿算法中的关键差异。"><title>3.1.2 Goldstein 条件：用函数值夹住步长 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head>
+<body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header>
+<div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.1.2 · Goldstein Conditions</span><a href="#problem">为什么要给下降量设上下界</a><a href="#condition">Goldstein 条件的两侧边界</a><a href="#compare">它与 Wolfe 条件有什么不同</a><a href="#counter">一个被 Goldstein 排除的精确极小点</a><a href="#interactive">交互：候选步是否落在区间内</a><a href="#code">Python 计算与对照</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.1.2 · Goldstein Conditions</div><h1>3.1.2 Goldstein 条件：用函数值夹住步长</h1><p class="dek">一个步长可以下降得太少，也可以沿射线下降得过多，以至于一维极小点本身反而被排除。Goldstein 条件把这两个边界写成一对函数值不等式。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="problem"><h2>为什么要给下降量设上下界</h2>
+<p>设 φ(α)=f(x<sub>k</sub>+αp<sub>k</sub>)，且 φ′(0)=g<sub>k</sub>ᵀp<sub>k</sub>&lt;0。Armijo 条件只要求函数值低于一条下降直线，因此足够小的 α 通常会通过；但这并不保证步长有实质长度。Goldstein 的想法是：新函数值既不能高于“下降太少”的上界，也不能低于“下降过头”的下界。</p>
+<figure><img src="../assets/figures/goldstein-conditions.svg" alt="Goldstein 条件把候选函数值限制在两个线性界之间，并标出过短步长与过度下降的区域。"><figcaption>Goldstein 条件在函数值上形成一个可接受带：上边界要求足够下降，下边界排除相对于初始方向导数而言过度的下降。</figcaption></figure></section>
+<section id="condition"><h2>Goldstein 条件的两侧边界</h2>
+<p>给定参数 0&lt;c&lt;1/2，候选 α 必须同时满足：</p>
+<div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Goldstein 两侧不等式"><math display="block" aria-label="Goldstein 两侧不等式"><mrow><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>c</mi><mo>)</mo><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><mi>φ</mi><mo>(</mo><mi>α</mi><mo>)</mo><mo>≤</mo><mi>φ</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mi>c</mi><mi>α</mi><msup><mi>φ</mi><mo>′</mo></msup><mo>(</mo><mn>0</mn><mo>)</mo></mrow><mspace linebreak="newline"/><mrow><mn>0</mn><mo>&lt;</mo><mi>c</mi><mo>&lt;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow></math></div></div>
+<p>注意 φ′(0)&lt;0，因此左边界数值更低，右边界数值更高。右侧不等式就是 Armijo 型充分下降；左侧不等式则阻止函数值比该线性模型预期的下降更多。因为不等式方向涉及负斜率，读公式时不能把上下界的数值顺序凭直觉写反。</p></section>
+<section id="compare"><h2>它与 Wolfe 条件有什么不同</h2>
+<p>Wolfe 的曲率条件读取新点梯度沿 p<sub>k</sub> 的投影；Goldstein 则只读取 φ(α) 与 φ′(0)，不需要新点梯度。它们都试图排除过短步长，也都能建立相近的全局收敛理论，但筛选机制并不相同。</p>
+<table><thead><tr><th>判据</th><th>检查量</th><th>主要作用</th></tr></thead><tbody><tr><td>Armijo</td><td>φ(α)</td><td>足够下降；单独使用可能接受很短的步长</td></tr><tr><td>Goldstein</td><td>φ(α) 的上下界</td><td>函数值下降不能太少，也不能过度</td></tr><tr><td>Wolfe</td><td>φ(α) 与 φ′(α)</td><td>充分下降并约束新点曲率</td></tr></tbody></table>
+<p>Goldstein 条件的一个重要代价是：它的下界可能排除 φ 的极小点。对保持正定 Hessian 近似的拟 Newton 方法，这通常不理想，因为曲率条件 y<sub>k</sub>ᵀs<sub>k</sub>&gt;0 对更新正定性很重要。Wolfe 曲率条件能直接给出这个正曲率信息。</p></section>
+<section id="counter"><h2>一个被 Goldstein 排除的精确极小点</h2>
+<p>构造 φ(α)=19α³−28α²−α，α≥0。它满足 φ(0)=0、φ′(0)=−1，且 φ′(α)=57α²−56α−1 在 α=1 处为零；导数在 (0,1) 为负、在 (1,∞) 为正，因此 α=1 是正射线上的全局极小点，φ(1)=−10。</p>
+<p>取 c=0.2，Goldstein 允许的函数值区间为 [−0.8,−0.2]，而极小点函数值 −10 低于下界，故精确极小点被排除。这个例子不是说 Goldstein 没有可接受步长，而是说明“满足 Goldstein”与“恰好取一维极小点”不是同一目标。</p></section>
+<section id="interactive"><h2>交互：候选步是否落在区间内</h2><p>使用上面的三次函数，α=1 是精确极小点。拖动 α，观察 Goldstein 上下界；本例会直接显示为什么精确极小点可能不满足 Goldstein 条件。</p><div class="interactive-panel" data-demo="goldstein"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="goldstein-alpha">候选步长 α <output data-value-for="alpha">1.00</output></label><input id="goldstein-alpha" data-key="alpha" type="range" min="0.05" max="1.50" step="0.01" value="1.00"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section>
+<section id="code"><h2>Python：可复现的数值检查</h2><p>程序检查两个不等式的数值顺序，并验证 α=1 确实是正射线上的极小点，却因函数值过低而不满足 Goldstein。</p><pre><code>"""Goldstein interval and an example whose exact line minimizer is excluded."""
+def phi(alpha: float) -&gt; float:
+    return 19.0 * alpha**3 - 28.0 * alpha**2 - alpha
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.1.2. The Goldstein Conditions</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_3.1.2._The_Goldstein_Conditions</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 02_3.1.2._The_Goldstein_Conditions
-</code></pre>
+def dphi(alpha: float) -&gt; float:
+    return 57.0 * alpha**2 - 56.0 * alpha - 1.0
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_3.1.2._The_Goldstein_Conditions
+def goldstein(alpha: float, c: float = 0.2) -&gt; tuple[bool, float, float]:
+    if not (0.0 &lt; c &lt; 0.5) or alpha &lt;= 0.0:
+        raise ValueError("require 0 &lt; c &lt; 0.5 and alpha &gt; 0")
+    slope0 = dphi(0.0)
+    lower = phi(0.0) + (1.0 - c) * alpha * slope0
+    upper = phi(0.0) + c * alpha * slope0
+    return lower &lt;= phi(alpha) &lt;= upper, lower, upper
 
-"""
-Lecture: /03._Line_Search_Methods
-Content: 02_3.1.2._The_Goldstein_Conditions
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    accepted, lower, upper = goldstein(0.5)
+    minimizer_ok, min_lower, min_upper = goldstein(1.0)
+    print("alpha=0.5:", accepted, "interval =", (lower, upper), "phi =", phi(0.5))
+    print("alpha=1.0:", minimizer_ok, "interval =", (min_lower, min_upper), "phi =", phi(1.0))
+    assert dphi(0.0) == -1.0
+    assert dphi(1.0) == 0.0
+    assert phi(1.0) == -10.0
+    assert not minimizer_ok
+    assert phi(1.0) &lt; min_lower</code></pre><p>思考：如果把 c 设为 0.5，Goldstein 的上下界会发生什么？为什么标准定义要求严格的 c&lt;1/2？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.1.2, “The Goldstein Conditions”, p. 36。教材中的定理与条件以原文假设为准；本文图示、数值例子和程序独立构造。</div></section>
+<footer class="article-footer"><p class="references">Goldstein 的标准形式假设初始方向是下降方向。它限制函数值下降幅度，不提供新点方向导数的显式曲率信息。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_3.1.1._The_Wolfe_Conditions.html"><small>上一篇 · 3.1.1</small><strong>Wolfe 条件：让步长既下降又不过短</strong></a><a href="03_3.1.3._Sufficient_Decrease_and_Backtracking.html"><small>下一篇 · 3.1.3</small><strong>充分下降与回溯：从大步长逐次缩短</strong></a></nav></footer></article></main></div></body></html>

@@ -1,36 +1,35 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="最速下降法在强凸二次函数上的精确线搜索步长、能量范数误差界与 Hessian 条件数之间的关系。"><title>3.3.1 最速下降法：条件数如何拖慢收敛 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 03 · 3.3.1 · Convergence Rate of Steepest Descent</span><a href="#quadratic">从强凸二次函数开始</a><a href="#step">精确线搜索步长如何推导</a><a href="#bound">条件数给出的最坏情况界</a><a href="#geometry">为什么会出现锯齿路径</a><a href="#interactive">交互：改变条件数</a><a href="#code">Python 精确线搜索</a><a href="../index.html#chapters">完整课程目录</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 03 · 3.3.1 · Convergence Rate of Steepest Descent</div><h1>3.3.1 最速下降法：条件数如何拖慢收敛</h1><p class="dek">最速下降每一步都沿负梯度走，看起来是最直接的方向；但在狭长椭圆等高线中，它会左右折返。精确线搜索也无法消除病态条件数带来的慢收敛。</p><div class="article-meta"><span>定义与推导</span><span>数值实验</span><span>可运行代码</span></div></header><section id="quadratic"><h2>从强凸二次函数开始</h2><p>考虑 f(x)=½xᵀQx−bᵀx，其中 Q 对称正定。梯度为 g=Qx−b，唯一极小点 x* 满足 Qx*=b。误差 e=x−x*，于是 g=Qe。这个二次模型让最速下降法的每一步都可以精确计算，并能把收敛速度与 Q 的特征值联系起来。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="强凸二次目标与梯度"><math display="block" aria-label="强凸二次目标与梯度"><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>x</mi><mo>⊤</mo></msup><mi>Q</mi><mi>x</mi><mo>−</mo><msup><mi>b</mi><mo>⊤</mo></msup><mi>x</mi></mrow><mspace linebreak="newline"/><mrow><mi>g</mi><mo>=</mo><mi>Q</mi><mi>x</mi><mo>−</mo><mi>b</mi><mo>,</mo><mspace width=".4em"/><mi>Q</mi><mo>=</mo><msup><mi>Q</mi><mo>⊤</mo></msup><mo>≻</mo><mn>0</mn></mrow></math></div></div><p>Q 的特征值决定等高线椭圆的长短轴。若所有特征值相同，等高线是圆；若最大与最小特征值差距很大，等高线会变得狭长。</p></section>
+<section id="step"><h2>精确线搜索步长如何推导</h2><p>最速下降方向 p<sub>k</sub>=−g<sub>k</sub>。沿该方向的一维函数为 f(x<sub>k</sub>−αg<sub>k</sub>)。对 α 求导并令其为零：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="最速下降的精确步长"><math display="block" aria-label="最速下降的精确步长"><mrow><msub><mi>α</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>Q</mi><msub><mi>g</mi><mi>k</mi></msub></mrow></mfrac></mrow></math></div></div><p>更新为 x<sub>k+1</sub>=x<sub>k</sub>−α<sub>k</sub>g<sub>k</sub>。这一步把当前方向上的一维二次函数精确最小化；但它只在当前直线上最优，不代表下一轮方向仍指向全局解。</p></section>
+<section id="bound"><h2>条件数给出的最坏情况界</h2><p>定义 Q-能量范数 ‖e‖<sub>Q</sub>²=eᵀQe。对这个二次目标，f(x)−f(x*)=½‖x−x*‖<sub>Q</sub>²。若 Q 的最小和最大特征值分别为 λ<sub>min</sub>、λ<sub>max</sub>，条件数 κ=λ<sub>max</sub>/λ<sub>min</sub>，精确线搜索的最速下降满足</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="最速下降法能量范数收缩界"><math display="block" aria-label="最速下降法能量范数收缩界"><mrow><msup><mrow><msub><mrow><mo>‖</mo><msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>‖</mo></mrow><mi>Q</mi></msub></mrow><mn>2</mn></msup><mo>≤</mo><msup><mrow><mo>(</mo><mfrac><mrow><mi>κ</mi><mo>−</mo><mn>1</mn></mrow><mrow><mi>κ</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><msub><mrow><mo>‖</mo><msub><mi>e</mi><mi>k</mi></msub><mo>‖</mo></mrow><mi>Q</mi></msub></mrow><mn>2</mn></msup></mrow></math></div></div>
+<p>κ=1 时收缩因子为 0，算法一步到达解；κ 越大，因子越接近 1，最坏情况下降越慢。这个界是对强凸二次目标和精确线搜索的理论上界，不是每一步实际收缩比例的精确预测。</p></section>
+<section id="geometry"><h2>为什么会出现锯齿路径</h2><figure><img src="../assets/figures/steepest-descent-rate.svg" alt="狭长椭圆等高线中的最速下降路径在两侧反复折返、逐渐靠近极小点。"><figcaption>当二次目标的 Hessian 条件数较大，梯度方向容易横穿狭长谷底。图形仅表示锯齿路径的几何机制，不代表某一组特定参数的逐步计算坐标。</figcaption></figure><p>在狭长椭圆等高线中，负梯度往往被较大曲率方向主导。精确线搜索沿该方向走到当前直线的最低点，但下一轮梯度可能转向另一条轴，于是路径在椭圆谷底两侧来回折返。条件数越大，这种锯齿越明显。</p><p>这也解释了为什么更高阶方法会尝试利用曲率信息：它们不是只沿欧氏负梯度方向移动，而是对不同特征方向进行尺度校正。</p></section><section id="interactive"><h2>交互：改变条件数</h2><p>考虑 f(x,y)=½(x²+κy²)，从 (1,1) 出发，每轮沿负梯度做精确线搜索。改变 κ 与迭代次数，观察函数值下降和理论最坏情况收缩因子。</p><div class="interactive-panel" data-demo="steepest"><h3>实时计算</h3><div class="demo-controls"><div class="demo-control"><label for="sd-kappa">条件数 κ <output data-value-for="kappa">25</output></label><input id="sd-kappa" data-key="kappa" type="range" min="1" max="100" step="1" value="25"></div><div class="demo-control"><label for="sd-steps">迭代次数 N <output data-value-for="steps">10</output></label><input id="sd-steps" data-key="steps" type="range" min="1" max="20" step="1" value="10"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：可复现的数值检查</h2><p>代码只实现二维对角强凸二次目标上的最速下降与精确线搜索，用于核对理论收缩界；它不是一般非线性目标的线搜索程序。</p><pre><code>"""Exact-line-search steepest descent on a 2-D SPD quadratic."""
+def objective(x, kappa):
+    return 0.5 * (x[0] ** 2 + kappa * x[1] ** 2)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>3.3.1. Convergence Rate of Steepest Descent</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>06_3.3.1._Convergence_Rate_of_Steepest_Descent</h1>
-<pre><code>Lecture: /03._Line_Search_Methods
-Content: 06_3.3.1._Convergence_Rate_of_Steepest_Descent
-</code></pre>
+def steepest_descent(kappa: float, steps: int = 10):
+    if kappa &lt; 1.0 or steps &lt; 1:
+        raise ValueError("require kappa &gt;= 1 and steps &gt;= 1")
+    x = (1.0, 1.0)
+    history = [objective(x, kappa)]
+    for _ in range(steps):
+        g = (x[0], kappa * x[1])
+        numerator = g[0] ** 2 + g[1] ** 2
+        if numerator &lt; 1e-28:
+            break
+        denominator = g[0] ** 2 + kappa * g[1] ** 2
+        alpha = numerator / denominator
+        x = (x[0] - alpha * g[0], x[1] - alpha * g[1])
+        history.append(objective(x, kappa))
+    return x, history
 
-    <h3>Python 文件</h3>
-    <pre><code># 06_3.3.1._Convergence_Rate_of_Steepest_Descent
-
-"""
-Lecture: /03._Line_Search_Methods
-Content: 06_3.3.1._Convergence_Rate_of_Steepest_Descent
-"""
-
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    kappa = 25.0
+    x, history = steepest_descent(kappa, 10)
+    factor = ((kappa - 1.0) / (kappa + 1.0)) ** 2
+    ratios = [history[i + 1] / history[i] for i in range(len(history) - 1)]
+    print("x after iterations:", x)
+    print("objective:", history[-1])
+    print("worst-case factor:", factor)
+    print("largest observed ratio:", max(ratios))
+    assert all(r &lt;= factor + 1e-12 for r in ratios)
+    assert history[-1] &lt; history[0]</code></pre><p>思考：为什么 κ=1 时负梯度方向恰好指向解？如果把 Q 的特征值从 (1,25) 改成 (1,100)，理论收缩因子会如何变化？</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5" rel="noreferrer">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.3.1, “Convergence Rate of Steepest Descent”, pp. 42–44, equations (3.24)–(3.29)。本文数值例子与程序独立构造。</div></section><footer class="article-footer"><p class="references">收缩界假设 Q 对称正定且每步进行精确线搜索。一般非线性函数的局部结论还需要 Hessian 在极小点正定等假设。</p><nav class="prev-next" aria-label="相邻内容"><a href="05_3.3._Rate_of_Convergence.html"><small>上一篇 · 3.3</small><strong>收敛速度：线性、超线性与二次</strong></a><a href="07_3.3.2._Newton’s_Method.html"><small>下一篇 · 3.3.2</small><strong>Newton 法：为什么局部可以二次收敛</strong></a></nav></footer></article></main></div></body></html>

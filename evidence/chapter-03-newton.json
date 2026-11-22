@@ -1,0 +1,38 @@
+[
+  {
+    "id": "N1",
+    "claim": "Newton 方向由 Hessian 线性系统 H_k p_k^N=−g_k 定义；Hessian 不正定时该方向不一定下降。",
+    "kind": "definition",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Section 3.3.2, equation (3.30) and discussion, pp. 44–45",
+    "status": "verified",
+    "notes": "实际数值实现通过线性求解而不是显式矩阵求逆。"
+  },
+  {
+    "id": "N2",
+    "claim": "若 Hessian 在解邻域 Lipschitz、解处满足一阶和二阶充分条件且初始点足够近，纯 Newton 迭代局部二次收敛。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Section 3.3.2, Theorem 3.5, equations (3.31)–(3.33), pp. 44–46",
+    "status": "verified",
+    "notes": "完整步长 α=1 是该局部结论的组成条件。"
+  },
+  {
+    "id": "N3",
+    "claim": "对 f(x)=1/2x²+1/4x⁴，Newton 更新为 x_{k+1}=x_k−(x_k+x_k³)/(1+3x_k²)，且 x*=0。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "直接求导与 Newton 方程；配套 Python 迭代断言",
+    "status": "derived",
+    "notes": "原创局部收敛示例。"
+  },
+  {
+    "id": "N4",
+    "claim": "对 f(x)=x⁴−x²、x=0.1，Hessian 为负，Newton 方向与梯度内积为正，因此不是下降方向。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "一维梯度、Hessian 与 Newton 步直接计算；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创远离局部极小点的失败示例。"
+  }
+]

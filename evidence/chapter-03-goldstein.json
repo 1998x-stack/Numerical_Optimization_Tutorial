@@ -1,0 +1,38 @@
+[
+  {
+    "id": "G1",
+    "claim": "Goldstein 条件用一对函数值不等式夹住候选步，参数满足 0<c<1/2。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Section 3.1.2, equation (3.11), p. 36",
+    "status": "verified",
+    "notes": "保留负方向导数时的原始不等式方向。"
+  },
+  {
+    "id": "G2",
+    "claim": "Goldstein 下界可能排除一维线搜索函数的极小点；其收敛理论与 Wolfe 条件相近。",
+    "kind": "theorem",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Section 3.1.2, pp. 36–37",
+    "status": "verified",
+    "notes": "原书指出对保持正定 Hessian 近似的拟牛顿方法并不理想。"
+  },
+  {
+    "id": "G3",
+    "claim": "φ(α)=19α³−28α²−α 在 α=1 处取得正射线全局极小值 −10，但不满足 c=0.2 的 Goldstein 条件。",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "求导、符号分析和 Goldstein 上下界直接计算；配套 Python 断言",
+    "status": "derived",
+    "notes": "原创三次函数反例。"
+  },
+  {
+    "id": "G4",
+    "claim": "Wolfe 曲率条件读取新点方向导数，而 Goldstein 只使用函数值与初始方向导数。",
+    "kind": "derived",
+    "source_url": "https://deeplearningpku.github.io/literature/Nocedal_Wright_Numerical_optimization_v2.pdf",
+    "locator": "Chapter 3, Sections 3.1.1–3.1.2, equations (3.6) and (3.11)",
+    "status": "verified",
+    "notes": "对两种条件定义的直接比较。"
+  }
+]
