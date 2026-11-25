@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-labelledby="fa-title fa-desc" font-family="system-ui, sans-serif">
+  <title id="fa-title">下降角 θ 衡量搜索方向偏离负梯度的程度</title>
+  <desc id="fa-desc">在 x_k 处，负梯度 −g_k 指向陡降方向，搜索方向 p_k 与之夹角 θ；θ 越大，沿 p_k 的实际下降越慢。</desc>
+  <rect width="640" height="320" rx="16" fill="#f7f4ee"/>
+  <line x1="70" y1="60" x2="610" y2="60" stroke="#e0d9cb" stroke-width="1.2"/>
+  <line x1="70" y1="60" x2="70" y2="280" stroke="#e0d9cb" stroke-width="1.2"/>
+  <line x1="170" y1="240" x2="170" y2="100" stroke="#c9772f" stroke-width="4"/>
+  <line x1="170" y1="240" x2="360" y2="150" stroke="#126e66" stroke-width="4"/>
+  <path d="M170 180 A60 60 0 0 1 224 197" fill="none" stroke="#7a4fa3" stroke-width="2.5"/>
+  <circle cx="170" cy="240" r="6" fill="#263a33"/>
+  <text x="100" y="255" fill="#263a33" font-size="15">x_k</text>
+  <text x="176" y="95" fill="#c9772f" font-size="16">−g_k</text>
+  <text x="366" y="150" fill="#126e66" font-size="16">p_k</text>
+  <text x="206" y="184" fill="#7a4fa3" font-size="17">θ</text>
+  <text x="150" y="300" fill="#8a8377" font-size="15">cos θ = −g_kᵀp_k / (‖g_k‖ ‖p_k‖)</text>
+  <text x="470" y="110" fill="#263a33" font-size="15">θ 小 → 接近最速下降</text>
+  <text x="470" y="136" fill="#263a33" font-size="15">θ 大 → 步长与记忆被浪费</text>
+</svg>

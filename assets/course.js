@@ -757,6 +757,29 @@
       output.innerHTML = '<strong>c=' + fmt(c, 2) + '</strong> · |g₂ᵀg₁|/‖g₂‖²=' + fmt(ratio, 4) +
         ' · 阈值 ν=' + nu + ' · ' + (ratio >= nu ? '触发重启（β 置零）' : '无需重启');
     });
+    if (kind === "fr-angle") bind(root, el => {
+      const c1 = read(el, "c1");
+      const f = p => (p[0]-1)**2 + 5*(p[1]-p[0]*p[0])**2;
+      const grad = p => [2*(p[0]-1) - 20*p[0]*(p[1]-p[0]*p[0]), 10*(p[1]-p[0]*p[0])];
+      let x = [-1.2, 1], g = grad(x), p = [-g[0], -g[1]], minCos = 1, it = 0;
+      for (; it < 400 && Math.hypot(g[0], g[1]) > 1e-6; it++) {
+        const slope = g[0]*p[0] + g[1]*p[1];
+        let a = 1;
+        for (let t = 0; t < 40; t++) {
+          if (f([x[0]+a*p[0], x[1]+a*p[1]]) <= f(x) + c1*a*slope) break;
+          a *= 0.5;
+        }
+        x = [x[0]+a*p[0], x[1]+a*p[1]];
+        const gn = grad(x);
+        const beta = (gn[0]**2 + gn[1]**2) / (g[0]**2 + g[1]**2);
+        p = [-gn[0] + beta*p[0], -gn[1] + beta*p[1]];
+        const cos = -(gn[0]*p[0] + gn[1]*p[1]) / (Math.hypot(gn[0], gn[1])*Math.hypot(p[0], p[1]));
+        if (cos < minCos) minCos = cos;
+        g = gn;
+      }
+      output.innerHTML = '<strong>c₁=' + fmt(c1, 4) + '</strong> · 步数 ' + it +
+        ' · 最小 cosθ=' + fmt(minCos, 4) + ' · 末态‖g‖=' + fmt(Math.hypot(g[0], g[1]), 2) + '（教学玩具）';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

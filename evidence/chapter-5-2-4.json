@@ -1,0 +1,29 @@
+[
+  {
+    "id": "5.2.4-1",
+    "claim": "FR 的方向导数 g_kᵀp_k = -‖g_k‖² + β_k g_kᵀp_{k-1}，只有精确线搜索下才保证为负",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "由 p_k 定义与 β_k≥0 直接推出",
+    "status": "derived",
+    "notes": "代数推导；与原书对 FR 下降性的讨论一致。"
+  },
+  {
+    "id": "5.2.4-2",
+    "claim": "下降角 cosθ_k = -g_kᵀp_k/(‖g_k‖‖p_k‖) 是衡量方向偏离负梯度的诊断量",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.4 (behavior of FR; angle in Zoutendijk analysis)",
+    "status": "verified",
+    "notes": "角度量在 3.2 节 Zoutendijk 条件下使用，本节用于行为讨论。"
+  },
+  {
+    "id": "5.2.4-3",
+    "claim": "在山谷玩具 f=(x1-1)²+5(x2-x1²)²、起点(-1.2,1)上，FR 以 Armijo 回溯 52 步达到 ‖g‖<1e-6，且某步 cosθ≈-0.05",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 浮点断言",
+    "status": "illustrative",
+    "notes": "单一玩具运行，仅说明机制，不构成性能基准。"
+  }
+]

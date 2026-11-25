@@ -1,36 +1,39 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Fletcher–Reeves 的 β 恒为正，在不精确线搜索下方向可能不再是下降方向；下降角变小导致步长浪费与停滞，重启与换用 PR 型系数可缓解。"><title>5.2.4 Fletcher–Reeves 方法的行为：下降角与停滞 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.2.4</span><a href="#section-1">方向可能不再下降</a><a href="#section-2">下降角 θ</a><a href="#section-3">停滞的机制</a><a href="#section-4">玩具算例</a><a href="#section-5">变体与边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.2.4</div><h1>5.2.4 Fletcher–Reeves 方法的行为：下降角与停滞</h1><p class="dek">FR 的 β 恒为非负，好处是永不主动放大方向，坏处是无法在方向变坏时把它丢弃。不精确线搜索下，FR 方向甚至可能不再是下降方向；即使下降，与负梯度的夹角也可能很小，使每步进展微薄。</p><div class="article-meta"><span>机制分析</span><span>诊断量</span><span>可复现实验</span></div></header><section id="section-1"><h2>方向可能不再下降</h2><p>FR 的方向是 p_k=−g_k+β_k p_{k−1}，其中 β_k=‖g_k‖²/‖g_{k−1}‖²≥0。沿 p_k 的方向导数 g_kᵀp_k=−‖g_k‖²+β_k g_kᵀp_{k−1}。只有当 g_kᵀp_{k−1}=0（精确线搜索）时它才等于 −‖g_k‖²。若线搜索不精确，g_kᵀp_{k−1} 一般非零，第二项为正时方向导数就可能变号，p_k 成为上升方向。</p></section><section id="section-2"><h2>下降角 θ</h2><p>定义一个诊断量：p_k 与 −g_k 的夹角 θ_k，满足下式。θ_k 越小方向越接近最速下降；θ_k 越大，同样的步长带来的实际下降越小。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="下降角余弦"><math display="block" aria-label="下降角余弦"><mrow><mi>cos</mi><msub><mi>θ</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mo>−</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>p</mi><mi>k</mi></msub></mrow><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo><mo>‖</mo><msub><mi>p</mi><mi>k</mi></msub><mo>‖</mo></mrow></mfrac><mo>.</mo></mrow></math></div></div><p>Zoutendijk 条件（3.2 节）只要求 Σ cos²θ_k ‖g_k‖² 收敛，对 cosθ_k 的下界不作要求；因此 FR 允许在个别迭代出现极小的 cosθ_k，甚至负值。</p><figure><img src="../../assets/figures/fr-descent-angle.svg" alt="在 x_k 处画出指向陡降的负梯度 −g_k 与搜索方向 p_k，两者夹角为 θ。"><figcaption>下降角 θ 的几何。θ=0 时 p_k 沿最速下降；θ 越大，沿 p_k 的步长越浪费。若 θ 超过 90°，方向导数变正，线搜索将无法得到下降。</figcaption></figure></section><section id="section-3"><h2>停滞的机制</h2><p>当 β_k 接近 1，p_k≈p_{k−1}，连续两步几乎同向，搜索退化为沿同一直线的反复微调；若同时 ‖g_k‖ 变小而 ‖p_k‖ 不小，cosθ_k（精确情形下等于 ‖g_k‖/‖p_k‖）就很小。这种方向几乎与梯度正交的“贴谷运行”被称为停滞（jamming）。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 250" style="width:100%;height:auto;display:block;max-width:520px;margin:0 auto" role="img" aria-labelledby="frv-title frv-desc"><title id="frv-title">窄谷中方向几乎重复</title><desc id="frv-desc">在弯曲的窄谷中，相邻的搜索方向几乎平行，沿谷底反复小步前进。</desc><rect width="420" height="250" rx="14" fill="#f7f4ee"/><path d="M60 60 C150 60 170 190 250 190 C330 190 350 90 400 90" fill="none" stroke="#c9c2b3" stroke-width="3"/><path d="M70 80 C155 82 180 175 250 175 C325 175 345 105 390 105" fill="none" stroke="#c9c2b3" stroke-width="3"/><polyline points="90,150 140,140 185,145 220,138 255,143 285,136 305,140" fill="none" stroke="#126e66" stroke-width="3"/><g fill="#126e66"><circle cx="90" cy="150" r="4"/><circle cx="140" cy="140" r="4"/><circle cx="185" cy="145" r="4"/><circle cx="220" cy="138" r="4"/><circle cx="255" cy="143" r="4"/><circle cx="305" cy="140" r="4"/></g><text x="60" y="235" fill="#263a33" font-family="system-ui, sans-serif" font-size="15">相邻方向几乎平行，每步仅小幅前进</text></svg><p class="caption">窄谷中的 FR 轨迹：搜索方向几乎重复地指向谷底法向，迭代点只能小幅横移，进展缓慢。图示为机制示意，不是某次具体运行的数据。</p></div></section><section id="section-4"><h2>玩具算例</h2><p>取山谷型函数 f(x)=(x_1−1)²+5(x_2−x_1²)²，起点取经典 Rosenbrock 起点 (−1.2,1)，配合 Armijo 回溯线搜索。这是一个低维玩具：FR 用 52 步把 ‖g‖ 降到 1e-6 以下，但在第 10 步出现 cosθ=−0.05，方向已是上升方向 —— 正是不精确线搜索破坏下降性的实例。</p><p>这组数字只说明机制，不代表 FR 在一般问题上的步数或性能排序。程序用浮点回溯线搜索，不是精确线搜索，也不含重启。</p></section><section id="section-5"><h2>变体与边界</h2><p>缓解办法有三类：换用可取负值的系数（PR/PR+，5.2.2）以便丢弃坏方向；按 Powell 判据或定期重启（5.2.3）恢复下降；或改用满足强 Wolfe 条件的线搜索使 g_kᵀp_{k−1} 受控。FR 的优点是理论分析完整、每步廉价，缺点是缺乏这种自适应丢弃机制。</p><p>边界：本页算例只是一个二维玩具函数，不要据此断言 FR 比别的变体差或给出迭代次数，也不要当作基准；全局收敛条件见 5.2.5。</p></section><section id="interactive"><h2>交互：线搜索不精确度对下降角的影响</h2><p>在同一个山谷玩具上拖动滑块改变 Armijo 常数 c₁。c₁ 越大，接受步越保守，下降角可能更频繁地变差。该计算为教学示意。</p><div class="interactive-panel" data-demo="fr-angle"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="fra-c1">Armijo 常数 c₁ <output data-value-for="c1">0.0001</output></label><input id="fra-c1" type="range" data-key="c1" min="0.0001" max="0.2" step="0.01" value="0.0001"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：下降角的浮点断言</h2><p>下面的程序只依赖标准库，在山谷玩具上运行 FR 并记录每步下降角，断言最终 ‖g‖&lt;1e-6 且至少一步的 cosθ&lt;0。</p><pre><code>"""Fletcher-Reeves on a Rosenbrock-like valley with Armijo backtracking."""
+import math
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.2.4. Behavior of the Fletcher–Reeves Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method
-</code></pre>
+def f(p):
+    return (p[0]-1)**2 + 5*(p[1]-p[0]**2)**2
 
-    <h3>Python 文件</h3>
-    <pre><code># 03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method
+def grad(p):
+    x, y = p
+    return [2*(x-1) - 20*x*(y-x*x), 10*(y-x*x)]
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method
-"""
+def run(x0, tol=1e-6, cap=500):
+    x, g = list(x0), grad(x0)
+    p = [-g[0], -g[1]]
+    angles = []
+    for _ in range(cap):
+        if math.hypot(*g) &lt; tol:
+            break
+        slope = g[0]*p[0] + g[1]*p[1]
+        a = 1.0
+        for _ in range(40):
+            if f([x[0]+a*p[0], x[1]+a*p[1]]) &lt;= f(x) + 1e-4*a*slope:
+                break
+            a *= 0.5
+        x = [x[0]+a*p[0], x[1]+a*p[1]]
+        gn = grad(x)
+        beta = (gn[0]**2 + gn[1]**2) / (g[0]**2 + g[1]**2)
+        p = [-gn[0] + beta*p[0], -gn[1] + beta*p[1]]
+        cos = -(gn[0]*p[0] + gn[1]*p[1]) / (math.hypot(*gn)*math.hypot(*p))
+        angles.append(cos)
+        g = gn
+    return x, math.hypot(*g), angles
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+if __name__ == "__main__":
+    x, norm, angles = run((-1.2, 1.0))
+    assert norm &lt; 1e-6
+    assert min(angles) &lt; 0.0
+    print("final", [round(v, 6) for v in x],
+          "| min descent angle cos =", round(min(angles), 6),
+          "| steps =", len(angles))</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.2.4（FR 的行为与停滞讨论）。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">FR 方向只有在精确线搜索下才保证下降；不精确时下降角可能变差甚至为负，这就是重启与 PR 型系数存在的理由。</p><nav class="prev-next" aria-label="相邻内容"><a href="02_5.2.3._Quadratic_Termination_and_Restarts.html"><small>上一篇</small><strong>二次终止与重启</strong></a><a href="04_5.2.5._Global_Convergence.html"><small>下一篇</small><strong>全局收敛</strong></a></nav></footer></article></main></div></body></html>
