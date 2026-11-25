@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.2.3-1",
+    "claim": "非线性共轭梯度每 n+1 步重启一次（把 β 置零，方向回到最速下降）可恢复下降并利用局部二次性",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.3 (restarts)",
+    "status": "verified",
+    "notes": "核对原书重启策略的论述；表述为独立重写。"
+  },
+  {
+    "id": "5.2.3-2",
+    "claim": "Powell 重启判据：当 |g_kᵀg_{k-1}|/‖g_k‖² ≥ ν（典型 ν=0.1）时重启",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.3 (Powell restart criterion)",
+    "status": "verified",
+    "notes": "核对判据形式与 ν 的典型取值。"
+  },
+  {
+    "id": "5.2.3-3",
+    "claim": "在正定二次问题配合精确线搜索时 g_kᵀg_{k-1}=0，因此 Powell 比值为零",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "由精确线搜索的共轭正交关系推出",
+    "status": "derived",
+    "notes": "代数事实，与 5.1 节的结论一致。"
+  },
+  {
+    "id": "5.2.3-4",
+    "claim": "算例第二步取 c=3/5 时 Powell 比值恰为 5/2；精确步时 g_2=0",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 分数断言",
+    "status": "derived",
+    "notes": "教学计算，不声称一般问题的重启次数。"
+  }
+]

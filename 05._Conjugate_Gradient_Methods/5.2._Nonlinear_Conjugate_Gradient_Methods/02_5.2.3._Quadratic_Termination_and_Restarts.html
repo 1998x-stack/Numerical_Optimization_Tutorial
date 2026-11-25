@@ -1,36 +1,39 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="非线性共轭梯度的共轭性会被非二次项破坏；通过每 n+1 步或按 Powell 判据把 β 置零重启，可以退回最速下降并恢复下降性。"><title>5.2.3 二次终止与重启：何时丢弃旧方向 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.2.3</span><a href="#section-1">二次终止为何失效</a><a href="#section-2">每 n+1 步定期重启</a><a href="#section-3">Powell 重启判据</a><a href="#section-4">二维算例</a><a href="#section-5">重启的取舍与边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.2.3</div><h1>5.2.3 二次终止与重启：何时丢弃旧方向</h1><p class="dek">共轭梯度在正定二次目标上第 n 步到达精确解，但一般函数没有这个性质。把 β 置零就退化为最速下降，等于丢弃累积的共轭信息；定期重启或按 Powell 判据重启，是在“记忆”与“安全下降”之间做权衡。</p><div class="article-meta"><span>判据推导</span><span>算法策略</span><span>可复现实验</span></div></header><section id="section-1"><h2>二次终止为何失效</h2><p>回顾 5.1：正定二次目标上，精确线搜索的共轭梯度法第 n 步就给出 x*。这一结论依赖于 g_k 满足的一系列正交关系，而这些关系源于 Q 的常数性。一般目标 f 的 Hessian 随 x 变化，二次模型只在局部成立。</p><p>迭代 n 步后，累积的方向不再关于局部曲率共轭，继续沿用它们可能让 p_k=−g_k+β_k p_{k−1} 不再是下降方向。可以这样理解：共轭性是二次模型的性质，一旦模型失配，被“记住”的旧方向就成了噪声。</p></section><section id="section-2"><h2>每 n+1 步定期重启</h2><p>最简单的处理是周期性重启：每 n+1 次迭代把 β 置零一次，即令 p_k=−g_k。于是重启点退化为最速下降方向，之后重新累积新的共轭信息。若目标在解附近近似二次且 Hessian 在 n 步内变化不大，这种重启能恢复接近二次的快速终止。</p><p>重启也是一种保险：它保证至少每 n+1 步有一次严格下降方向，从而避免 β 越滚越大导致的停滞。代价是主动丢弃了可能仍然有效的历史信息。</p></section><section id="section-3"><h2>Powell 重启判据</h2><p>定期重启会浪费信息。Powell 提出用相邻梯度的正交程度判断共轭性是否被破坏：当下列比值超过阈值 ν（典型 ν=0.1）时重启。在二次问题、精确线搜索下有 g_kᵀg_{k−1}=0，比值应为零；比值变大正是非二次干扰的信号。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Powell 重启判据"><math display="block" aria-label="Powell 重启判据"><mrow><mfrac><mrow><mo>|</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>|</mo></mrow><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow></mfrac><mo>≥</mo><mi>ν</mi><mo>.</mo></mrow></math></div></div><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 250" style="width:100%;height:auto;display:block;max-width:520px;margin:0 auto" role="img" aria-labelledby="rsf-title rsf-desc"><title id="rsf-title">重启方向沿负梯度</title><desc id="rsf-desc">重启时令 β=0，方向回到 p_k=−g_k，图中从当前点沿负梯度画出一条箭头。</desc><rect width="420" height="250" rx="14" fill="#f7f4ee"/><line x1="60" y1="60" x2="360" y2="60" stroke="#e0d9cb" stroke-width="1.2"/><line x1="60" y1="60" x2="60" y2="220" stroke="#e0d9cb" stroke-width="1.2"/><circle cx="150" cy="150" r="7" fill="#126e66"/><line x1="150" y1="150" x2="120" y2="90" stroke="#c9772f" stroke-width="4"/><line x1="150" y1="150" x2="180" y2="210" stroke="#7a4fa3" stroke-width="4"/><g font-family="system-ui, sans-serif" font-size="16"><text x="120" y="150" fill="#126e66">x_k</text><text x="96" y="84" fill="#c9772f">g_k</text><text x="184" y="216" fill="#7a4fa3">p_k=−g_k</text></g></svg><p class="caption">重启时 β_k 被置零，方向回到 p_k=−g_k，于是 g_kᵀp_k=−‖g_k‖²&lt;0 严格成立。重启以放弃历史信息为代价，换取无条件下降。</p></div><figure><img src="../../assets/figures/cg-restart.svg" alt="左图精确线搜索使 g_k 与 g_{k−1} 垂直；右图不精确步使两者接近平行，触发沿 −g_k 的重启方向。"><figcaption>Powell 判据的几何：精确步下相邻梯度接近垂直（左），不精确步下二者夹角变小、比值升高（右），此时把方向重启到 −g_k 更安全。</figcaption></figure></section><section id="section-4"><h2>二维算例</h2><p>沿用 5.2.1 与 5.2.2 的二次问题。第一步精确，第二步取 c=3/5。此时 g_1=(42/73,−30/73)，g_2=(84/365,−60/365)。</p><p>计算 Powell 比值：g_2ᵀg_1=5328/26645，‖g_2‖²=10656/133225，两者相除得 5/2=2.5，远大于 ν=0.1，于是判据触发重启，β_2 被置零。对照 c=1 的精确步：g_2=0（已到 x*），无需重启。该数值由本页 Python 用精确分数断言核验。</p></section><section id="section-5"><h2>重启的取舍与边界</h2><p>重启把信息换成安全：定期重启实现简单但可能过频，Powell 判据更省迭代但每步多一次内积判断。两者都不能保证一般非凸问题收敛到全局最优，只能保证下降与局部收敛。</p><p>重启只处理“方向变坏”，不改变线搜索本身。若线搜索严重不精确，即使重启也可能步长过小、进展缓慢。因此实际代码需把重启与满足 Wolfe 条件的线搜索（第三章）配合使用。本页程序只在一个固定二维二次问题上核对判据数值，不是通用求解器。</p></section><section id="interactive"><h2>交互：Powell 比值随步长精度变化</h2><p>固定阈值 ν=0.1，拖动滑块改变第二步的伸缩因子 c。c=1 为精确步，比值接近 0；c 偏离 1 后比值迅速上升并越过阈值，触发重启。该计算为教学示意，不代表一般问题的重启次数。</p><div class="interactive-panel" data-demo="cg-restart"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgr-c">步长因子 c <output data-value-for="c">0.60</output></label><input id="cgr-c" type="range" data-key="c" min="0.3" max="1" step="0.05" value="0.6"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：Powell 比值的分数断言</h2><p>下面的程序只依赖标准库，重放两步并将准确步与不精确步对比，断言不精确步的 Powell 比值恰为 5/2。它只处理一个固定二维二次问题。</p><pre><code>"""Fletcher-Reeves with the Powell restart test on a 2x2 quadratic."""
+from fractions import Fraction
+Q = ((3, 1), (1, 3))
+b = (5, 7)
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.2.3. Quadratic Termination and Restarts</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_5.2.3._Quadratic_Termination_and_Restarts</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 02_5.2.3._Quadratic_Termination_and_Restarts
-</code></pre>
+def matvec(M, v):
+    return (M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1])
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_5.2.3._Quadratic_Termination_and_Restarts
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 02_5.2.3._Quadratic_Termination_and_Restarts
-"""
+def gradient(x):
+    q = matvec(Q, x)
+    return (q[0] - b[0], q[1] - b[1])
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def substep(x, p, c):
+    alpha = -dot(gradient(x), p) / dot(p, matvec(Q, p))
+    return (x[0] + c*alpha*p[0], x[1] + c*alpha*p[1])
+
+def powell_ratio(g_prev, g_now):
+    return abs(dot(g_now, g_prev)) / dot(g_now, g_now)
+
+if __name__ == "__main__":
+    x = (Fraction(0), Fraction(0))
+    g0 = gradient(x)
+    p0 = (-g0[0], -g0[1])
+    x1 = substep(x, p0, Fraction(1))
+    g1 = gradient(x1)
+    fr1 = dot(g1, g1) / dot(g0, g0)
+    p1 = (-g1[0] + fr1*p0[0], -g1[1] + fr1*p0[1])
+    x_exact = substep(x1, p1, Fraction(1))
+    assert gradient(x_exact) == (Fraction(0), Fraction(0))
+    x2 = substep(x1, p1, Fraction(3, 5))
+    g2 = gradient(x2)
+    ratio = powell_ratio(g1, g2)
+    assert ratio == Fraction(5, 2)
+    restart = ratio &gt;= Fraction(1, 10)
+    assert dot(g2, (-g2[0], -g2[1])) &lt; 0
+    print("exact step: g =", gradient(x_exact), "| powell ratio =", ratio, "restart:", restart)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.2.3（二次终止与重启，含 Powell 重启判据）。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">重启只保证方向下降，不保证全局最优；实际使用需与满足 Wolfe 条件的线搜索搭配，且要权衡重启频率。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_5.2.2._The_Polak–Ribière_Method_and_Variants.html"><small>上一篇</small><strong>Polak–Ribière 方法与变体</strong></a><a href="03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.html"><small>下一篇</small><strong>Fletcher–Reeves 的行为</strong></a></nav></footer></article></main></div></body></html>

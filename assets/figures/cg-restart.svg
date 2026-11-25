@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-labelledby="rs-title rs-desc" font-family="system-ui, sans-serif">
+  <title id="rs-title">Powell 重启判据：相邻梯度偏离直角时丢弃旧方向</title>
+  <desc id="rs-desc">左图精确线搜索使 g_k 与 g_{k−1} 垂直；右图不精确步使两者接近平行，比例 |g_kᵀg_{k−1}|/‖g_k‖² 变大，触发重启为最速下降方向。</desc>
+  <rect width="640" height="320" rx="16" fill="#f7f4ee"/>
+  <line x1="320" y1="30" x2="320" y2="290" stroke="#e0d9cb" stroke-width="1.5"/>
+  <line x1="180" y1="180" x2="180" y2="80" stroke="#c9772f" stroke-width="4"/>
+  <line x1="180" y1="180" x2="290" y2="180" stroke="#126e66" stroke-width="4"/>
+  <path d="M180 168 h12 v12" fill="none" stroke="#8a8377" stroke-width="2"/>
+  <circle cx="180" cy="180" r="6" fill="#263a33"/>
+  <text x="150" y="72" fill="#c9772f" font-size="15">g_{k−1}</text>
+  <text x="296" y="185" fill="#126e66" font-size="15">g_k</text>
+  <text x="120" y="230" fill="#263a33" font-size="15">精确：直角，无需重启</text>
+  <line x1="470" y1="180" x2="470" y2="80" stroke="#c9772f" stroke-width="4"/>
+  <line x1="470" y1="180" x2="500" y2="82" stroke="#126e66" stroke-width="4"/>
+  <line x1="470" y1="180" x2="440" y2="278" stroke="#7a4fa3" stroke-width="4" stroke-dasharray="7 5"/>
+  <circle cx="470" cy="180" r="6" fill="#263a33"/>
+  <text x="420" y="72" fill="#c9772f" font-size="15">g_{k−1}</text>
+  <text x="506" y="80" fill="#126e66" font-size="15">g_k</text>
+  <text x="392" y="298" fill="#7a4fa3" font-size="15">重启方向 −g_k</text>
+  <text x="380" y="240" fill="#263a33" font-size="15">不精确：夹角小，触发重启</text>
+</svg>
