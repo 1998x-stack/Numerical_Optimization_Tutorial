@@ -1,36 +1,41 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="非线性共轭梯度的实际表现取决于系数选择、线搜索与重启；评估开销主要来自线搜索试探。Fletcher–Reeves 适合理论分析，Polak–Ribière 家族在测试问题上通常更省评估。"><title>5.2.6 数值表现：评估开销与系数选择 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.2.6</span><a href="#section-1">该测什么</a><a href="#section-2">系数选择的影响</a><a href="#section-3">重启的代价与收益</a><a href="#section-4">小型评估示范</a><a href="#section-5">边界与证据</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.2.6</div><h1>5.2.6 数值表现：评估开销与系数选择</h1><p class="dek">理论给出收敛，却不告诉你哪套系数更快。实际比较要统一线搜索、统一停止准则，并分别统计函数评估与梯度评估。评估开销几乎全部来自线搜索试探，而不是方向更新。</p><div class="article-meta"><span>评估账目</span><span>系数比较</span><span>可复现实验</span></div></header><section id="section-1"><h2>该测什么</h2><p>比较两个非线性 CG 变体，必须固定线搜索（同一组 Wolfe 参数）、同一停止准则（如 ‖g_k‖≤ε）与同一测试问题集，然后分别统计：接受的迭代步数、函数评估次数、梯度评估次数。</p><p>其中评估开销主要来自线搜索试探点（每次 1 次 f）与接受点（1 次 ∇f）；方向更新 β_k、p_k 只是向量运算，几乎不计入。因此“迭代步数少”不等于“评估少”。</p><p>方向更新本身只是一次向量组合，不消耗评估：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="方向更新不消耗评估"><math display="block" aria-label="方向更新不消耗评估"><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mo>−</mo><msub><mi>g</mi><mi>k</mi></msub><mo>+</mo><msub><mi>β</mi><mi>k</mi></msub><msub><mi>p</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="1em"/><msub><mi>β</mi><mi>k</mi></msub><mtext>与</mtext><msub><mi>p</mi><mi>k</mi></msub><mtext>不计入函数或梯度评估。</mtext></mrow></math></div></div><figure><img src="../../assets/figures/cg-numerical-performance.svg" alt="流程图：线搜索试探点消耗函数评估，接受点消耗梯度评估，方向更新不消耗评估。"><figcaption>一次迭代的评估账目。成本主要来自线搜索试探次数，它随问题、线搜索与系数变体而变。</figcaption></figure></section><section id="section-2"><h2>系数选择的影响</h2><p>教材 §5.2.6 的结论是定性的：在标准测试问题上，Polak–Ribière 家族（PR、PR+）通常比 Fletcher–Reeves 更省评估，FR 有时非常慢；但 FR 的分析最完整。HS 接近 PR，但对分母敏感。这些都是经验观察，依赖线搜索与问题集，不能当作普适排序。</p><p>直觉解释：PR 的 β 可取负值，能在方向变坏时自动退回最速下降；FR 的 β 恒非负，只能靠重启补偿。这与 5.2.4 的下降角讨论一致。</p></section><section id="section-3"><h2>重启的代价与收益</h2><p>重启会增加接受步数（每次重启都是一次最速下降步），但能恢复下降角、避免停滞。净效果取决于问题：在共享问题集上，FR 往往因重启而大幅改善，PR 家族改善较小。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 160" style="width:100%;height:auto;display:block;max-width:520px;margin:0 auto" role="img" aria-labelledby="npr-title npr-desc"><title id="npr-title">重启把 β 周期性地置零</title><desc id="npr-desc">在迭代轴上每隔 m 步标记一次重启，那里 β 被置零、方向回到最速下降。</desc><rect width="420" height="160" rx="14" fill="#f7f4ee"/><line x1="40" y1="90" x2="390" y2="90" stroke="#8a8377" stroke-width="2"/><g fill="#126e66"><circle cx="60" cy="90" r="7"/><circle cx="143" cy="90" r="7"/><circle cx="226" cy="90" r="7"/><circle cx="309" cy="90" r="7"/><circle cx="380" cy="90" r="7"/></g><g fill="#263a33" font-size="13" font-family="system-ui, sans-serif"><text x="44" y="120">k=0</text><text x="130" y="120">k=m</text><text x="212" y="120">k=2m</text><text x="295" y="120">k=3m</text><text x="360" y="120">…</text></g><text x="40" y="46" fill="#7a4fa3" font-size="15" font-family="system-ui, sans-serif">标记处 β=0，方向回退到 −g_k</text></svg><p class="caption">重启时刻的示意：每隔 m 步把 β 置零，方向回到最速下降。重启增加步数，但恢复下降性，净效果需在实际问题上权衡。</p></div></section><section id="section-4"><h2>小型评估示范</h2><p>下面程序在一个 10 维对角正定二次问题上，用精确线搜索分别跑 FR、PR+、HS，统计梯度评估数。三者都在 9 步（10 次梯度评估）内终止 —— 因为二次问题上它们都退化为线性 CG。这说明计数方法可用，但一个二次算例无法区分它们；真正的比较需要非二次问题与 Wolfe 线搜索，属于教材的经验部分。</p></section><section id="section-5"><h2>边界与证据</h2><p>本页不给具体百分比或排名，因为那些数字依赖测试集、线搜索与实现，教材的经验结论也只在对应实验条件下成立。评估计数只是实现层面的诊断，不代替收敛理论。</p></section><section id="interactive"><h2>交互：维度如何改变评估数</h2><p>拖动手柄改变对角二次问题的维度 n。在精确线搜索下，所有变体都在 n 步内终止，梯度评估数约为 n；这是线性 CG 的 n 步终止性质的数值体现，不代表非线性问题。</p><div class="interactive-panel" data-demo="cg-perf"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="cgp-n">维度 n <output data-value-for="n">10</output></label><input id="cgp-n" type="range" data-key="n" min="2" max="30" step="1" value="10"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：评估计数的分数断言</h2><p>下面的程序只依赖标准库，在对角正定二次问题上统计三个变体的梯度评估数，并断言它们都在 n 步内终止。</p><pre><code>"""Count gradient and function evaluations for FR, PR+ and HS on a convex quadratic."""
+from fractions import Fraction as F
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.2.6. Numerical Performance</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>05_5.2.6._Numerical_Performance</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 05_5.2.6._Numerical_Performance
-</code></pre>
+n = 10
+Q = [F(i + 1) for i in range(n)]
 
-    <h3>Python 文件</h3>
-    <pre><code># 05_5.2.6._Numerical_Performance
+def grad(x):
+    return [Q[i]*x[i] for i in range(n)]
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 05_5.2.6._Numerical_Performance
-"""
+def dot(u, v):
+    return sum(a*b for a, b in zip(u, v))
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def run(kind, maxit=200):
+    x = [F(1)]*n
+    g = grad(x)
+    p = [-v for v in g]
+    grad_evals = 0
+    for k in range(maxit):
+        denom = dot(p, [Q[i]*p[i] for i in range(n)])
+        a = -dot(g, p) / denom
+        x = [x[i] + a*p[i] for i in range(n)]
+        gn = grad(x)
+        grad_evals += 1
+        if dot(gn, gn) &lt; F(1, 10**18):
+            break
+        y = [gn[i] - g[i] for i in range(n)]
+        if kind == "FR":
+            b = dot(gn, gn) / dot(g, g)
+        elif kind == "PR+":
+            b = max(F(0), dot(gn, y) / dot(g, g))
+        else:
+            b = dot(gn, y) / dot(p, y)
+        p = [-gn[i] + b*p[i] for i in range(n)]
+        g = gn
+    return k, grad_evals, dot(gn, gn)
+
+if __name__ == "__main__":
+    for kind in ("FR", "PR+", "HS"):
+        k, evals, norm = run(kind)
+        print(kind, "iters", k, "grad evals", evals, "final |g|^2", norm)
+        assert norm &lt; F(1, 10**18)</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.2.6（非线性 CG 的数值表现与系数比较）。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">变体排序依赖线搜索与问题集；本页的二次算例只用于展示评估计数，不构成性能基准。</p><nav class="prev-next" aria-label="相邻内容"><a href="04_5.2.5._Global_Convergence.html"><small>上一篇</small><strong>全局收敛</strong></a><a href="../02_5.3._Notes_and_References.html"><small>下一篇</small><strong>第五章注释与参考</strong></a></nav></footer></article></main></div></body></html>

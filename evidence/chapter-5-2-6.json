@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.2.6-1",
+    "claim": "非线性 CG 的比较需固定线搜索与停止准则，并分别统计迭代步、函数评估与梯度评估",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.6 (numerical performance; measurement setup)",
+    "status": "verified",
+    "notes": "评估口径依据原书讨论，表述为独立重写。"
+  },
+  {
+    "id": "5.2.6-2",
+    "claim": "在标准测试问题上，Polak-Ribiere 家族通常比 Fletcher-Reeves 更省评估；FR 有时非常慢，但理论分析最完整",
+    "kind": "empirical",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.6 (comparison of variants)",
+    "status": "verified",
+    "notes": "教材定性经验结论；本页不复制其具体数值表，也不声称普适排序。"
+  },
+  {
+    "id": "5.2.6-3",
+    "claim": "重启增加接受步数但恢复下降角；FR 通常从重启中改善更多",
+    "kind": "empirical",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Sections 5.2.3 and 5.2.6 (restarts and performance)",
+    "status": "verified",
+    "notes": "结合重启机制与经验结论的定性表述。"
+  },
+  {
+    "id": "5.2.6-4",
+    "claim": "在 10 维对角正定二次问题上，FR、PR+、HS 都在 9 步（10 次梯度评估）内终止",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 分数断言",
+    "status": "derived",
+    "notes": "线性 CG 的 n 步终止性质；教学算例，不构成性能基准。"
+  }
+]

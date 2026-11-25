@@ -790,6 +790,35 @@
       output.innerHTML = '<strong>r=' + fmt(r, 2) + '</strong> · 200 项部分和=' + fmt(s, 4) +
         (finite ? ' · 极限 ' + fmt(limit, 4) + '（有界）' : ' · 继续增长（无界）') + ' · cos²θ=0.25';
     });
+    if (kind === "cg-perf") bind(root, el => {
+      const n = read(el, "n");
+      const Q = [];
+      for (let i = 0; i < n; i++) Q.push(i + 1);
+      const run = kind => {
+        let x = new Array(n).fill(1), g = Q.map((q, i) => q*x[i]), p = g.map(v => -v);
+        let ev = 0, k = 0;
+        for (; k < 400; k++) {
+          let denom = 0, num = 0;
+          for (let i = 0; i < n; i++) { denom += p[i]*Q[i]*p[i]; num += g[i]*p[i]; }
+          const a = -num/denom;
+          for (let i = 0; i < n; i++) x[i] += a*p[i];
+          const gn = Q.map((q, i) => q*x[i]); ev++;
+          let nrm = 0;
+          for (let i = 0; i < n; i++) nrm += gn[i]*gn[i];
+          if (nrm < 1e-18) break;
+          const y = gn.map((v, i) => v - g[i]);
+          let gg = 0, g2 = 0, gy = 0;
+          for (let i = 0; i < n; i++) { gg += gn[i]*gn[i]; g2 += g[i]*g[i]; gy += gn[i]*y[i]; }
+          const b = kind === "FR" ? gg/g2 : Math.max(0, gy/g2);
+          for (let i = 0; i < n; i++) p[i] = -gn[i] + b*p[i];
+          g = gn;
+        }
+        return [k, ev];
+      };
+      const fr = run("FR"), pr = run("PR+");
+      output.innerHTML = '<strong>n=' + n + '</strong> · FR ' + fr[0] + ' 步/' + fr[1] +
+        ' 次梯度评估 · PR+ ' + pr[0] + ' 步/' + pr[1] + ' 次梯度评估（对角二次，精确线搜索）';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

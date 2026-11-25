@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" role="img" aria-labelledby="np-title np-desc" font-family="system-ui, sans-serif">
+  <title id="np-title">一次非线性共轭梯度迭代的评估开销</title>
+  <desc id="np-desc">线搜索每个试探点消耗一次函数评估，接受点消耗一次梯度评估，方向更新 β_k 与 p_k 不消耗评估。</desc>
+  <rect width="640" height="340" rx="16" fill="#f7f4ee"/>
+  <text x="40" y="48" fill="#263a33" font-size="17">一次迭代 k 的评估账目</text>
+  <rect x="40" y="110" width="170" height="110" rx="12" fill="#fff" stroke="#c9772f" stroke-width="2"/>
+  <text x="60" y="150" fill="#c9772f" font-size="15">线搜索试探点</text>
+  <text x="60" y="176" fill="#263a33" font-size="14">每个试探：1 次 f</text>
+  <text x="60" y="200" fill="#8a8377" font-size="13">次数 = 回溯步数</text>
+  <rect x="250" y="110" width="150" height="110" rx="12" fill="#fff" stroke="#126e66" stroke-width="2"/>
+  <text x="266" y="150" fill="#126e66" font-size="15">接受点 x_{k+1}</text>
+  <text x="266" y="176" fill="#263a33" font-size="14">1 次 ∇f</text>
+  <rect x="440" y="110" width="170" height="110" rx="12" fill="#fff" stroke="#7a4fa3" stroke-width="2"/>
+  <text x="456" y="150" fill="#7a4fa3" font-size="15">更新 β_k, p_k</text>
+  <text x="456" y="176" fill="#263a33" font-size="14">0 次评估</text>
+  <line x1="210" y1="165" x2="248" y2="165" stroke="#8a8377" stroke-width="2"/>
+  <path d="M248 165 l-8 -5 l0 10 z" fill="#8a8377"/>
+  <line x1="400" y1="165" x2="438" y2="165" stroke="#8a8377" stroke-width="2"/>
+  <path d="M438 165 l-8 -5 l0 10 z" fill="#8a8377"/>
+  <text x="40" y="290" fill="#8a8377" font-size="14">成本主要来自线搜索试探次数；重启会增加接受步、但改善下降角</text>
+</svg>
