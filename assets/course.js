@@ -780,6 +780,16 @@
       output.innerHTML = '<strong>c₁=' + fmt(c1, 4) + '</strong> · 步数 ' + it +
         ' · 最小 cosθ=' + fmt(minCos, 4) + ' · 末态‖g‖=' + fmt(Math.hypot(g[0], g[1]), 2) + '（教学玩具）';
     });
+    if (kind === "cg-zoutendijk") bind(root, el => {
+      const r = read(el, "r");
+      const c2 = 0.25, n = 200;
+      let s = 0;
+      for (let k = 1; k <= n; k++) s += c2*Math.pow(r*r, k);
+      const finite = r < 1;
+      const limit = finite ? c2*r*r/(1 - r*r) : Infinity;
+      output.innerHTML = '<strong>r=' + fmt(r, 2) + '</strong> · 200 项部分和=' + fmt(s, 4) +
+        (finite ? ' · 极限 ' + fmt(limit, 4) + '（有界）' : ' · 继续增长（无界）') + ' · cos²θ=0.25';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

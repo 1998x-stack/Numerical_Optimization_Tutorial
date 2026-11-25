@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.2.5-1",
+    "claim": "Zoutendijk 条件：下降方向 + Wolfe 步长 + 水平集有下界 + 梯度 Lipschitz 时，Σ cos²θ_k‖g_k‖² < ∞ ⇒ lim‖g_k‖=0",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Theorem 3.2; restated in Chapter 5, Section 5.2.5",
+    "status": "verified",
+    "notes": "核对原书定理条件与结论，独立转写。"
+  },
+  {
+    "id": "5.2.5-2",
+    "claim": "Fletcher-Reeves 在强 Wolfe 线搜索（σ<1/2）下有全局收敛结论 liminf‖g_k‖=0（Al-Baali 1985）",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.5 (global convergence of FR)",
+    "status": "verified",
+    "notes": "结果归功于 Al-Baali (1985)；原书综述，不重述证明。"
+  },
+  {
+    "id": "5.2.5-3",
+    "claim": "Powell (1984) 构造反例，说明 PR 即使精确线搜索也可能不收敛；PR+ 在强 Wolfe 线搜索下全局收敛（Gilbert-Nocedal 1992）",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.5 (counterexample and PR+)",
+    "status": "verified",
+    "notes": "反例与 PR+ 收敛结论均见原书综述，归功于对应原始文献。"
+  },
+  {
+    "id": "5.2.5-4",
+    "claim": "几何衰减的梯度使 Σ cos²θ_k‖g_k‖² 有界；梯度不衰减时线性增长；角度以 1/k 消失时对数增长",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 分数断言",
+    "status": "derived",
+    "notes": "教学计算，用于说明 Zoutendijk 条件的含义。"
+  }
+]

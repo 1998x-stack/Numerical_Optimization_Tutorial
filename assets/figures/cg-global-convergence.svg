@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="gc-title gc-desc" font-family="system-ui, sans-serif">
+  <title id="gc-title">Zoutendijk 级数在三种梯度与角度轮廓下的增长</title>
+  <desc id="gc-desc">对 Σ cos²θ_k ‖g_k‖²：梯度几何式衰减时级数有界；梯度不衰减时线性增长；角度缓慢消失但梯度不衰减时对数增长。</desc>
+  <rect width="640" height="360" rx="16" fill="#f7f4ee"/>
+  <line x1="70" y1="300" x2="600" y2="300" stroke="#8a8377" stroke-width="2"/>
+  <line x1="70" y1="300" x2="70" y2="50" stroke="#8a8377" stroke-width="2"/>
+  <text x="546" y="322" fill="#8a8377" font-size="14">迭代 k</text>
+  <text x="30" y="46" fill="#8a8377" font-size="14">部分和</text>
+  <line x1="70" y1="268" x2="590" y2="268" stroke="#126e66" stroke-width="3"/>
+  <polyline points="75,270 80,255 96,232 122,212 174,192 330,165 590,144" fill="none" stroke="#c9772f" stroke-width="3"/>
+  <line x1="70" y1="300" x2="236" y2="60" stroke="#bd633f" stroke-width="3"/>
+  <path d="M236 60 l-12 2 l6 -12 z" fill="#bd633f"/>
+  <g font-size="14" fill="#263a33">
+    <text x="300" y="260" fill="#126e66">梯度几何衰减：级数有界</text>
+    <text x="330" y="150" fill="#c9772f">角度缓慢消失：对数增长</text>
+    <text x="250" y="80" fill="#bd633f">梯度不衰减：线性增长</text>
+  </g>
+  <text x="90" y="40" fill="#263a33" font-size="15">Σ cos²θ_k ‖g_k‖² 的增长形态</text>
+</svg>
