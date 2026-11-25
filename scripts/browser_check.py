@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the course portal and fifty standalone articles."""
+"""Playwright QA for the course portal and sixty-two standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -65,6 +65,12 @@ ARTICLES = [
     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/03_5.1.4._Rate_of_Convergence.html",
     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/04_5.1.5._Preconditioning.html",
     "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/01_5.2.2._The_Polak–Ribiere_Method_and_Variants.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/02_5.2.3._Quadratic_Termination_and_Restarts.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.html",
+    "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -175,7 +181,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, fifty article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print("PASS: homepage search, sixty-two article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 
