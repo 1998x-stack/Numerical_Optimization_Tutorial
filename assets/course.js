@@ -716,6 +716,27 @@
       output.innerHTML = '<strong>κ=' + fmt(kappa, 1) + '</strong> · 最速下降 ' + run(false) +
         ' 步 · Fletcher–Reeves ' + run(true) + ' 步（阈值 ‖g‖<1e-8，精确线搜索）';
     });
+    if (kind === "pr-variants") bind(root, el => {
+      const c = read(el, "c");
+      const Q = [[3, 1], [1, 3]], b = [5, 7];
+      const mv = v => [Q[0][0]*v[0] + Q[0][1]*v[1], Q[1][0]*v[0] + Q[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0] + u[1]*v[1];
+      const grad = x => { const q = mv(x); return [q[0]-b[0], q[1]-b[1]]; };
+      let x = [0, 0], g = grad(x), p = [-g[0], -g[1]];
+      let a = -dot(g, p) / dot(p, mv(p));
+      x = [x[0] + a*p[0], x[1] + a*p[1]];
+      const g1 = grad(x);
+      const b1 = dot(g1, g1) / dot(g, g);
+      p = [-g1[0] + b1*p[0], -g1[1] + b1*p[1]];
+      a = -dot(g1, p) / dot(p, mv(p));
+      const x2 = [x[0] + c*a*p[0], x[1] + c*a*p[1]];
+      const g2 = grad(x2), y = [g2[0]-g1[0], g2[1]-g1[1]];
+      const fr = dot(g2, g2) / dot(g1, g1);
+      const pr = dot(g2, y) / dot(g1, g1);
+      const hs = dot(g2, y) / dot(p, y);
+      output.innerHTML = '<strong>c=' + fmt(c, 2) + '</strong> · β_FR=' + fmt(fr, 4) +
+        ' · β_PR=' + fmt(pr, 4) + ' · β_HS=' + fmt(hs, 4) + ' · PR+=' + fmt(Math.max(0, pr), 4);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" role="img" aria-labelledby="pr-title pr-desc" font-family="system-ui, sans-serif">
+  <title id="pr-title">不精确线搜索下三种 β 公式出现分歧</title>
+  <desc id="pr-desc">在 c=3/5 的示例中，Fletcher–Reeves 给出正系数 0.16，而 Polak–Ribière 与 Hestenes–Stiefel 给出负系数 −0.24 与 −0.40；PR+ 把负系数截断为零。</desc>
+  <rect width="640" height="340" rx="16" fill="#f7f4ee"/>
+  <line x1="70" y1="170" x2="590" y2="170" stroke="#8a8377" stroke-width="2"/>
+  <text x="70" y="192" fill="#8a8377" font-size="14">β = 0</text>
+  <rect x="130" y="122" width="70" height="48" fill="#126e66"/>
+  <rect x="280" y="170" width="70" height="72" fill="#bd633f"/>
+  <rect x="430" y="170" width="70" height="120" fill="#7a4fa3"/>
+  <line x1="90" y1="170" x2="90" y2="122" stroke="#c9c2b3" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="90" y1="170" x2="90" y2="290" stroke="#c9c2b3" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <g font-size="16" fill="#263a33" text-anchor="middle">
+    <text x="165" y="112" fill="#126e66">β_FR</text><text x="315" y="258" fill="#bd633f">β_PR</text><text x="465" y="306" fill="#7a4fa3">β_HS</text>
+    <text x="165" y="330" fill="#263a33">Fletcher–Reeves</text>
+    <text x="315" y="330">Polak–Ribière</text>
+    <text x="465" y="330">Hestenes–Stiefel</text>
+  </g>
+  <g font-size="15" text-anchor="middle">
+    <text x="165" y="152" fill="#fff">+0.16</text>
+    <text x="315" y="200" fill="#fff">−0.24</text>
+    <text x="465" y="212" fill="#fff">−0.40</text>
+  </g>
+  <text x="330" y="34" fill="#263a33" font-size="15" text-anchor="middle">同一个不精确第二步（α = 0.6 × 精确步长）</text>
+</svg>

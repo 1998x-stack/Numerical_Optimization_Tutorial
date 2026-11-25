@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.2.2-1",
+    "claim": "Polak-Ribiere 系数为 β_k^PR = g_kᵀ(g_k - g_{k-1}) / ‖g_{k-1}‖²",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.2 (Polak-Ribiere)",
+    "status": "verified",
+    "notes": "核对原书节次；按原文记号独立转写。"
+  },
+  {
+    "id": "5.2.2-2",
+    "claim": "Hestenes-Stiefel 系数 β_k^HS = g_kᵀ y_k / (p_{k-1}ᵀ y_k)，而 PR+ = max(0, β_k^PR)",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.2 (HS and PR+ variants)",
+    "status": "verified",
+    "notes": "核对原书对变体的定义；PR+ 截断为 0 的写法为常见实现。"
+  },
+  {
+    "id": "5.2.2-3",
+    "claim": "在正定二次问题上配合精确线搜索，β^FR = β^PR = β^HS",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "由精确线搜索正交关系 g_kᵀp_{k-1}=g_kᵀg_{k-1}=0 推出",
+    "status": "derived",
+    "notes": "本页第三节给出代数推导，与原书结论一致。"
+  },
+  {
+    "id": "5.2.2-4",
+    "claim": "算例第二步取 c=3/5 时 β^FR=4/25、β^PR=-6/25、β^HS=-2/5，PR+ 截断为 0",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 分数断言",
+    "status": "derived",
+    "notes": "教学计算，不声称一般问题上的系数排序。"
+  }
+]
