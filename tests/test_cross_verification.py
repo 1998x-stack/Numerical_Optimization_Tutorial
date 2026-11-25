@@ -424,5 +424,24 @@ class CrossVerificationTests(unittest.TestCase):
         self.assertGreater(ratio,.6)
         self.assertLess((.5**2+5./18.)/exact,.6)
 
+    def test_nonlinear_cg_beta_variants_and_powell_ratio(self):
+        g1 = (Fraction(42, 73), Fraction(-30, 73))
+        g2 = (Fraction(84, 365), Fraction(-60, 365))
+        p1 = (Fraction(-2886, 5329), Fraction(2442, 5329))
+        dot = lambda u, v: u[0]*v[0] + u[1]*v[1]
+        y = (g2[0] - g1[0], g2[1] - g1[1])
+        self.assertEqual(dot(g1, g1), Fraction(2664, 5329))
+        self.assertEqual(dot(g2, g2), Fraction(10656, 133225))
+        self.assertEqual(dot(g2, g2)/dot(g1, g1), Fraction(4, 25))
+        self.assertEqual(dot(g2, y)/dot(g1, g1), Fraction(-6, 25))
+        self.assertEqual(dot(g2, y)/dot(p1, y), Fraction(-2, 5))
+        self.assertEqual(abs(dot(g2, g1))/dot(g2, g2), Fraction(5, 2))
+
+    def test_zoutendijk_partial_sums(self):
+        c2 = Fraction(1, 4)
+        vanish = c2 * sum(Fraction(9, 10)**(2*k) for k in range(1, 1001))
+        self.assertLess(vanish, Fraction(81, 76))
+        self.assertEqual(c2 * sum(Fraction(1) for _ in range(1, 1001)), Fraction(1000, 4))
+
 if __name__ == "__main__":
     unittest.main()

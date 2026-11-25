@@ -235,6 +235,30 @@ ARTICLES = [
      "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.md",
      "05._Conjugate_Gradient_Methods/5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.py",
      "evidence/chapter-5-1-6.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.py",
+     "evidence/chapter-5-2-1.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/01_5.2.2._The_Polak–Ribiere_Method_and_Variants.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/01_5.2.2._The_Polak–Ribiere_Method_and_Variants.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/01_5.2.2._The_Polak–Ribiere_Method_and_Variants.py",
+     "evidence/chapter-5-2-2.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/02_5.2.3._Quadratic_Termination_and_Restarts.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/02_5.2.3._Quadratic_Termination_and_Restarts.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/02_5.2.3._Quadratic_Termination_and_Restarts.py",
+     "evidence/chapter-5-2-3.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.py",
+     "evidence/chapter-5-2-4.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.py",
+     "evidence/chapter-5-2-5.json"),
+    ("05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.html",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.md",
+     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.py",
+     "evidence/chapter-5-2-6.json"),
 ]
 
 
@@ -393,13 +417,13 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6 共五十六篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6、5.2.1–5.2.6 共六十二篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 56:
-        errors.append("index.html: expected exactly fifty-six featured modules")
+    if index.count('class="featured-card"') != 62:
+        errors.append("index.html: expected exactly sixty-two featured modules")
     return errors
 
 

@@ -23,10 +23,11 @@
 | 第四章 4.1.1–4.2.1 | 已重构（5 篇） | Cauchy 点、方向改善、Dogleg、二维子空间与下降界 |
 | 第四章 4.2.2–4.5.2 | 已重构（8 篇） | 全局驻点收敛、λ 根搜索、Hard Case、全局最优证书、局部 Newton、缩放与范数 |
 | 第五章 5.1.1–5.1.6 | 已重构（6 篇） | 共轭方向法、CG 基本性质、实用形式、收敛速度、预条件与实用预条件器 |
-| 第五章 5.2–5.4 及第六章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第五章 5.2.1–5.2.6 | 已重构（6 篇） | 非线性 CG：FR、Polak–Ribière 变体、重启、行为、全局收敛与数值表现 |
+| 第五章 5.3–5.4 及第六章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6 共五十六篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6、5.2.1–5.2.6 共六十二篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -64,6 +65,19 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第九批：非线性共轭梯度 5.2
+
+本批六篇逐页重建 5.2 非线性共轭梯度，均包含独立 HTML、Markdown、Python、可访问 SVG、参数交互与证据记录：
+
+- [5.2.1 Fletcher–Reeves 方法](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/00_5.2.1._The_Fletcher–Reeves_Method.html)：梯度平方范数之比作为系数与下降性质。
+- [5.2.2 Polak–Ribière 与变体](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/01_5.2.2._The_Polak–Ribiere_Method_and_Variants.html)：PR、Hestenes–Stiefel、PR+ 与精确线搜索下的等价。
+- [5.2.3 二次终止与重启](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/02_5.2.3._Quadratic_Termination_and_Restarts.html)：每 n+1 步定期重启与 Powell 判据。
+- [5.2.4 Fletcher–Reeves 的行为](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.html)：下降角、停滞与不精确线搜索的影响。
+- [5.2.5 全局收敛](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.html)：Zoutendijk 条件、β 有界性与 PR 停滞反例。
+- [5.2.6 数值表现](05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.html)：评估账目与系数选择的经验结论。
+
+**重要边界：**5.2 的收敛结论都以目标光滑、水平集有界、梯度 Lipschitz 且线搜索满足 Wolfe/强 Wolfe 为前提；本批数值例子均为教学算例，不代表一般问题的迭代次数或性能排序。
 
 ## 第八批：共轭梯度法 5.1
 
