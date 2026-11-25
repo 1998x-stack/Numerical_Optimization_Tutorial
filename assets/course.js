@@ -688,6 +688,34 @@
         '无预条件 / Jacobi：κ(Q)=' + fmt(kappaQ, 2) +
         '<br>保留三对角结构的精确分解：κ(M⁻¹Q)=1';
     });
+    if (kind === "fr-convergence") bind(root, el => {
+      const kappa = read(el, "kappa");
+      const Q = [1, kappa];
+      const run = fr => {
+        let x = [1, 1];
+        let g = [x[0], Q[1]*x[1]];
+        let p = [-g[0], -g[1]];
+        let it = 0;
+        for (; it < 1000000; it++) {
+          const Qp = [Q[0]*p[0], Q[1]*p[1]];
+          const alpha = -(g[0]*p[0]+g[1]*p[1]) / (p[0]*Qp[0]+p[1]*Qp[1]);
+          x = [x[0]+alpha*p[0], x[1]+alpha*p[1]];
+          const g2 = [Q[0]*x[0], Q[1]*x[1]];
+          const norm2 = g2[0]*g2[0]+g2[1]*g2[1];
+          if (norm2 < 1e-16) break;
+          if (fr) {
+            const beta = norm2 / (g[0]*g[0]+g[1]*g[1]);
+            p = [-g2[0]+beta*p[0], -g2[1]+beta*p[1]];
+          } else {
+            p = [-g2[0], -g2[1]];
+          }
+          g = g2;
+        }
+        return it;
+      };
+      output.innerHTML = '<strong>κ=' + fmt(kappa, 1) + '</strong> · 最速下降 ' + run(false) +
+        ' 步 · Fletcher–Reeves ' + run(true) + ' 步（阈值 ‖g‖<1e-8，精确线搜索）';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

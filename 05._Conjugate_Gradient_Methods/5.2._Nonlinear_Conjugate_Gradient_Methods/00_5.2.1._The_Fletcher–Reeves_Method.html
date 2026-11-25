@@ -1,36 +1,40 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Fletcher–Reeves 非线性共轭梯度用当前梯度与上一步方向构造新方向，β 取相邻梯度平方范数之比；在正定二次问题上配合精确线搜索即退化为线性共轭梯度。"><title>5.2.1 Fletcher–Reeves 方法：用梯度范数之比生成共轭方向 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 05 · 5.2.1</span><a href="#section-1">为什么需要新的公式</a><a href="#section-2">Fletcher–Reeves 递归</a><a href="#section-3">第一步退化为最速下降</a><a href="#section-4">二维可复现算例</a><a href="#section-5">与线性 CG 的关系与边界</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 05 · 5.2.1</div><h1>5.2.1 Fletcher–Reeves 方法：用梯度范数之比生成共轭方向</h1><p class="dek">一般非线性目标没有固定的 Hessian 可以用来构造 Q-共轭方向，Fletcher–Reeves 的做法是用相邻两次梯度的平方范数之比作为系数，把上一方向与新梯度线性组合，在迭代中自动生成搜索方向。</p><div class="article-meta"><span>公式推导</span><span>算法步骤</span><span>可复现实验</span></div></header><section id="section-1"><h2>为什么需要新的公式</h2><p>线性共轭梯度解决的是固定线性方程组 Qx=b，其中 Q 对称正定，所有方向关于同一个 Q 共轭。一般非线性问题要极小化光滑函数 f(x)，没有全局的 Q，也就没有固定的共轭内积可依赖。</p><p>把线性 CG 里的残差 r_k=b−Qx_k 换成梯度 g_k=∇f(x_k)，把固定步长换成沿射线做线搜索，形式上就得到同一个递推 p_k=−g_k+β_k p_{k−1}。二者只剩一处区别：β_k 不再由 Q 直接给出，而要由非线性信息决定。Fletcher 与 Reeves 在 1964 年提出以相邻梯度平方范数之比作为系数，这就是本节的方法。</p></section><section id="section-2"><h2>Fletcher–Reeves 递归</h2><p>在点 x_k 得到梯度 g_k 后，先沿方向 p_k 做一次线搜索得到 x_{k+1}=x_k+α_k p_k 与新的梯度 g_{k+1}，再构造下一步方向。下标约定：g_k=∇f(x_k)，初始方向 p_0=−g_0。</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Fletcher-Reeves 方向与系数"><math display="block" aria-label="Fletcher-Reeves 方向与系数"><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mo>−</mo><msub><mi>g</mi><mi>k</mi></msub><mo>+</mo><msub><mi>β</mi><mi>k</mi></msub><msub><mi>p</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="1em"/><msub><mi>β</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>g</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>g</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow><mo>⊤</mo></msubsup><msub><mi>g</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div><p>算法 5.4（Fletcher–Reeves，见 Nocedal &amp; Wright §5.2.1）。给定起点 x_0，令 p_0=−g_0；对 k=0,1,2,…：用线搜索求步长 α_k，令 x_{k+1}=x_k+α_k p_k；若 ‖g_{k+1}‖ 足够小则停止；否则按上式算 β_{k+1} 与 p_{k+1}。注意公式里 g_k 在分子、g_{k−1} 在分母，索引容易写反。</p><figure><img src="../../assets/figures/fletcher-reeves-direction.svg" alt="在点 x_{k+1} 处，橙色负梯度向量与紫色按 β_k 缩放的先前方向 p_k 相加，得到黑色新方向 p_{k+1}。"><figcaption>Fletcher–Reeves 方向 p_{k+1}=−g_{k+1}+β_k p_k 的向量合成。当 β_k 很小时新方向几乎就是最速下降方向；β_k 越大，先前方向的“记忆”越强。该图只说明递推的几何含义，不表示任何具体步长。</figcaption></figure></section><section id="section-3"><h2>第一步退化为最速下降</h2><p>初始方向取 p_0=−g_0，就是最速下降方向；之后每一步借 β_k 引入前一步的曲率信息。一个关键观察是：即使没有显式的 Q，只要线搜索是精确的，FR 方向就仍然是下降方向。</p><p>证明要点：沿 p_{k−1} 的精确线搜索给出 g_kᵀp_{k−1}=0，即新梯度与旧方向正交。于是 g_kᵀp_k=g_kᵀ(−g_k+β_k p_{k−1})=−‖g_k‖²+β_k·0=−‖g_k‖²&lt;0。可见下降性来自精确线搜索，而不是额外假设。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 250" style="width:100%;height:auto;display:block;max-width:520px;margin:0 auto" role="img" aria-labelledby="frde-title frde-desc"><title id="frde-title">精确线搜索使新梯度与旧方向正交</title><desc id="frde-desc">在 x_k 处，g_k 与 p_{k-1} 成直角；新方向 p_k 是 -g_k 与 β_k p_{k-1} 的合成。</desc><rect width="420" height="250" rx="14" fill="#f7f4ee"/><line x1="210" y1="150" x2="360" y2="150" stroke="#c9772f" stroke-width="4"/><line x1="210" y1="150" x2="210" y2="70" stroke="#126e66" stroke-width="4"/><line x1="210" y1="150" x2="60" y2="150" stroke="#c9c2b3" stroke-width="3" stroke-dasharray="6 5"/><line x1="210" y1="150" x2="60" y2="70" stroke="#263a33" stroke-width="4"/><line x1="60" y1="70" x2="60" y2="150" stroke="#c9c2b3" stroke-width="2" stroke-dasharray="5 5"/><line x1="60" y1="70" x2="210" y2="70" stroke="#c9c2b3" stroke-width="2" stroke-dasharray="5 5"/><path d="M210 138 h-12 v-12" fill="none" stroke="#8a8377" stroke-width="2"/><circle cx="210" cy="150" r="6" fill="#263a33"/><g font-family="system-ui, sans-serif" font-size="16" fill="#263a33"><text x="366" y="155" fill="#c9772f">g_k</text><text x="176" y="64" fill="#126e66">p_{k−1}</text><text x="20" y="180" fill="#263a33">p_k</text><text x="250" y="176" fill="#c9772f">−g_k</text></g></svg><p class="caption">精确线搜索使 g_k⊥p_{k−1}（图中直角标记）。因此 p_k=−g_k+β_k p_{k−1} 与 g_k 的内积恒为 −‖g_k‖²，不依赖于 β_k 的大小。</p></div></section><section id="section-4"><h2>二维可复现算例</h2><p>沿用 5.1.1 的同一正定二次问题：Q=[[3,1],[1,3]]，b=(5,7)，故 ∇f(x)=Qx−b，精确解 x*=(1,2)。起点 x_0=(0,0) 给出 g_0=(−5,−7)，p_0=(5,7)。</p><p>第一次线搜索：p_0ᵀQp_0=292，g_0ᵀp_0=−74，故 α_0=37/146，x_1=(185/146,259/146)，g_1=(42/73,−30/73)。于是 β_1=‖g_1‖²/‖g_0‖²=(42²+30²)/(73²·74)=36/5329。这就是公弎直接给出的数值，不需要构造 Q-共轭方向。</p><p>第二次线搜索给出 α_1=73/148，x_2=x_1+α_1 p_1=(1,2)=x*，且 β_2=0 触发终止。在二维正定二次问题上，精确线搜索的 FR 恰好重现线性共轭梯度，因此两步终止。上述数值由本页 Python 用精确分数逐步断言核验。</p></section><section id="section-5"><h2>与线性 CG 的关系与边界</h2><p>当目标为正定二次函数时，Qx=b 的残差即梯度，精确线搜索的 FR 与线性共轭梯度取相同方向、相同步长，因而继承 §5.1 的全部结论：n 步终止与 Krylov 子空间最优性。可以说 FR 是把线性 CG 的 β 公式原样搬到非线性目标的直接推广。</p><p>但这层推广只在二次函数上有保证。对一般非线性函数，梯度不再线性变化，β_k 可能过大，使方向偏离甚至不再是下降方向，从而出现停滞。这正是 5.2.2 的 Polak–Ribière 等变体与 5.2.3 重启策略要处理的问题。本页程序只处理一个固定二维二次问题，用来核对步长与 β 公式；它不是通用求解器，也不覆盖非二次、病态或高维情形。</p></section><section id="interactive"><h2>交互：条件数如何拉开两种方法的差距</h2><p>考虑对角二次目标 f(x)=½(x_1²+κ x_2²)，起点 (1,1)。拖动滑块改变条件数 κ，比较最速下降与 Fletcher–Reeves 在精确线搜索下的迭代步数。在二维二次问题上 FR 至多两步终止，而最速下降的步数随 κ 增大迅速上升 —— 这正是共轭方向带来的加速。该计算为教学示意，不代表一般问题的迭代次数。</p><div class="interactive-panel" data-demo="fr-convergence"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="frc-kappa">条件数 κ <output data-value-for="kappa">9.0</output></label><input id="frc-kappa" type="range" data-key="kappa" min="1" max="80" step="1" value="9"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：FR 步长与 β 的分数断言</h2><p>下面的程序只依赖标准库，用精确分数重放上面的两步 FR，并断言 α_0=37/146、β_1=36/5329、α_1=73/148、x*= (1,2)。它只处理一个固定二维二次问题。</p><pre><code>"""Fletcher-Reeves nonlinear conjugate gradient on a 2x2 quadratic."""
+from fractions import Fraction
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>5.2.1. The Fletcher–Reeves Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_5.2.1._The_Fletcher–Reeves_Method</h1>
-<pre><code>Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 00_5.2.1._The_Fletcher–Reeves_Method
-</code></pre>
+Q = ((3, 1), (1, 3))
+b = (5, 7)
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_5.2.1._The_Fletcher–Reeves_Method
+def matvec(M, v):
+    return (M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1])
 
-"""
-Lecture: 05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods
-Content: 00_5.2.1._The_Fletcher–Reeves_Method
-"""
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def gradient(x):
+    q = matvec(Q, x)
+    return (q[0] - b[0], q[1] - b[1])
+
+def fletcher_reeves(x0, max_iter=10):
+    x, g = x0, gradient(x0)
+    p = (-g[0], -g[1])
+    trace = []
+    for k in range(max_iter):
+        alpha = -dot(g, p) / dot(p, matvec(Q, p))
+        x = (x[0] + alpha*p[0], x[1] + alpha*p[1])
+        g_next = gradient(x)
+        beta = dot(g_next, g_next) / dot(g, g)
+        trace.append((k, alpha, beta, x))
+        if dot(g_next, g_next) &lt; Fraction(1, 10**12):
+            break
+        p = (-g_next[0] + beta*p[0], -g_next[1] + beta*p[1])
+        g = g_next
+    return x, trace
+
+if __name__ == "__main__":
+    x_star, trace = fletcher_reeves((Fraction(0), Fraction(0)))
+    assert trace[0][1] == Fraction(37, 146)
+    assert trace[0][2] == Fraction(36, 5329)
+    assert trace[1][1] == Fraction(73, 148)
+    assert trace[1][2] == 0
+    assert x_star == (Fraction(1), Fraction(2))
+    print("x* =", x_star, "beta =", [str(t[2]) for t in trace])</code></pre><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 5, Section 5.2.1（Fletcher–Reeves 方法与算法 5.4）。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">FR 的下降性与 n 步终止依赖沿射线精确线搜索；换成不精确线搜索后，方向可能不再是下降方向，需结合 5.2.2 的变体与 5.2.3 的重启。</p><nav class="prev-next" aria-label="相邻内容"><a href="../5.1._The_Linear_Conjugate_Gradient_Method/05_5.1.6._Practical_Preconditioners.html"><small>上一篇</small><strong>实用预条件器</strong></a><a href="01_5.2.2._The_Polak–Ribière_Method_and_Variants.html"><small>下一篇</small><strong>Polak–Ribière 方法与变体</strong></a></nav></footer></article></main></div></body></html>

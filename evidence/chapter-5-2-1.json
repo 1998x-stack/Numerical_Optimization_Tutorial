@@ -1,0 +1,38 @@
+[
+  {
+    "id": "5.2.1-1",
+    "claim": "Fletcher-Reeves 取 β_k = g_kᵀg_k / g_{k-1}ᵀg_{k-1}，方向递归为 p_k = -g_k + β_k p_{k-1}，p_0 = -g_0（算法 5.4）",
+    "kind": "method",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.1 (Fletcher-Reeves method, Algorithm 5.4)",
+    "status": "verified",
+    "notes": "核对原书节次与算法编号；公式按原文记号独立转写。"
+  },
+  {
+    "id": "5.2.1-2",
+    "claim": "在精确线搜索下 g_kᵀp_{k-1}=0，因此 FR 方向满足 g_kᵀp_k = -‖g_k‖² < 0，即自动下降",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "由精确线搜索的一阶条件直接推出",
+    "status": "derived",
+    "notes": "代数推导，本页与 Python 中给出。"
+  },
+  {
+    "id": "5.2.1-3",
+    "claim": "在正定二次问题上，配合精确线搜索的 FR 与线性共轭梯度产生相同方向与步长，继承 n 步终止",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 5, Section 5.2.1 (relationship to linear CG)",
+    "status": "verified",
+    "notes": "核对原书论述；教学表述为独立重写。"
+  },
+  {
+    "id": "5.2.1-4",
+    "claim": "算例 Q=[[3,1],[1,3]], b=(5,7), x0=(0,0) 上两步 FR 得 α0=37/146, β1=36/5329, α1=73/148, x2=(1,2)",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文教学算例及 Python 分数断言",
+    "status": "derived",
+    "notes": "教学计算，不声称一般算法性能。"
+  }
+]
