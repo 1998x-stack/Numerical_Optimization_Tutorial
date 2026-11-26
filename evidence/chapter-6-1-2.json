@@ -1,0 +1,65 @@
+[
+  {
+    "id": "6.1.2-1",
+    "claim": "BFGS 主循环：算梯度、方向 p=-Hg、Wolfe 线搜索、秩二更新，等价于 Algorithm 6.1",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1, Algorithm 6.1 (BFGS)",
+    "status": "verified",
+    "notes": "步骤结构依据原书 Algorithm 6.1，伪码为独立重写。"
+  },
+  {
+    "id": "6.1.2-2",
+    "claim": "H 正定时 p=-Hg 是下降方向：g^T p = -g^T H g < 0",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1",
+    "status": "derived",
+    "notes": "由 H 对称正定直接推出，已核对。"
+  },
+  {
+    "id": "6.1.2-3",
+    "claim": "推荐的初始缩放 H0=γI，γ=(s0^T y0)/(y0^T y0)",
+    "kind": "heuristic",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (scaling of the initial matrix)",
+    "status": "verified",
+    "notes": "原书给出的工程建议；表述为独立重写，未附具体数值表。"
+  },
+  {
+    "id": "6.1.2-4",
+    "claim": "γ 取值不改变首次搜索方向 p0=-H0 g0 的朝向，只影响后续迭代的次序与条件数",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文分析",
+    "status": "derived",
+    "notes": "由 p0=-γg0 与精确线搜索沿射线的性质直接推出。"
+  },
+  {
+    "id": "6.1.2-5",
+    "claim": "满足弱 Wolfe 条件时 s_k^T y_k ≥ (c2-1) g_k^T s_k > 0",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.1; Chapter 6, Section 6.1",
+    "status": "derived",
+    "notes": "由 Wolfe 第二条件与 g_k^T s_k<0 直接推出。"
+  },
+  {
+    "id": "6.1.2-6",
+    "claim": "BFGS 每步 O(n^2) 运算、存储 n^2/2；牛顿法每步 O(n^3)，梯度下降 O(n)",
+    "kind": "complexity",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1; Chapter 7 (motivation for L-BFGS)",
+    "status": "verified",
+    "notes": "标准复杂度结论；图为增长趋势示意，非实测数据。"
+  },
+  {
+    "id": "6.1.2-7",
+    "claim": "二维 Rosenbrock、H0=I、黄金分割精确线搜索下 BFGS 从 x0=(-1.2,1) 出发 14 步到达 ‖g‖<1e-6，f≈4.6e-19",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 程序输出",
+    "status": "derived",
+    "notes": "由本页 Python 独立运行得到并通过断言；教学算例，不是性能基准。"
+  }
+]

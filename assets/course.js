@@ -840,6 +840,47 @@
           ' &gt; 0 → 正定<br>割线残差 ‖Hₖ₊₁y − s‖ = ' + res.toExponential(1);
       }
     });
+    if (kind === "bfgs-trace") {
+      const f = p => 100*(p[1]-p[0]*p[0])**2 + (1-p[0])**2;
+      const grad = p => [-400*p[0]*(p[1]-p[0]*p[0]) - 2*(1-p[0]), 200*(p[1]-p[0]*p[0])];
+      const search = (x, p) => {
+        let lo = 0, hi = 2; const gr = (Math.sqrt(5)-1)/2;
+        let c = hi-gr*(hi-lo), d = lo+gr*(hi-lo);
+        let fc = f([x[0]+c*p[0], x[1]+c*p[1]]), fd = f([x[0]+d*p[0], x[1]+d*p[1]]);
+        for (let i = 0; i < 80; i++) {
+          if (fc < fd) { hi = d; d = c; fd = fc; c = hi-gr*(hi-lo); fc = f([x[0]+c*p[0], x[1]+c*p[1]]); }
+          else { lo = c; c = d; fc = fd; d = lo+gr*(hi-lo); fd = f([x[0]+d*p[0], x[1]+d*p[1]]); }
+        }
+        return (lo+hi)/2;
+      };
+      const upd = (H, s, y, rho) => {
+        const Hy = [H[0][0]*y[0]+H[0][1]*y[1], H[1][0]*y[0]+H[1][1]*y[1]];
+        const yHy = y[0]*Hy[0]+y[1]*Hy[1]; const out = [[0,0],[0,0]];
+        for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++)
+          out[i][j] = H[i][j]-rho*(s[i]*Hy[j]+Hy[i]*s[j])+rho*rho*yHy*s[i]*s[j]+rho*s[i]*s[j];
+        return out;
+      };
+      let x = [-1.2, 1], H = [[1,0],[0,1]];
+      const trace = [{ x: [-1.2, 1], f: f([-1.2,1]), g: Math.hypot(...grad([-1.2,1])), sy: null }];
+      for (let it = 0; it < 14; it++) {
+        const g = grad(x);
+        const Hg = [H[0][0]*g[0]+H[0][1]*g[1], H[1][0]*g[0]+H[1][1]*g[1]];
+        const p = [-Hg[0], -Hg[1]]; const a = search(x, p);
+        const xn = [x[0]+a*p[0], x[1]+a*p[1]]; const gn = grad(xn);
+        const s = [xn[0]-x[0], xn[1]-x[1]], y = [gn[0]-g[0], gn[1]-g[1]];
+        const sy = s[0]*y[0]+s[1]*y[1];
+        if (sy > 1e-12) H = upd(H, s, y, 1/sy);
+        x = xn;
+        trace.push({ x: x, f: f(x), g: Math.hypot(...grad(x)), sy: sy });
+      }
+      bind(root, el => {
+        const k = Math.min(read(el, "k"), trace.length-1);
+        const t = trace[k];
+        output.innerHTML = '<strong>k = ' + k + '</strong> · xₖ = (' + fmt(t.x[0], 4) + ', ' +
+          fmt(t.x[1], 4) + ') · f = ' + t.f.toExponential(2) + ' · ‖gₖ‖ = ' + t.g.toExponential(2) +
+          (t.sy === null ? ' · 起始点' : ' · sᵏ⁻¹ᵀyᵏ⁻¹ = ' + fmt(t.sy, 4));
+      });
+    }
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
