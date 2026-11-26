@@ -991,6 +991,38 @@
         (bf.ratio === null ? '有界' : fmt(bf.ratio, 4)) + '，x = (' + fmt(bf.x[0], 4) + ', ' + fmt(bf.x[1], 4) + ')' +
         '<br>最速下降末步比率 = ' + (sd.ratio === null ? '有界' : fmt(sd.ratio, 4)) + '，x = (' + fmt(sd.x[0], 4) + ', ' + fmt(sd.x[1], 4) + ')';
     });
+    if (kind === "sr1-convergence") bind(root, el => {
+      const Q = [[3,1],[1,3]], b = [5,7];
+      const mv = (M, v) => [M[0][0]*v[0]+M[0][1]*v[1], M[1][0]*v[0]+M[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0]+u[1]*v[1];
+      const grad = x => [Q[0][0]*x[0]+Q[0][1]*x[1]-b[0], Q[1][0]*x[0]+Q[1][1]*x[1]-b[1]];
+      const inv2 = M => {
+        const d = M[0][0]*M[1][1]-M[0][1]*M[1][0];
+        return Math.abs(d) < 1e-12 ? null : [[M[1][1]/d, -M[0][1]/d], [-M[1][0]/d, M[0][0]/d]];
+      };
+      const relErr = B => Math.hypot(B[0][0]-Q[0][0], B[0][1]-Q[0][1], B[1][0]-Q[1][0], B[1][1]-Q[1][1]) /
+        Math.hypot(Q[0][0], Q[0][1], Q[1][0], Q[1][1]);
+      const alpha = read(el, "alpha");
+      let x = [0, 0], B = [[1,0],[0,1]], err = relErr(B);
+      for (let it = 0; it < 12; it++) {
+        const g = grad(x);
+        if (Math.hypot(g[0], g[1]) < 1e-9) break;
+        const Bi = inv2(B);
+        if (Bi === null) break;
+        const p = [-mv(Bi, g)[0], -mv(Bi, g)[1]];
+        const xn = [x[0]+alpha*p[0], x[1]+alpha*p[1]]; const gn = grad(xn);
+        const s = [xn[0]-x[0], xn[1]-x[1]], y = [gn[0]-g[0], gn[1]-g[1]];
+        const Bs = mv(B, s); const v = [y[0]-Bs[0], y[1]-Bs[1]]; const vs = dot(v, s);
+        if (Math.abs(vs) >= 1e-8*Math.hypot(s[0], s[1])*Math.hypot(v[0], v[1])) {
+          B = [[B[0][0]+v[0]*v[0]/vs, B[0][1]+v[0]*v[1]/vs],
+               [B[1][0]+v[1]*v[0]/vs, B[1][1]+v[1]*v[1]/vs]];
+        }
+        x = xn; err = relErr(B);
+      }
+      output.innerHTML = '<strong>α = ' + fmt(alpha, 2) + '</strong> · 末态相对偏差 ‖B−Q‖/‖Q‖ = ' +
+        err.toExponential(2) + ' · 末态 x = (' + fmt(x[0], 4) + ', ' + fmt(x[1], 4) +
+        ') · x* = (1, 2)';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

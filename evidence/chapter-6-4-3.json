@@ -1,0 +1,56 @@
+[
+  {
+    "id": "6.4.3-1",
+    "claim": "SR1 的两个收敛障碍：分母 v^T s 可能为零/极小，且 B 可能不定",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Sections 6.2 and 6.4 (SR1 update and its analysis)",
+    "status": "derived",
+    "notes": "由 SR1 公式直接观察得到；不定性见 6.2 节例。"
+  },
+  {
+    "id": "6.4.3-2",
+    "claim": "跳过准则 |s^T(y-Bs)| >= r ||s|| ||y-Bs||（r 较小，如 1e-8）保证被接受的更新有界",
+    "kind": "heuristic",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (skipping rule for SR1)",
+    "status": "verified",
+    "notes": "准则与作用依据原书；表述为独立重写。"
+  },
+  {
+    "id": "6.4.3-3",
+    "claim": "跳过准则不保证正定性，也不保证下降方向；它只保证更新在数值上有界",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Sections 6.2 and 6.4",
+    "status": "derived",
+    "notes": "由准则只约束分母大小、不约束特征值符号推出。"
+  },
+  {
+    "id": "6.4.3-4",
+    "claim": "在平滑与交叉假设下，带跳过准则的 SR1 使近似序列一致有界并沿方向逼近真实 Hessian；SR1 常比 BFGS 更接近真实 Hessian",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (convergence analysis of SR1)",
+    "status": "verified",
+    "notes": "结论依据原书；本页不复现证明，也不夸大为无条件全局收敛。"
+  },
+  {
+    "id": "6.4.3-5",
+    "claim": "BFGS 与 SR1 的超线性收敛共用 Dennis–Moré 条件，差别在达到它的机制",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.3; Chapter 6, Section 6.4",
+    "status": "derived",
+    "notes": "由两类方法的超线性结论均以 Dennis–Moré 条件为前提推出。"
+  },
+  {
+    "id": "6.4.3-6",
+    "claim": "Q=[[3,1],[1,3]]、b=(5,7)、B0=I、alpha=0.3 时 SR1 相对偏差从 0.7071 降到 0.2277，第 2 次更新后为 0；末态 x 接近 x*=(1,2)",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 程序输出与页面交互",
+    "status": "derived",
+    "notes": "由本页 Python 与页面 JS 独立运行得到；教学算例，不构成普适保证。"
+  }
+]
