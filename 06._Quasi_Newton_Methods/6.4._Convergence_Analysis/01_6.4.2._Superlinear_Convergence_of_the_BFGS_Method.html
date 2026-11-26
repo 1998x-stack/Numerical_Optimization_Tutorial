@@ -1,36 +1,55 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="超线性收敛指误差比率 eₖ₊₁/eₖ→0。BFGS 在 Dennis–Moré 条件下超线性，本页给出条件、层次与可运行数值证据。"><title>6.4.2 BFGS 的超线性收敛：Dennis–Moré 条件 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 06 · 6.4.2</span><a href="#section-1">收敛速度的层次</a><a href="#section-2">Dennis–Moré 条件</a><a href="#section-3">BFGS 的超线性收敛</a><a href="#section-4">数值证据</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 06 · 6.4.2</div><h1>6.4.2 BFGS 的超线性收敛：Dennis–Moré 条件</h1><p class="dek">6.4.1 只保证 lim inf‖gₖ‖=0。超线性收敛是更强的局部结论：误差比率 eₖ₊₁/eₖ→0。它成立的充要条件是近似矩阵沿步方向逼近 Hessian——即 Dennis–Moré 条件。</p><div class="article-meta"><span>收敛速度</span><span>充要条件</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>收敛速度的层次</h2><p>设迭代点趋于 x*，误差 eₖ=xₖ−x*。几种常用的收敛速度：</p><p><strong>线性</strong>：‖eₖ₊₁‖≤c‖eₖ‖，c∈(0,1)；<strong>超线性</strong>：‖eₖ₊₁‖/‖eₖ‖→0；<strong>二次</strong>：‖eₖ₊₁‖≤K‖eₖ‖²。牛顿法在非退化解附近是二次的；拟牛顿法一般只能承诺超线性。</p><p>超线性意味着误差比率越来越小，但不保证固定阶数。它是拟牛顿法能达到的自然目标：单靠秩二更新拼不出牛顿法那样的局部二阶信息完全准确度，但能让比率趋于零。</p></section><section id="section-2"><h2>Dennis–Moré 条件</h2><p>超线性收敛的充要条件与“近似矩阵沿步方向逼近真实 Hessian”有关。若线搜索满足步长趋于零且方向合理，则</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="超线性收敛的充要条件"><math display="block" aria-label="超线性收敛的充要条件"><mrow><mfrac><mrow><mrow><mo>‖</mo><mrow><mo>(</mo><msub><mi>B</mi><mi>k</mi></msub><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo>(</mo><msup><mi>x</mi><mo>*</mo></msup><mo>)</mo><mo>)</mo></mrow><msub><mi>s</mi><mi>k</mi></msub><mo>‖</mo></mrow></mrow><mrow><mo>‖</mo><msub><mi>s</mi><mi>k</mi></msub><mo>‖</mo></mrow></mfrac><mo>→</mo><mn>0</mn></mrow></math></div></div><p>是超线性收敛的充分必要条件（在原书的超线性收敛定理中给出）。直观上，它说模型在最新一步方向上越来越像真实 Hessian。仅要求 Bₖ→∇²f(x*) 是充分但非必要的：梯度差只提供了沿 sₖ 一个方向的信息，因此只在这一方向上的误差需要消失。</p><p>这个条件把“算法是否快”归约成“割线信息是否累积得足够好”。布罗伊登族的不同更新、不同参数选择，区别就在逼近这个条件的速度。</p></section><section id="section-3"><h2>BFGS 的超线性收敛</h2><p>BFGS 能否达到超线性？原书的结论是：在适当的假设下（f 在解附近严格凸且二阶连续可微、线搜索满足 Wolfe 条件、迭代收敛到解），BFGS 满足上述 Dennis–Moré 条件，因而超线性收敛。</p><p>证明需要两个要素：一是 6.4.1 的全局收敛骨架保证 ‖gₖ‖→0；二是 BFGS 更新的特殊结构使 ∑‖(Bₖ−∇²f(x*))sₖ‖/‖sₖ‖ 收敛，从而 Dennis–Moré 条件成立。并非任意满足割线方程的更新都有这个性质：BFGS 的保正定性与参数选取在其中起作用。</p><p>局限：超线性是<strong>局部</strong>结论。它只说当迭代已经靠近解时速度会加快，不排除前期很慢或发散（6.4.1 的全局部分才处理“不卡住”）。</p></section><section id="section-4"><h2>数值证据</h2><p>在二维 Rosenbrock 上从 x₀=(−1.2,1) 出发、用精确线搜索，记录误差 eₖ=‖xₖ−x*‖ 的比率 eₖ₊₁/eₖ：前几步比率在 0.5–1.0 之间徘徊（全局阶段），到末期急剧变小——后四步约为 0.013、0.010、0.0005、0.000。比率趋于零正是超线性的特征。</p><p>作为对比，同样起点与线搜索下的最速下降法在弯曲谷底里几乎停滞：比率长期停在 1.0 附近，连续 60 步才缓慢推进。这说明“同样能下降”不等于“同样快”；超线性来自 BFGS 对曲率信息的逐步学习。</p><p>这些都是二维教学算例，不是通用基准；用它们只能观察到趋势，不能代替定理。</p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 300" role="img" aria-labelledby="bfgs-superlin-title bfgs-superlin-desc"><title id="bfgs-superlin-title">BFGS 与最速下降的误差比率</title><desc id="bfgs-superlin-desc">折线表示每次迭代的误差比率 e_{k+1}/e_k：BFGS 曲线逐步降到接近零，最速下降曲线长期停在 1 附近。</desc><rect width="660" height="300" rx="16" fill="#f7f4ee"/><line x1="70" y1="250" x2="620" y2="250" stroke="#263a33" stroke-width="2"/><line x1="70" y1="250" x2="70" y2="40" stroke="#263a33" stroke-width="2"/><line x1="70" y1="120" x2="620" y2="120" stroke="#e0d9cb" stroke-width="1.5" stroke-dasharray="6 6"/><text x="590" y="112" font-size="13" font-family="system-ui, sans-serif" fill="#8a8070">ratio 1</text><polyline points="70,74 130,90 200,92 260,88 320,105 380,122 440,140 500,185 545,238 590,248 620,250" fill="none" stroke="#126e66" stroke-width="3"/><polyline points="70,74 160,90 260,105 360,120 460,122 560,120 620,119" fill="none" stroke="#bd633f" stroke-width="3"/><g font-size="14" font-family="system-ui, sans-serif"><text x="470" y="245" fill="#126e66">BFGS：比率→0</text><text x="380" y="140" fill="#bd633f">最速下降：比率≈1</text><text x="600" y="272">k</text><text x="36" y="50">ratio</text></g></svg><figcaption>横轴为迭代序号，纵轴为误差比率 eₖ₊₁/eₖ。BFGS 的比率逐步降到接近零（超线性），最速下降长期停在 1 附近。曲线为教学算例的示意整理，不是基准数据。</figcaption></figure></section><section id="interactive"><h2>交互：两种方法的最后比率</h2><p>拖动滑块改变起点 x 坐标，同时运行 BFGS 与最速下降（精确线搜索），显示两者在最后几步的误差比率。比较哪一个的比率明显变小。</p><div class="interactive-panel" data-demo="bfgs-superlin"><h3>实时比较</h3><div class="demo-controls"><div class="demo-control"><label for="bs-x0">起点 x₀（第二个分量为 1）<output data-value-for="x0">-1.2</output></label><input id="bs-x0" type="range" data-key="x0" min="-1.5" max="0.5" step="0.1" value="-1.2"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：观察误差比率趋于零</h2><p>程序只依赖标准库，在 Rosenbrock 上跑 BFGS（精确线搜索），打印最后几步的误差比率。输出可见比率下降的趋势；这是一种数值现象，不能代替 Dennis–Moré 定理。</p><pre><code>"""BFGS on Rosenbrock: print the final error ratios e_{k+1}/e_k."""
+import math
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>6.4.2. Superlinear Convergence of the BFGS Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method</h1>
-<pre><code>Lecture: 06._Quasi-Newton_Methods/6.4._Convergence_Analysis
-Content: 01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method
-</code></pre>
+def f(p):
+    return 100.0*(p[1]-p[0]**2)**2 + (1.0-p[0])**2
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method
+def grad(p):
+    return (-400.0*p[0]*(p[1]-p[0]**2) - 2.0*(1.0-p[0]), 200.0*(p[1]-p[0]**2))
 
-"""
-Lecture: 06._Quasi-Newton_Methods/6.4._Convergence_Analysis
-Content: 01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method
-"""
+def exact_search(x, p):
+    lo, hi = 0.0, 2.0
+    gr = (math.sqrt(5.0)-1.0)/2.0
+    c, d = hi-gr*(hi-lo), lo+gr*(hi-lo)
+    fc, fd = f((x[0]+c*p[0], x[1]+c*p[1])), f((x[0]+d*p[0], x[1]+d*p[1]))
+    for _ in range(80):
+        if fc < fd:
+            hi, d, fd = d, c, fc
+            c = hi-gr*(hi-lo); fc = f((x[0]+c*p[0], x[1]+c*p[1]))
+        else:
+            lo, c, fc = c, d, fd
+            d = lo+gr*(hi-lo); fd = f((x[0]+d*p[0], x[1]+d*p[1]))
+    return 0.5*(lo+hi)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def run(x0):
+    x = list(x0); H = [[1.0, 0.0], [0.0, 1.0]]
+    star = (1.0, 1.0)
+    def err(): return math.hypot(x[0]-star[0], x[1]-star[1])
+    ratios, prev = [], None
+    for it in range(20):
+        d = err()
+        if prev is not None and prev > 0:
+            ratios.append(d/prev)
+        prev = d
+        g = grad(x)
+        if math.hypot(*g) < 1e-10:
+            break
+        Hg = [H[0][0]*g[0]+H[0][1]*g[1], H[1][0]*g[0]+H[1][1]*g[1]]
+        p = [-Hg[0], -Hg[1]]; a = exact_search(x, p)
+        xn = [x[0]+a*p[0], x[1]+a*p[1]]; gn = grad(xn)
+        s = [xn[i]-x[i] for i in range(2)]; y = [gn[i]-g[i] for i in range(2)]
+        sy = s[0]*y[0]+s[1]*y[1]
+        if sy > 1e-12:
+            rho = 1.0/sy
+            Hy = [H[i][0]*y[0]+H[i][1]*y[1] for i in range(2)]
+            yHy = y[0]*Hy[0]+y[1]*Hy[1]
+            H = [[H[i][j]-rho*(s[i]*Hy[j]+Hy[i]*s[j])+rho*rho*yHy*s[i]*s[j]+rho*s[i]*s[j]
+                  for j in range(2)] for i in range(2)]
+        x = xn
+    return ratios
+
+if __name__ == "__main__":
+    ratios = run((-1.2, 1.0))
+    print("last ratios:", [round(r, 4) for r in ratios[-4:]])
+    assert ratios[-1] < 0.05          # final ratio is small: superlinear trend</code></pre><p>程序只用二维 Rosenbrock 与精确线搜索；比率的具体值依赖起点与线搜索，不是普适常数，也不验证定理的假设。</p></section><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.3（超线性收敛的 Dennis–Moré 充要条件）与 Chapter 6, Section 6.4（BFGS 超线性收敛），pp. 152–154。教学图、数值例子及代码均独立构造。</div><footer class="article-footer"><p class="references">BFGS 的超线性是局部结论，依赖 Dennis–Moré 条件（模型沿步方向逼近真实 Hessian）；它不替代 6.4.1 的全局收敛，也不保证前期速度快。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_6.4.1._Global_Convergence_of_the_BFGS_Method.html"><small>上一篇</small><strong>BFGS 的全局收敛</strong></a><a href="02_6.4.3._Convergence_Analysis_of_the_SR1_Method.html"><small>下一篇</small><strong>SR1 的收敛分析</strong></a></nav></footer></article></main></div></body></html>

@@ -942,6 +942,55 @@
         ' 步 · 末态 x = (' + fmt(x[0], 4) + ', ' + fmt(x[1], 4) + ') · ‖g‖ = ' +
         Math.hypot(g[0], g[1]).toExponential(2) + ' · f = ' + f(x).toExponential(2);
     });
+    if (kind === "bfgs-superlin") bind(root, el => {
+      const f = p => 100*(p[1]-p[0]*p[0])**2 + (1-p[0])**2;
+      const grad = p => [-400*p[0]*(p[1]-p[0]*p[0]) - 2*(1-p[0]), 200*(p[1]-p[0]*p[0])];
+      const search = (x, p) => {
+        let lo = 0, hi = 2; const gr = (Math.sqrt(5)-1)/2;
+        let c = hi-gr*(hi-lo), d = lo+gr*(hi-lo);
+        let fc = f([x[0]+c*p[0], x[1]+c*p[1]]), fd = f([x[0]+d*p[0], x[1]+d*p[1]]);
+        for (let i = 0; i < 80; i++) {
+          if (fc < fd) { hi = d; d = c; fd = fc; c = hi-gr*(hi-lo); fc = f([x[0]+c*p[0], x[1]+c*p[1]]); }
+          else { lo = c; c = d; fc = fd; d = lo+gr*(hi-lo); fd = f([x[0]+d*p[0], x[1]+d*p[1]]); }
+        }
+        return (lo+hi)/2;
+      };
+      const star = [1, 1];
+      const run = (x0, useBFGS) => {
+        let x = [x0, 1], H = [[1,0],[0,1]], prev = null, last = null;
+        const err = () => Math.hypot(x[0]-star[0], x[1]-star[1]);
+        for (let it = 0; it < 80; it++) {
+          const d = err();
+          if (prev !== null && prev > 0) last = d/prev;
+          prev = d;
+          const g = grad(x);
+          if (Math.hypot(g[0], g[1]) < 1e-8) break;
+          const Hg = [H[0][0]*g[0]+H[0][1]*g[1], H[1][0]*g[0]+H[1][1]*g[1]];
+          const p = useBFGS ? [-Hg[0], -Hg[1]] : [-g[0], -g[1]];
+          const a = search(x, p);
+          const xn = [x[0]+a*p[0], x[1]+a*p[1]]; const gn = grad(xn);
+          if (useBFGS) {
+            const s = [xn[0]-x[0], xn[1]-x[1]], y = [gn[0]-g[0], gn[1]-g[1]];
+            const sy = s[0]*y[0]+s[1]*y[1];
+            if (sy > 1e-12) {
+              const rho = 1/sy;
+              const Hy = [H[0][0]*y[0]+H[0][1]*y[1], H[1][0]*y[0]+H[1][1]*y[1]];
+              const yHy = y[0]*Hy[0]+y[1]*Hy[1]; const out = [[0,0],[0,0]];
+              for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++)
+                out[i][j] = H[i][j]-rho*(s[i]*Hy[j]+Hy[i]*s[j])+rho*rho*yHy*s[i]*s[j]+rho*s[i]*s[j];
+              H = out;
+            }
+          }
+          x = xn;
+        }
+        return { ratio: last, x: x };
+      };
+      const x0 = read(el, "x0");
+      const bf = run(x0, true), sd = run(x0, false);
+      output.innerHTML = '<strong>x₀ = (' + fmt(x0, 1) + ', 1)</strong><br>BFGS 末步比率 eₖ₊₁/eₖ = ' +
+        (bf.ratio === null ? '有界' : fmt(bf.ratio, 4)) + '，x = (' + fmt(bf.x[0], 4) + ', ' + fmt(bf.x[1], 4) + ')' +
+        '<br>最速下降末步比率 = ' + (sd.ratio === null ? '有界' : fmt(sd.ratio, 4)) + '，x = (' + fmt(sd.x[0], 4) + ', ' + fmt(sd.x[1], 4) + ')';
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

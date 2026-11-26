@@ -1,0 +1,56 @@
+[
+  {
+    "id": "6.4.2-1",
+    "claim": "收敛速度层次：线性、超线性（误差比率→0）、二次；拟牛顿法一般只承诺超线性",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.3 (rates of convergence); Chapter 6, Section 6.4",
+    "status": "verified",
+    "notes": "定义依据原书；表述为独立重写。"
+  },
+  {
+    "id": "6.4.2-2",
+    "claim": "Dennis–Moré 充要条件：||(B_k - grad^2 f(x*)) s_k|| / ||s_k|| -> 0 是超线性收敛的充要条件",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.3 (superlinear convergence characterization)",
+    "status": "verified",
+    "notes": "充要条件依据原书；本页不复现证明。"
+  },
+  {
+    "id": "6.4.2-3",
+    "claim": "B_k -> grad^2 f(x*) 是超线性的充分但非必要条件",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.3 (discussion after the characterization)",
+    "status": "derived",
+    "notes": "由 Dennis–Moré 条件只约束沿 s_k 方向直接推出。"
+  },
+  {
+    "id": "6.4.2-4",
+    "claim": "在适当假设下 BFGS 满足 Dennis–Moré 条件，因而局部超线性收敛",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (superlinear convergence of BFGS)",
+    "status": "verified",
+    "notes": "结论依据原书；本页不复现证明，也不声称任意割线更新都超线性。"
+  },
+  {
+    "id": "6.4.2-5",
+    "claim": "超线性是局部结论，不排除前期慢或发散",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (local nature of the superlinear result)",
+    "status": "derived",
+    "notes": "由局部收敛定理的前提（迭代已收敛到解）直接得到。"
+  },
+  {
+    "id": "6.4.2-6",
+    "claim": "Rosenbrock、x0=(-1.2,1)、精确线搜索下 BFGS 末四步误差比率约 0.013,0.010,0.0005,0.000；最速下降比率长期≈1.0",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 程序输出与页面交互",
+    "status": "derived",
+    "notes": "由本页 Python 与页面 JS 独立运行得到；教学算例，不是基准数据，也不验证定理假设。"
+  }
+]
