@@ -1023,6 +1023,17 @@
         err.toExponential(2) + ' · 末态 x = (' + fmt(x[0], 4) + ', ' + fmt(x[1], 4) +
         ') · x* = (1, 2)';
     });
+    if (kind === "qn-update") bind(root, el => {
+      const a = read(el, "a"), b = read(el, "b");
+      const detBFGS = a;                       // closed form for B0=I, s=(1,0), y=(a,b)
+      const detDFP = a + b*b/a;
+      const detSR1 = Math.abs(a - 1) < 1e-9 ? null : a + b*b/(a - 1);
+      const flag = d => d === null ? '无定义' : (Math.abs(d) < 1e-9 ? '奇异' : (d > 0 ? '正定' : '不定'));
+      output.innerHTML = '<strong>sᵀy = ' + fmt(a, 2) + '</strong><br>' +
+        'BFGS det = ' + fmt(detBFGS, 3) + '（' + flag(detBFGS) + '）<br>' +
+        'DFP det = ' + fmt(detDFP, 3) + '（' + flag(detDFP) + '）<br>' +
+        'SR1 det = ' + (detSR1 === null ? '分母为 0' : fmt(detSR1, 3) + '（' + flag(detSR1) + '）');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
