@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright QA for the course portal and sixty-two standalone articles."""
+"""Playwright QA for the course portal and standalone articles."""
 from __future__ import annotations
 
 import argparse
@@ -71,6 +71,15 @@ ARTICLES = [
     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/03_5.2.4._Behavior_of_the_Fletcher–Reeves_Method.html",
     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/04_5.2.5._Global_Convergence.html",
     "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.html",
+    "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/00_6.1.1._Properties_of_the_BFGS_Method.html",
+    "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/01_6.1.2._Implementation.html",
+    "06._Quasi_Newton_Methods/6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.html",
+    "06._Quasi_Newton_Methods/02_6.3._The_Broyden_Class.html",
+    "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.html",
+    "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.html",
+    "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.html",
+    "06._Quasi_Newton_Methods/04_6.5._Notes_and_References.html",
+    "06._Quasi_Newton_Methods/05_6.6._Exercises.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
@@ -181,7 +190,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("PASS: homepage search, sixty-two article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
+    print(f"PASS: homepage search, {len(ARTICLES)} article interactions, 1440/768/390/360 px viewports, MathML geometry, figures and print emulation.")
     return 0
 
 

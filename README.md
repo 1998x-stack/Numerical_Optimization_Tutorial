@@ -24,10 +24,11 @@
 | 第四章 4.2.2–4.5.2 | 已重构（8 篇） | 全局驻点收敛、λ 根搜索、Hard Case、全局最优证书、局部 Newton、缩放与范数 |
 | 第五章 5.1.1–5.1.6 | 已重构（6 篇） | 共轭方向法、CG 基本性质、实用形式、收敛速度、预条件与实用预条件器 |
 | 第五章 5.2.1–5.2.6 | 已重构（6 篇） | 非线性 CG：FR、Polak–Ribière 变体、重启、行为、全局收敛与数值表现 |
-| 第五章 5.3–5.4 及第六章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
+| 第六章 6.1.1–6.6 | 已重构（9 篇） | BFGS、SR1、Broyden 族、三类收敛分析、要点与练习 |
+| 第五章 5.3–5.4 及第七章至第十九章 | 保留原始章节结构 | 后续逐篇重构 |
 | 附录 A | 保留原始章节结构 | 后续按批次完善 |
 
-> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6、5.2.1–5.2.6 共六十二篇已重构；其余页面仍保持原始状态。
+> 仓库有 19 个主体章节和一个背景材料附录。目录存在不代表其中每篇内容都已经完成。第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7、第四章 4.1.1–4.5.2、第五章 5.1.1–5.1.6、5.2.1–5.2.6 与第六章 6.1.1–6.6 共七十一篇已重构；其余页面仍保持原始状态。
 
 ## 从哪里开始
 
@@ -65,6 +66,22 @@
 8. [步长选择](03._Line_Search_Methods/00_3.1._Step_Length.html)：Armijo、弱/强 Wolfe、Goldstein 与回溯线搜索。
 
 **目录编号说明：**教材目录将“识别局部极小点”和“非光滑问题”列为 2.1 下的子主题；算法概览为 2.2，其下的线搜索/信赖域、搜索方向、局部模型和尺度在目录中没有独立小节编号。为了不破坏旧仓库 URL，本批保留原文件路径，页面标题和阅读导航则按教材目录纠正显示。
+
+## 第十批：拟牛顿方法 6.1–6.6
+
+本批九篇逐页重建第六章拟牛顿方法，均包含独立 HTML、Markdown、Python、可访问 SVG、参数交互与证据记录：
+
+- [6.1.1 BFGS 的性质](06._Quasi_Newton_Methods/6.1._The_BFGS_Method/00_6.1.1._Properties_of_the_BFGS_Method.html)：割线方程、变分推导与正定性。
+- [6.1.2 BFGS 的实现](06._Quasi_Newton_Methods/6.1._The_BFGS_Method/01_6.1.2._Implementation.html)：算法 6.1、初始缩放与存储/计算代价。
+- [6.2.1 SR1 更新的性质](06._Quasi_Newton_Methods/6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.html)：秩一割线更新与不定性。
+- [6.3 Broyden 族](06._Quasi_Newton_Methods/02_6.3._The_Broyden_Class.html)：连接 BFGS 与 DFP 的一参数更新。
+- [6.4.1 BFGS 的全局收敛](06._Quasi_Newton_Methods/6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.html)：Zoutendijk 条件与水平集假设。
+- [6.4.2 BFGS 的超线性收敛](06._Quasi_Newton_Methods/6.4._Convergence_Analysis/01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.html)：Dennis–Moré 条件与误差比率。
+- [6.4.3 SR1 的收敛分析](06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.html)：跳过准则与逼近真实 Hessian。
+- [6.5 要点与参考](06._Quasi_Newton_Methods/04_6.5._Notes_and_References.html)：四种更新与三类收敛结论的边界。
+- [6.6 练习](06._Quasi_Newton_Methods/05_6.6._Exercises.html)：割线方程、正定性与闭式判定。
+
+**重要边界：**BFGS 的全局收敛是 lim inf 形式且依赖 Wolfe 线搜索与凸水平集/ Lipschitz 梯度；超线性是局部结论且依赖 Dennis–Moré 条件；SR1 的分析依赖跳过准则。本批数值例子均为教学算例，不代表一般问题的迭代次数或性能排序。
 
 ## 第九批：非线性共轭梯度 5.2
 

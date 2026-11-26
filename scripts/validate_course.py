@@ -259,6 +259,42 @@ ARTICLES = [
      "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.md",
      "05._Conjugate_Gradient_Methods/5.2._Nonlinear_Conjugate_Gradient_Methods/05_5.2.6._Numerical_Performance.py",
      "evidence/chapter-5-2-6.json"),
+    ("06._Quasi_Newton_Methods/6.1._The_BFGS_Method/00_6.1.1._Properties_of_the_BFGS_Method.html",
+     "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/00_6.1.1._Properties_of_the_BFGS_Method.md",
+     "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/00_6.1.1._Properties_of_the_BFGS_Method.py",
+     "evidence/chapter-6-1-1.json"),
+    ("06._Quasi_Newton_Methods/6.1._The_BFGS_Method/01_6.1.2._Implementation.html",
+     "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/01_6.1.2._Implementation.md",
+     "06._Quasi_Newton_Methods/6.1._The_BFGS_Method/01_6.1.2._Implementation.py",
+     "evidence/chapter-6-1-2.json"),
+    ("06._Quasi_Newton_Methods/6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.html",
+     "06._Quasi_Newton_Methods/6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.md",
+     "06._Quasi_Newton_Methods/6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.py",
+     "evidence/chapter-6-2-1.json"),
+    ("06._Quasi_Newton_Methods/02_6.3._The_Broyden_Class.html",
+     "06._Quasi_Newton_Methods/02_6.3._The_Broyden_Class.md",
+     "06._Quasi_Newton_Methods/02_6.3._The_Broyden_Class.py",
+     "evidence/chapter-6-3.json"),
+    ("06._Quasi_Newton_Methods/6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.html",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.md",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.py",
+     "evidence/chapter-6-4-1.json"),
+    ("06._Quasi_Newton_Methods/6.4._Convergence_Analysis/01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.html",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.md",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.py",
+     "evidence/chapter-6-4-2.json"),
+    ("06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.html",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.md",
+     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.py",
+     "evidence/chapter-6-4-3.json"),
+    ("06._Quasi_Newton_Methods/04_6.5._Notes_and_References.html",
+     "06._Quasi_Newton_Methods/04_6.5._Notes_and_References.md",
+     "06._Quasi_Newton_Methods/04_6.5._Notes_and_References.py",
+     "evidence/chapter-6-5.json"),
+    ("06._Quasi_Newton_Methods/05_6.6._Exercises.html",
+     "06._Quasi_Newton_Methods/05_6.6._Exercises.md",
+     "06._Quasi_Newton_Methods/05_6.6._Exercises.py",
+     "evidence/chapter-6-6.json"),
 ]
 
 
@@ -417,12 +453,12 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7 与第四章 4.1.1–4.5.2 与第五章 5.1.1–5.1.6、5.2.1–5.2.6 共六十二篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7、第四章 4.1.1–4.5.2、第五章 5.1.1–5.1.6、5.2.1–5.2.6 与第六章 6.1.1–6.6 共七十一篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 62:
+    if index.count('class="featured-card"') != 71:
         errors.append("index.html: expected exactly sixty-two featured modules")
     return errors
 

@@ -1,4 +1,4 @@
-"""Regression tests for all fifty authored course modules."""
+"""Regression tests for all authored course modules."""
 from __future__ import annotations
 
 import subprocess
