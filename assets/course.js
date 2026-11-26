@@ -894,6 +894,16 @@
           fmt(1 + b*b/vs, 2) + ']]（割线方程始终满足）';
       }
     });
+    if (kind === "broyden-phi") bind(root, el => {
+      const phi = read(el, "phi");
+      const det = 1 + 4*phi;           // B0=I, s=(1,0), y=(1,2): det = 1 + 4 phi
+      const b22 = 5 + 4*phi;
+      const cls = Math.abs(det) < 1e-9 ? '奇异' : (det > 0 ? '正定' : '不定');
+      output.innerHTML = '<strong>φ = ' + fmt(phi, 2) + '</strong> · B₁ = [[1, 2], [2, ' +
+        fmt(b22, 2) + ']] · det = ' + fmt(det, 3) + ' → ' + cls +
+        '<br>' + (phi >= 0 && phi <= 1 ? '位于 [0,1]：正定且是 BFGS/DFP 的凸组合'
+                                       : '已越出 [0,1]：正定性无保证');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

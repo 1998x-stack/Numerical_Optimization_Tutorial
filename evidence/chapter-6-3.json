@@ -1,0 +1,56 @@
+[
+  {
+    "id": "6.3-1",
+    "claim": "割线方程对 B 是线性的：BFGS 与 DFP 更新的任意凸组合仍满足割线方程",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.3 (motivation for the Broyden class)",
+    "status": "derived",
+    "notes": "由割线约束的线性性直接推出，已核对。"
+  },
+  {
+    "id": "6.3-2",
+    "claim": "Broyden 族定义 B^{phi}=(1-phi)B^BFGS+phi B^DFP，等价于显式秩二形式含 phi (s^T B s) v v^T，v = y/(y^T s) - B s/(s^T B s)",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.3 (Broyden class, explicit form)",
+    "status": "verified",
+    "notes": "公式依据原书，表述与符号约定为独立重写。"
+  },
+  {
+    "id": "6.3-3",
+    "claim": "v_k^T s_k = 0，故含 phi 的项对割线方程无贡献；phi=0 为 BFGS，phi=1 为 DFP",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.3",
+    "status": "derived",
+    "notes": "由 v_k 定义直接计算 v_k^T s_k=1-1=0得到。"
+  },
+  {
+    "id": "6.3-4",
+    "claim": "phi∈[0,1] 时 Broyden 族更新是两个正定矩阵的凸组合，仍正定；phi<0 可能破坏正定",
+    "kind": "property",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.3 (positive definiteness of the Broyden class)",
+    "status": "verified",
+    "notes": "凸组合保正定性为直接结论；phi<0 的反例由本页算例给出。"
+  },
+  {
+    "id": "6.3-5",
+    "claim": "自适应选取 phi_k 使 B_{k+1} 条件数最小（闭式、无需额外评估），并在此策略下得到局部超线性收敛",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.3 (optimally conditioned Broyden class, superlinear convergence)",
+    "status": "verified",
+    "notes": "收敛性结论依据原书；本页不复现其证明。"
+  },
+  {
+    "id": "6.3-6",
+    "claim": "B0=I、s=(1,0)、y=(1,2) 下 B1=[[1,2],[2,5+4phi]]、det B1=1+4phi；phi=0,0.5,1 正定，phi=-1 得 det=-3<0 不定",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例及 Python 断言",
+    "status": "derived",
+    "notes": "由本页 Python 独立计算并通过断言；教学算例，不构成性能基准。"
+  }
+]

@@ -1,36 +1,28 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Broyden 族用一个参数 φ 把 BFGS 与 DFP 连续连接起来。φ∈[0,1] 保持正定，自适应选取 φ 可得到最优条件数与超线性收敛。"><title>6.3 Broyden 族：连接 BFGS 与 DFP 的一参数更新 | Numerical Optimization</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../index.html#routes">学习路线</a><a href="../index.html#chapters">章节目录</a><a href="../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 06 · 6.3</span><a href="#section-1">从两个更新到一族更新</a><a href="#section-2">Broyden 族的定义</a><a href="#section-3">正定性参数区间</a><a href="#section-4">自适应参数与超线性收敛</a><a href="#section-5">二维可复现算例</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 06 · 6.3</div><h1>6.3 Broyden 族：连接 BFGS 与 DFP 的一参数更新</h1><p class="dek">BFGS 与 DFP 不是两个孤立的公式，而是一族秩二更新的两个端点。引入参数 φ 后，两者的正组合保持正定，而参数的取值又决定了近似矩阵的条件数，从而影响收敛速度。</p><div class="article-meta"><span>一参数族</span><span>正定性分析</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>从两个更新到一族更新</h2><p>6.1.1 给出了 BFGS 与 DFP 的秩二更新，它们互为对偶，都满足割线方程 Bₖ₊₁sₖ=yₖ。关键观察是：割线方程对 B 是<strong>线性</strong>的——若 B⁽¹⁾ 与 B⁽²⁾ 都满足 Bs=y，则任意凸组合 (1−φ)B⁽¹⁾+φB⁽²⁾ 也满足割线方程。因此把 BFGS 与 DFP 按参数 φ 混合，得到的仍然是一个合法的拟牛顿更新。</p><p>这解释了两者为何不是“二选一”：它们只是同一个一参数族的两个端点。这个族被称为 Broyden 族，是满足对称与割线约束的秩二更新中最广为人知的一类。</p></section><section id="section-2"><h2>Broyden 族的定义</h2><p>用凸组合定义：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Broyden 族凸组合定义"><math display="block" aria-label="Broyden 族凸组合定义"><mrow><msubsup><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mi>φ</mi></msubsup><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>φ</mi><mo>)</mo><msubsup><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mtext>BFGS</mtext></msubsup><mo>+</mo><mi>φ</mi><msubsup><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mtext>DFP</mtext></msubsup><mo>.</mo></mrow></math></div></div><p>等价地，可以把它写成一个从 Bₖ 出发的单一秩二更新，显式地暴露参数 φ：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Broyden 族显式形式"><math display="block" aria-label="Broyden 族显式形式"><mrow><msub><mi>B</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>B</mi><mi>k</mi></msub><mo>−</mo><mfrac><mrow><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac><mo>+</mo><mfrac><mrow><msub><mi>y</mi><mi>k</mi></msub><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup></mrow><mrow><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac><mo>+</mo><mi>φ</mi><mrow><mo>(</mo><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub><mo>)</mo></mrow><msub><mi>v</mi><mi>k</mi></msub><msubsup><mi>v</mi><mi>k</mi><mo>⊤</mo></msubsup><mo>,</mo></mrow></math></div></div><p>其中</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Broyden 族的 w 向量"><math display="block" aria-label="Broyden 族的 w 向量"><mrow><msub><mi>v</mi><mi>k</mi></msub><mo>=</mo><mfrac><msub><mi>y</mi><mi>k</mi></msub><mrow><msubsup><mi>y</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac><mo>−</mo><mfrac><mrow><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub></mrow><mrow><msubsup><mi>s</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>B</mi><mi>k</mi></msub><msub><mi>s</mi><mi>k</mi></msub></mrow></mfrac><mo>.</mo></mrow></math></div></div><p>φ=0 时最后一项消失，回到 BFGS；φ=1 时得到 DFP。注意 vₖᵀsₖ=(yₖᵀsₖ)/(yₖᵀsₖ)−(sₖᵀBₖsₖ)/(sₖᵀBₖsₖ)=0，所以含 φ 的那一项对割线方程没有贡献——无论 φ 取多少，更新都满足割线方程。这正是“割线约束对 B 线性”的代数体现。</p></section><section id="section-3"><h2>正定性参数区间</h2><p>若 Bₖ 对称正定且 sₖᵀyₖ&gt;0，则 BFGS 与 DFP 更新都正定。当 φ∈[0,1] 时，Bₖ₊₁^φ 是两个正定矩阵的凸组合，因此<strong>仍然正定</strong>。</p><p>当 φ&lt;0 时，凸组合变成“外推”，最后一项的负贡献可能把最小的特征值拉过零，矩阵变成不定。具体例子：B₀=I、s=(1,0)、y=(1,2)，则 det B₁^φ=1+4φ；所以 φ&gt;−1/4 时正定，φ=−1/4 时奇异，φ&lt;−1/4 时不定。φ&gt;1 也会失去凸组合结构，但没有 φ&lt;0 那么直接。</p><p>结论：保持正定的安全参数区间是 φ∈[0,1]；在线搜索框架下通常只在这个闭区间内取值。</p></section><section id="section-4"><h2>自适应参数与超线性收敛</h2><p>既然正定的 φ 有一整段可选，就可以用它改善 Bₖ₊₁ 的<strong>条件数</strong>。Bₖ₊₁ 的两个特征值随 φ 单调变化，因此可以解出一个闭式的 φₖ，使条件数在可行区间内最小；这个值不需要额外的函数或梯度评估就能算出。原书将此称为 Broyden 族的“最优条件”选取。</p><p>在这一选取下，配合精确线搜索与适当假设，可以证明方法具有局部超线性收敛性。需要注意：这是关于特定参数策略的收敛结论，不能反过来声称“任意 φ 的 Broyden 更新都超线性”。</p><p>与 SR1 的关系：SR1 是秩一更新，不属于这个秩二族；但 Boyd 类包含的更新都满足割线方程，SR1 也满足——区别在于 SR1 以单个秩一项同时耗费更少、又能表示不定性，因此它在信赖域框架中另有位置（6.2 节）。</p></section><section id="section-5"><h2>二维可复现算例</h2><p>取 B₀=I、s=(1,0)、y=(1,2)。把 φ 代入 Broyden 显式形式可得</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="二维算例的闭式结果"><math display="block" aria-label="二维算例的闭式结果"><mrow><msub><mi>B</mi><mn>1</mn></msub><mo>=</mo><mrow><mo>[</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>2</mn></mtd></mtr><mtr><mtd><mn>2</mn></mtd><mtd><mn>5</mn><mo>+</mo><mn>4</mn><mi>φ</mi></mtd></mtr></mtable><mo>]</mo></mrow><mo>,</mo><mspace width="1em"/><mi>det</mi><msub><mi>B</mi><mn>1</mn></msub><mo>=</mo><mn>1</mn><mo>+</mo><mn>4</mn><mi>φ</mi><mo>.</mo></mrow></math></div></div><p>于是：φ=0（BFGS）得 B₁=[[1,2],[2,5]]、det=1；φ=0.5 得 [[1,2],[2,7]]、det=3；φ=1（DFP）得 [[1,2],[2,9]]、det=5；而 φ=−1 得 [[1,2],[2,1]]、det=−3&lt;0，不定。</p><p>这组数据说明两点：一是 φ∈[0,1] 内正定性如何被参数调节（det 从 1 变到 5，进而改变条件数）；二是越出区间后凹面被打开，正定性确实会丧失。所有结果由本页 Python 程序独立运行并断言。</p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-labelledby="broyden-det-title broyden-det-desc"><title id="broyden-det-title">det B₁ 随参数 φ 的变化</title><desc id="broyden-det-desc">直线 det=1+4φ；与横轴交于 φ=−1/4，左侧为不定，右侧为正定；φ=0 对应 BFGS，φ=1 对应 DFP。</desc><rect width="640" height="320" rx="16" fill="#f7f4ee"/><line x1="80" y1="240" x2="600" y2="240" stroke="#263a33" stroke-width="2"/><line x1="240" y1="50" x2="240" y2="290" stroke="#263a33" stroke-width="2"/><line x1="120" y1="300" x2="580" y2="60" stroke="#126e66" stroke-width="4"/><text x="580" y="262" font-size="15" font-family="system-ui, sans-serif">φ</text><text x="250" y="45" font-size="15" font-family="system-ui, sans-serif">det</text><circle cx="240" cy="200" r="6" fill="#bd633f"/><circle cx="320" cy="150" r="6" fill="#126e66"/><text x="150" y="120" font-size="14" fill="#bd633f" font-family="system-ui, sans-serif">φ&lt;−1/4: det&lt;0（不定）</text><text x="330" y="110" font-size="14" fill="#126e66" font-family="system-ui, sans-serif">φ≥0: det&gt;0</text><text x="238" y="220" font-size="13" font-family="system-ui, sans-serif">−1/4</text><text x="300" y="175" font-size="13" font-family="system-ui, sans-serif">BFGS (φ=0)</text><text x="330" y="140" font-size="13" font-family="system-ui, sans-serif">DFP (φ=1)</text></svg><figcaption>本算例中 det B₁=1+4φ 是 φ 的直线：φ=−1/4 处过零，左侧矩阵不定、右侧正定。φ=0（BFGS）与 φ=1（DFP）只是这条直线上的两个标记点。</figcaption></figure></section><section id="interactive"><h2>交互：拖动参数 φ</h2><p>固定 B₀=I、s=(1,0)、y=(1,2)，拖动滑块改变 φ。观察 det B₁=1+4φ 的符号与矩阵的定性；φ=−1/4 附近行列式过零，矩阵趋于奇异。</p><div class="interactive-panel" data-demo="broyden-phi"><h3>实时模型计算</h3><div class="demo-controls"><div class="demo-control"><label for="br-phi">参数 φ <output data-value-for="phi">0.0</output></label><input id="br-phi" type="range" data-key="phi" min="-2" max="2" step="0.05" value="0"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：Broyden 族更新与正定性</h2><p>程序只依赖标准库，实现 Broyden 族显式公式，验证 φ∈[0,1] 时正定、φ=−1 时不定，并断言所有 φ 都满足割线方程。</p><pre><code>"""Broyden-class Hessian update and the positive definiteness interval."""
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>6.3. The Broyden Class</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>02_6.3._The_Broyden_Class</h1>
-<pre><code>Lecture: /06._Quasi-Newton_Methods
-Content: 02_6.3._The_Broyden_Class
-</code></pre>
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_6.3._The_Broyden_Class
+def mv(B, v):
+    return [B[0][0]*v[0] + B[0][1]*v[1], B[1][0]*v[0] + B[1][1]*v[1]]
 
-"""
-Lecture: /06._Quasi-Newton_Methods
-Content: 02_6.3._The_Broyden_Class
-"""
+def broyden(B, s, y, phi):
+    Bs = mv(B, s); sBs = dot(s, Bs); ys = dot(y, s)
+    v = [y[i]/ys - Bs[i]/sBs for i in range(2)]
+    return [[B[i][j] - Bs[i]*Bs[j]/sBs + y[i]*y[j]/ys + phi*sBs*v[i]*v[j]
+             for j in range(2)] for i in range(2)]
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def det(B):
+    return B[0][0]*B[1][1] - B[0][1]*B[1][0]
+
+if __name__ == "__main__":
+    B0, s, y = [[1.0, 0.0], [0.0, 1.0]], (1.0, 0.0), (1.0, 2.0)
+    for phi in (0.0, 0.5, 1.0, -1.0):
+        B1 = broyden(B0, s, y, phi)
+        assert abs(B1[0][0]*s[0] + B1[0][1]*s[1] - y[0]) < 1e-12   # secant, any phi
+    for phi in (0.0, 0.5, 1.0):
+        assert det(broyden(B0, s, y, phi)) > 0                      # positive definite
+    assert abs(det(broyden(B0, s, y, -1.0)) + 3.0) < 1e-12        # indefinite
+    print("det at phi=0,0.5,1,-1:",
+          [round(det(broyden(B0, s, y, p)), 3) for p in (0.0, 0.5, 1.0, -1.0)])</code></pre><p>程序只处理一个固定二维例子，用行列式判断定性；它不实现 φ 的自适应选取，也不处理 n&gt;2 或分母退化。</p></section><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 6, Section 6.3（Broyden 族的凸组合与显式形式、正定性及最优条件参数），pp. 149–152。教学图、数值例子及代码均独立构造。</div><footer class="article-footer"><p class="references">Broyden 族把 BFGS 与 DFP 连续连接起来：φ∈[0,1] 保正定，越出区间可能不定；参数自适应选取才是超线性收敛结论的前提。</p><nav class="prev-next" aria-label="相邻内容"><a href="6.2._The_SR1_Method/00_6.2.1._Properties_of_SR1_Updating.html"><small>上一篇</small><strong>SR1 更新的性质</strong></a><a href="6.4._Convergence_Analysis/00_6.4.1._Global_Convergence_of_the_BFGS_Method.html"><small>下一篇</small><strong>BFGS 的全局收敛</strong></a></nav></footer></article></main></div></body></html>
