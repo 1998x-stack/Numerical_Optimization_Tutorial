@@ -1,0 +1,74 @@
+[
+  {
+    "id": "6.1.1-1",
+    "claim": "割线方程 B_{k+1}s_k = y_k，其中 s_k = x_{k+1}-x_k，y_k = g_{k+1}-g_k；逆形式为 H_{k+1}y_k = s_k",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (secant equation)",
+    "status": "verified",
+    "notes": "表述为独立重写；一阶 Taylor 展开的动机说明亦属教材论证。"
+  },
+  {
+    "id": "6.1.1-2",
+    "claim": "满足 Wolfe 第二条件（c2<1）时 s_k^T y_k > 0 自动成立",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.1 (Wolfe conditions) 与 Chapter 6, Section 6.1 (curvature condition)",
+    "status": "derived",
+    "notes": "由 s^T y = g_{k+1}^T s - g_k^T s 与 Wolfe 条件直接推出，已逐行核对符号。"
+  },
+  {
+    "id": "6.1.1-3",
+    "claim": "BFGS 更新是“在满足对称与割线约束的矩阵中取离 B_k 最近者”的解",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (variational derivation of BFGS/DFP)",
+    "status": "verified",
+    "notes": "变分原理的陈述与结论依据原书；证明细节未复刻，只给出骨架。"
+  },
+  {
+    "id": "6.1.1-4",
+    "claim": "BFGS 与 DFP 互为对偶：交换 (s,y) 与 (H,B) 后公式互换",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (duality of BFGS and DFP)",
+    "status": "verified",
+    "notes": "对偶关系的陈述见原书；本页以公式对齐方式呈现。"
+  },
+  {
+    "id": "6.1.1-5",
+    "claim": "设 B_k 对称正定且 s_k^T y_k > 0，则 BFGS 更新满足割线方程、保持对称与正定（Theorem 6.1）",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1, Theorem 6.1",
+    "status": "verified",
+    "notes": "证明骨架基于二次型分解，已独立重写并核对。"
+  },
+  {
+    "id": "6.1.1-6",
+    "claim": "仅当 s_k^T y_k > 0 成立时正定性才有保证；条件不成立时更新可能不定",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (discussion following Theorem 6.1)",
+    "status": "derived",
+    "notes": "由公式分母 y_k^T s_k 与正定证明中的 ρ_k>0 要求直接推出。"
+  },
+  {
+    "id": "6.1.1-7",
+    "claim": "在 f=½x^T Q x、Q=[[3,1],[1,3]]、x0=(1,0)、H0=I 上，BFGS 两步内到达 x*=(0,0)",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例及 Python 断言",
+    "status": "derived",
+    "notes": "由本页 Python 独立计算得到并通过断言；二维正定二次的有限终止为教学实例，不构成性能基准。"
+  },
+  {
+    "id": "6.1.1-8",
+    "claim": "该算例中 s0=(−5/6,−5/18)、y0=(−25/9,−5/3)、s0ᵀy0=25/9，H1≈[[0.5278,−0.3796],[−0.3796,0.7994]]，det H1≈0.2778",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "保留四位小数的展示值；完整精度由程序断言核验。"
+  }
+]

@@ -819,6 +819,27 @@
       output.innerHTML = '<strong>n=' + n + '</strong> · FR ' + fr[0] + ' 步/' + fr[1] +
         ' 次梯度评估 · PR+ ' + pr[0] + ' 步/' + pr[1] + ' 次梯度评估（对角二次，精确线搜索）';
     });
+    if (kind === "bfgs-pd") bind(root, el => {
+      const a = read(el, "a"), b = read(el, "b");
+      const s = [1, 0], y = [a, b];
+      const sy = a;
+      const pd = sy > 1e-9;
+      // With H=I the BFGS inverse update reduces to H+ = [[1/a,0],[0,1+b^2/a^2]].
+      if (!pd) {
+        output.innerHTML = '<strong>sᵀy = ' + fmt(sy, 2) + ' ≤ 0</strong>：曲率条件不成立，'
+          + '更新分母 ρ=1/sᵀy 无效，正定性无可保证。';
+      } else {
+        const h11 = 1 / a, h22 = 1 + b*b/(a*a);
+        const det = h11 * h22;
+        // secant residual for H+y = s
+        const r1 = h11 * y[0] - s[0];
+        const r2 = h22 * y[1] - s[1];
+        const res = Math.hypot(r1, r2);
+        output.innerHTML = '<strong>sᵀy = ' + fmt(sy, 2) + ' &gt; 0</strong> · Hₖ₊₁ = diag(' +
+          fmt(h11, 3) + ', ' + fmt(h22, 3) + ') · det = ' + fmt(det, 3) +
+          ' &gt; 0 → 正定<br>割线残差 ‖Hₖ₊₁y − s‖ = ' + res.toExponential(1);
+      }
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
