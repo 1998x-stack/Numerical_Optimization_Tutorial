@@ -904,6 +904,44 @@
         '<br>' + (phi >= 0 && phi <= 1 ? '位于 [0,1]：正定且是 BFGS/DFP 的凸组合'
                                        : '已越出 [0,1]：正定性无保证');
     });
+    if (kind === "bfgs-global") bind(root, el => {
+      const f = p => 100*(p[1]-p[0]*p[0])**2 + (1-p[0])**2;
+      const grad = p => [-400*p[0]*(p[1]-p[0]*p[0]) - 2*(1-p[0]), 200*(p[1]-p[0]*p[0])];
+      const search = (x, p) => {
+        let lo = 0, hi = 2; const gr = (Math.sqrt(5)-1)/2;
+        let c = hi-gr*(hi-lo), d = lo+gr*(hi-lo);
+        let fc = f([x[0]+c*p[0], x[1]+c*p[1]]), fd = f([x[0]+d*p[0], x[1]+d*p[1]]);
+        for (let i = 0; i < 80; i++) {
+          if (fc < fd) { hi = d; d = c; fd = fc; c = hi-gr*(hi-lo); fc = f([x[0]+c*p[0], x[1]+c*p[1]]); }
+          else { lo = c; c = d; fc = fd; d = lo+gr*(hi-lo); fd = f([x[0]+d*p[0], x[1]+d*p[1]]); }
+        }
+        return (lo+hi)/2;
+      };
+      const x0 = read(el, "x0");
+      let x = [x0, 1], H = [[1,0],[0,1]], it = 0;
+      for (; it < 100; it++) {
+        const g = grad(x);
+        if (Math.hypot(g[0], g[1]) < 1e-6) break;
+        const Hg = [H[0][0]*g[0]+H[0][1]*g[1], H[1][0]*g[0]+H[1][1]*g[1]];
+        const p = [-Hg[0], -Hg[1]]; const a = search(x, p);
+        const xn = [x[0]+a*p[0], x[1]+a*p[1]]; const gn = grad(xn);
+        const s = [xn[0]-x[0], xn[1]-x[1]], y = [gn[0]-g[0], gn[1]-g[1]];
+        const sy = s[0]*y[0]+s[1]*y[1];
+        if (sy > 1e-12) {
+          const rho = 1/sy;
+          const Hy = [H[0][0]*y[0]+H[0][1]*y[1], H[1][0]*y[0]+H[1][1]*y[1]];
+          const yHy = y[0]*Hy[0]+y[1]*Hy[1]; const out = [[0,0],[0,0]];
+          for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++)
+            out[i][j] = H[i][j]-rho*(s[i]*Hy[j]+Hy[i]*s[j])+rho*rho*yHy*s[i]*s[j]+rho*s[i]*s[j];
+          H = out;
+        }
+        x = xn;
+      }
+      const g = grad(x);
+      output.innerHTML = '<strong>x₀ = (' + fmt(x0, 1) + ', 1)</strong> · 迭代 ' + it +
+        ' 步 · 末态 x = (' + fmt(x[0], 4) + ', ' + fmt(x[1], 4) + ') · ‖g‖ = ' +
+        Math.hypot(g[0], g[1]).toExponential(2) + ' · f = ' + f(x).toExponential(2);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

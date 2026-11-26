@@ -1,0 +1,56 @@
+[
+  {
+    "id": "6.4.1-1",
+    "claim": "线搜索方法的全局收敛结论是 lim inf_{k} ||g_k|| = 0（存在子列趋于驻点），不是 lim ||g_k|| = 0",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (global convergence of BFGS)",
+    "status": "verified",
+    "notes": "弱形式结论依据原书；表述为独立重写。"
+  },
+  {
+    "id": "6.4.1-2",
+    "claim": "Zoutendijk 条件：满足 Wolfe 条件的线搜索下 sum (cos^2 theta_k) ||g_k||^2 < infinity",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 3, Section 3.2 (Zoutendijk condition)",
+    "status": "verified",
+    "notes": "条件形式依据原书 Chapter 3。"
+  },
+  {
+    "id": "6.4.1-3",
+    "claim": "BFGS 全局收敛需要 f 在凸水平集上二阶连续可微、梯度 Lipschitz 以及 Wolfe 线搜索",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (assumptions for global convergence)",
+    "status": "verified",
+    "notes": "假设集合依据原书；本页不复现完整证明。"
+  },
+  {
+    "id": "6.4.1-4",
+    "claim": "全局收敛是存在性结论：不保证所有聚点为驻点，也不保证全局最小",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.4 (interpretation of the lim inf result)",
+    "status": "derived",
+    "notes": "由 lim inf 形式的定义直接得到。"
+  },
+  {
+    "id": "6.4.1-5",
+    "claim": "去掉 Wolfe 或凸水平集假设后正定性/条件数界失效，全局收敛不再有保证",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Sections 6.1 and 6.4 (role of the assumptions)",
+    "status": "derived",
+    "notes": "由正定性证明依赖 s_k^T y_k>0 与条件数控制需要凸水平集推出。"
+  },
+  {
+    "id": "6.4.1-6",
+    "claim": "BFGS（H0=I、精确线搜索）在 Rosenbrock 上从 x0=(-1.2,1),(0,1),(2,1),(-2,1) 出发分别 14,18,29,14 步降到 ||g||<1e-6",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 程序输出与页面交互",
+    "status": "derived",
+    "notes": "由本页 Python 与页面 JS 独立运行得到并通过断言；教学算例，不是定理证明，也不是性能基准。"
+  }
+]

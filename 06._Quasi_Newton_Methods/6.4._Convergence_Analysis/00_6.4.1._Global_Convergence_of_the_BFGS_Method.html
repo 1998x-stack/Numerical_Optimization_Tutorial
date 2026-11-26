@@ -1,36 +1,53 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="BFGS 配合 Wolfe 线搜索在凸水平集与 Lipschitz 梯度假设下满足 lim inf ‖gₖ‖=0。本页给出 Zoutendijk 条件、收敛定理的假设与结论，并用可运行实验观察下降。"><title>6.4.1 BFGS 的全局收敛：Zoutendijk 条件与水平集假设 | Numerical Optimization</title><link rel="stylesheet" href="../../assets/course.css"><script defer src="../../assets/course.js"></script></head><body><a class="skip-link" href="#content">跳转至正文</a><header class="topbar"><a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a><nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav></header><div class="article-layout"><aside class="article-toc" aria-label="文章目录"><span class="toc-label">CHAPTER 06 · 6.4.1</span><a href="#section-1">全局收敛问的是什么</a><a href="#section-2">Zoutendijk 条件回顾</a><a href="#section-3">BFGS 的全局收敛定理</a><a href="#section-4">矩阵界与条件数</a><a href="#section-5">假设不可省略</a><a href="#interactive">动态数值检查</a><a href="#code">Python 代码</a><a href="../../index.html#chapters">课程首页</a></aside><main id="content" class="article-main"><article class="article"><header class="article-header"><div class="article-kicker">CHAPTER 06 · 6.4.1</div><h1>6.4.1 BFGS 的全局收敛：Zoutendijk 条件与水平集假设</h1><p class="dek">线搜索方法的全局收敛通常从 Zoutendijk 条件入手。对 BFGS，还需要额外假设水平集有界且梯度 Lipschitz。结论是弱的：只保证 lim inf ‖gₖ‖=0，即存在子列趋于驻点。</p><div class="article-meta"><span>收敛定理</span><span>假设剖析</span><span>可复现实验</span></div></header>
+<section id="section-1"><h2>全局收敛问的是什么</h2><p>“全局收敛”在这里不是“找到全局最优”，而是“从任意初始点出发不会卡住不动”。线搜索方法的典型结果是
+<strong>lim inf<sub>k→∞</sub> ‖gₖ‖=0</strong>：至少存在一个子列趋于驻点。这比 lim ‖gₖ‖=0 弱得多，却是能在一般非凸函数上证明的最强形式。</p><p>为什么只能弱到这一步：非凸函数上梯度下降也可能长期停留在平坦区域；线搜索只能保证函数值持续下降，不能排除数值上极慢的漂移。BFGS 也不会例外——它的全局结论同样只是 lim inf。</p></section><section id="section-2"><h2>Zoutendijk 条件回顾</h2><p>对所有下降方向 pₖ，只要线搜索满足 Wolfe 条件，就有 Zoutendijk 条件：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Zoutendijk 条件"><math display="block" aria-label="Zoutendijk 条件"><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mi>∞</mi></munderover><msup><mrow><mo>(</mo><mo>−</mo><mfrac><mrow><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><msub><mi>p</mi><mi>k</mi></msub></mrow><mrow><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo></mrow><mrow><mo>‖</mo><msub><mi>p</mi><mi>k</mi></msub><mo>‖</mo></mrow></mrow></mfrac><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mi>∞</mi><mo>.</mo></mrow></math></div></div><p>括号里的量是 −cos θₖ，θₖ 是 pₖ 与 −gₖ 的夹角。若还能证明 cos θₖ 不趋于零（即方向不会无限接近与梯度垂直），那么左边就有正的下界与 ‖gₖ‖² 相乘，级数收敛就逼出 ‖gₖ‖→0。</p><p>对最速下降法，pₖ=−gₖ，cosθₖ≡1，结论直接成立。对 BFGS 则多一层困难：pₖ=−Hₖgₖ 的夹角依赖于 Hₖ 的条件数，而 Hₖ 本身在迭代中变化。要控制它，就需要对 Hₖ 与 Bₖ 给出一致的界。</p></section><section id="section-3"><h2>BFGS 的全局收敛定理</h2><p>原书给出的全局收敛结论需要额外的结构假设：f 在水平集 Ω={x:f(x)≤f(x₀)} 上二阶连续可微，∇f 满足 Lipschitz 条件，并且（利用线搜索保证）每次曲率条件成立。在这些假设下，BFGS 配合满足 Wolfe 条件的线搜索得到</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="BFGS 全局收敛结论"><math display="block" aria-label="BFGS 全局收敛结论"><mrow><munder><mi>lim inf</mi><mrow><mi>k</mi><mo>→</mo><mi>∞</mi></mrow></munder><mrow><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo></mrow><mo>=</mo><mn>0</mn><mo>.</mo></mrow></math></div></div><p>证明的骨架是把 Zoutendijk 条件与一个关于夹角 cos θₖ 的逆界联起来：若 lim inf‖gₖ‖≠0，则可由 BFGS 的更新结构推出 ∑cos²θₖ‖gₖ‖² 发散，与 Zoutendijk 条件矛盾。这里的“结构”依赖 Bₖ 的正定性与 sₖᵀyₖ&gt;0，而这两者又由 Wolfe 线搜索保证。</p><p>要点：这是<strong>存在性</strong>结论。它不保证所有聚点都是驻点，也不保证收敛到全局最小。对凸函数，子列极限点也就是全局最小；对非凸函数，它只说“不会无限卡在非驻点上”。</p></section><section id="section-4"><h2>矩阵界与条件数</h2><p>非凸函数的水平集可能很大，Bₖ 与 Hₖ 的条件数也无从上界。原书指出：在凸函数且水平集凸的假设下，才能真正控制条件数，得到上述全局收敛。换句话说，定理里的“凸水平集”假设不是装饰，它换来了 Hₖ 谱的界。</p><p>实践含义：在非凸问题上，BFGS 的全局收敛没有普适保证，但它通常仍然工作得很好，且往往比最速下降快得多。这一经验事实与本节的存在性结果不矛盾：后者只是最低标准。</p></section><section id="section-5"><h2>假设不可省略</h2><p>去掉假设后的反例说明全局收敛不是免费的。线搜索只满足 Armijo 时，sₖᵀyₖ 可能为负，正定性失效，方向甚至可能不会下降；水平集无界或梯度不 Lipschitz 时，Bₖ 的条件数可能无限制变坏，Zoutendijk 条件的下界就丢失了。</p><p>因此“BFGS 全局收敛”这句话必须带上条件：Wolfe 线搜索、凸水平集、Lipschitz 梯度。把它当成无条件保证是过度解读。</p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" role="img" aria-labelledby="bfgs-global-title bfgs-global-desc"><title id="bfgs-global-title">水平集假设的作用</title><desc id="bfgs-global-desc">左侧凸水平集下椭球嵌套、梯度方向受控；右侧非凸水平集下存在多个驻点与平坦区域，lim inf 结论仍成立但无法定位全局最小。</desc><rect width="680" height="300" rx="16" fill="#f7f4ee"/><g transform="translate(150,150)"><ellipse rx="100" ry="60" fill="none" stroke="#7fbcb0" stroke-width="2"/><ellipse rx="65" ry="40" fill="none" stroke="#126e66" stroke-width="2"/><circle r="5" fill="#126e66"/></g><g transform="translate(490,150)"><ellipse rx="110" ry="65" fill="none" stroke="#e0c7a6" stroke-width="2"/><ellipse rx="70" ry="55" fill="none" stroke="#bd633f" stroke-width="2"/><ellipse rx="40" ry="20" fill="none" stroke="#bd633f" stroke-width="2"/><circle cx="-40" cy="10" r="5" fill="#263a33"/><circle cx="35" cy="-8" r="5" fill="#263a33"/><circle cx="5" cy="25" r="5" fill="#bd633f"/></g><g font-size="15" font-family="system-ui, sans-serif" fill="#263a33"><text x="70" y="280">凸水平集：条件数可控</text><text x="395" y="280">非凸：多个驻点/平坦区</text></g></svg><figcaption>凸水平集下椭球嵌套、曲率有界，条件数可控；非凸水平集下存在多个驻点与平坦区域，lim inf‖gₖ‖=0 仍可能成立，但无法保证定位全局最小。示意图，非实测数据。</figcaption></figure></section><section id="interactive"><h2>交互：不同起点的下降轨迹</h2><p>拖动滑块改变 Rosenbrock 函数的起点 x 坐标，观察 BFGS（H₀=I、精确线搜索）停止时的 ‖g‖ 与迭代步数。无论从哪个起点出发，‖g‖ 都会降到容差以下，与 lim inf 结论一致。</p><div class="interactive-panel" data-demo="bfgs-global"><h3>实时下降实验</h3><div class="demo-controls"><div class="demo-control"><label for="bg-x0">起点 x₀（第二个分量为 1）<output data-value-for="x0">-1.2</output></label><input id="bg-x0" type="range" data-key="x0" min="-2" max="2" step="0.1" value="-1.2"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div></section><section id="code"><h2>Python：从多个起点验证下降</h2><p>程序只依赖标准库，用精确线搜索的 BFGS 从几个不同起点出发，断言每个都降到 ‖g‖&lt;10⁻⁶。这是全局收敛结论的数值侧面，不是其证明。</p><pre><code>"""Run BFGS (exact line search) on Rosenbrock from several starts."""
+import math
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>6.4.1. Global Convergence of the BFGS Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>00_6.4.1._Global_Convergence_of_the_BFGS_Method</h1>
-<pre><code>Lecture: 06._Quasi-Newton_Methods/6.4._Convergence_Analysis
-Content: 00_6.4.1._Global_Convergence_of_the_BFGS_Method
-</code></pre>
+def f(p):
+    return 100.0*(p[1]-p[0]**2)**2 + (1.0-p[0])**2
 
-    <h3>Python 文件</h3>
-    <pre><code># 00_6.4.1._Global_Convergence_of_the_BFGS_Method
+def grad(p):
+    return (-400.0*p[0]*(p[1]-p[0]**2) - 2.0*(1.0-p[0]), 200.0*(p[1]-p[0]**2))
 
-"""
-Lecture: 06._Quasi-Newton_Methods/6.4._Convergence_Analysis
-Content: 00_6.4.1._Global_Convergence_of_the_BFGS_Method
-"""
+def exact_search(x, p):
+    lo, hi = 0.0, 2.0
+    gr = (math.sqrt(5.0)-1.0)/2.0
+    c, d = hi-gr*(hi-lo), lo+gr*(hi-lo)
+    fc, fd = f((x[0]+c*p[0], x[1]+c*p[1])), f((x[0]+d*p[0], x[1]+d*p[1]))
+    for _ in range(80):
+        if fc < fd:
+            hi, d, fd = d, c, fc
+            c = hi-gr*(hi-lo); fc = f((x[0]+c*p[0], x[1]+c*p[1]))
+        else:
+            lo, c, fc = c, d, fd
+            d = lo+gr*(hi-lo); fd = f((x[0]+d*p[0], x[1]+d*p[1]))
+    return 0.5*(lo+hi)
 
-</code></pre>
-  </div>
-</body>
-</html>
-  
+def bfgs(x0, tol=1e-6, maxit=200):
+    n = 2; x = list(x0)
+    H = [[1.0 if i == j else 0.0 for j in range(n)] for i in range(n)]
+    for it in range(1, maxit+1):
+        g = grad(x)
+        if math.hypot(*g) < tol:
+            return it-1, x, math.hypot(*g)
+        Hg = [sum(H[i][j]*g[j] for j in range(n)) for i in range(n)]
+        p = [-v for v in Hg]
+        a = exact_search(x, p)
+        xn = [x[i]+a*p[i] for i in range(n)]; gn = grad(xn)
+        s = [xn[i]-x[i] for i in range(n)]; y = [gn[i]-g[i] for i in range(n)]
+        sy = sum(s[i]*y[i] for i in range(n))
+        if sy > 1e-12:
+            rho = 1.0/sy
+            Hy = [sum(H[i][j]*y[j] for j in range(n)) for i in range(n)]
+            yHy = sum(y[i]*Hy[i] for i in range(n))
+            H = [[H[i][j] - rho*(s[i]*Hy[j] + Hy[i]*s[j])
+                  + rho*rho*yHy*s[i]*s[j] + rho*s[i]*s[j]
+                  for j in range(n)] for i in range(n)]
+        x = xn
+    return maxit, x, math.hypot(*grad(x))
+
+if __name__ == "__main__":
+    for x0 in ((-1.2, 1.0), (0.0, 1.0), (2.0, 1.0), (-2.0, 1.0)):
+        it, x, gn = bfgs(x0)
+        assert gn < 1e-6
+        print("start", x0, "->", it, "iters, |g| =", gn)</code></pre><p>程序只用二维 Rosenbrock 与精确线搜索；它不测试非凸多元问题，也不验证定理的假设条件，因此不能当作全局收敛定理的证明。</p></section><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 3, Section 3.2（Zoutendijk 条件）与 Chapter 6, Section 6.4（BFGS 全局收敛的假设与 lim inf 结论），pp. 152–154。教学图、数值例子及代码均独立构造。</div><footer class="article-footer"><p class="references">BFGS 的全局收敛是 lim inf 形式，且依赖 Wolfe 线搜索与凸水平集、Lipschitz 梯度假设；它不是无条件的全局最优性保证。</p><nav class="prev-next" aria-label="相邻内容"><a href="../02_6.3._The_Broyden_Class.html"><small>上一篇</small><strong>Broyden 族</strong></a><a href="01_6.4.2._Superlinear_Convergence_of_the_BFGS_Method.html"><small>下一篇</small><strong>BFGS 的超线性收敛</strong></a></nav></footer></article></main></div></body></html>
