@@ -1,0 +1,47 @@
+[
+  {
+    "id": "6.6-1",
+    "claim": "练习一：B0=I、s=(1,0) 时 BFGS 更新 B1=[[a,b],[b,1+b^2/a]] 满足 B1 s=y，且与 y 无关地只要 y^T s≠0",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1 (BFGS update, secant equation)",
+    "status": "derived",
+    "notes": "由 BFGS 公式直接代入得到，已核对；教学练习。"
+  },
+  {
+    "id": "6.6-2",
+    "claim": "练习二：s^T y=y1>0 时 BFGS 更新保正定",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.1, Theorem 6.1",
+    "status": "derived",
+    "notes": "引用 6.1.1 已核对的定理。"
+  },
+  {
+    "id": "6.6-3",
+    "claim": "练习三：SR1 在 B0=I、s=(1,0)、y=(a,b) 下 det B1=a+b^2/(a-1)；a<1 时可能不定，a=1 无定义",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文闭式推导与 Python 断言",
+    "status": "derived",
+    "notes": "由 SR1 公式展开得到；已在 6.2.1 中核对。"
+  },
+  {
+    "id": "6.6-4",
+    "claim": "练习四：Broyden 族在 B0=I、s=(1,0)、y=(a,b) 下 det B1=a+phi b^2/a，正定区间为 phi>-a^2/b^2",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文闭式推导与 Python 断言",
+    "status": "derived",
+    "notes": "由 Broyden 族显式公式展开得到；已在 6.3 中核对。"
+  },
+  {
+    "id": "6.6-5",
+    "claim": "a=0.9,b=2 时 BFGS det=0.9、DFP det=5.344、phi=0.5 的 Broyden 成员 det=3.122（正定），SR1 det=-39.1（不定）",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 程序输出与页面交互",
+    "status": "derived",
+    "notes": "由本页 Python 与页面 JS 独立运行得到并通过断言；教学算例。"
+  }
+]
