@@ -1,0 +1,65 @@
+[
+  {
+    "id": "6.2.1-1",
+    "claim": "SR1 是满足割线方程的对称秩一更新：B_{k+1}=B_k+v v^T/(v^T s)，v=y_k-B_k s_k",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.2 (SR1 update)",
+    "status": "verified",
+    "notes": "公式与推导依据原书，表述与推导为独立重写。"
+  },
+  {
+    "id": "6.2.1-2",
+    "claim": "逆形式 H_{k+1}=H_k+(s_k-H_k y_k)(s_k-H_k y_k)^T/((s_k-H_k y_k)^T y_k)",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.2 (SR1 inverse form)",
+    "status": "verified",
+    "notes": "对偶形式依据原书。"
+  },
+  {
+    "id": "6.2.1-3",
+    "claim": "SR1 不保持正定性；不定模型在线搜索中不可靠，但可表示负曲率，适用于信赖域",
+    "kind": "property",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.2 (properties of SR1; trust-region use)",
+    "status": "verified",
+    "notes": "性质陈述依据原书讨论；未复现其证明或数值表。"
+  },
+  {
+    "id": "6.2.1-4",
+    "claim": "一定假设下 SR1 的近似序列比 BFGS 更接近真实 Hessian，且是信赖域框架中最有效的拟牛顿方法之一",
+    "kind": "empirical",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.2 (discussion; convergence to the true Hessian)",
+    "status": "verified",
+    "notes": "教材定性结论；本页不复制具体数值表，也不声称普适排序。"
+  },
+  {
+    "id": "6.2.1-5",
+    "claim": "安全准则 |s_k^T(y_k-B_k s_k)| ≥ r||s_k|| ||y_k-B_k s_k||，r 很小（如 1e-8）",
+    "kind": "heuristic",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 6, Section 6.2 (skipping the update when the denominator is small)",
+    "status": "verified",
+    "notes": "工程实现建议，表述为独立重写。"
+  },
+  {
+    "id": "6.2.1-6",
+    "claim": "B0=I、s=(1,0) 下：y=(3,1) 得 B1=[[3,1],[1,1.5]]、det=3.5>0；y=(0.9,2) 得 B1=[[0.9,2],[2,-39]]、det=-39.1<0（不定）",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例及 Python 断言",
+    "status": "derived",
+    "notes": "由本页 Python 独立计算并通过断言；教学算例，不构成性能基准。"
+  },
+  {
+    "id": "6.2.1-7",
+    "claim": "该例中 det B1 = a + b^2/(a-1)（B0=I、s=(1,0)、y=(a,b)），故 a=1 时分母为零、a<1 时可能不定",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文交互面板的闭式推导",
+    "status": "derived",
+    "notes": "由 SR1 更新公式直接展开得到，已核对。"
+  }
+]

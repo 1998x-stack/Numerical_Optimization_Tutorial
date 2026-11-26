@@ -881,6 +881,19 @@
           (t.sy === null ? ' · 起始点' : ' · sᵏ⁻¹ᵀyᵏ⁻¹ = ' + fmt(t.sy, 4));
       });
     }
+    if (kind === "sr1-indef") bind(root, el => {
+      const a = read(el, "a"), b = read(el, "b");
+      const vs = a - 1;                 // denominator (y - B0 s)^T s with B0=I, s=(1,0)
+      if (Math.abs(vs) < 1e-9) {
+        output.innerHTML = '<strong>(y−Bₖs)ᵀs = 0</strong>：分母为零，更新无定义，应保留旧矩阵。';
+      } else {
+        const det = a + b*b/vs;         // det of B1 = [[a,b],[b,1+b^2/(a-1)]]
+        output.innerHTML = '<strong>(y−Bₖs)ᵀs = ' + fmt(vs, 2) + '</strong> · det Bₖ₊₁ = ' +
+          fmt(det, 3) + ' → ' + (det > 0 ? '正定' : (det < 0 ? '不定' : '奇异')) +
+          '<br>Bₖ₊₁ = [[' + fmt(a, 2) + ', ' + fmt(b, 2) + '], [' + fmt(b, 2) + ', ' +
+          fmt(1 + b*b/vs, 2) + ']]（割线方程始终满足）';
+      }
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
