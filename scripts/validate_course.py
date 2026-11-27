@@ -471,7 +471,7 @@ def validate_repository() -> list[str]:
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
     if index.count('class="featured-card"') != 74:
-        errors.append("index.html: expected exactly sixty-two featured modules")
+        errors.append("index.html: expected exactly seventy-four featured modules")
     return errors
 
 
