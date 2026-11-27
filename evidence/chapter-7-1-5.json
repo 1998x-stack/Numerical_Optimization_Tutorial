@@ -1,0 +1,56 @@
+[
+  {
+    "id": "7.1.5-1",
+    "claim": "信赖域 Newton–Lanczos 把子问题限制在 Krylov 子空间 K_j=span{g,Hg,…,H^(j-1)g} 内；无约束解 −H⁻¹g 与带约束解 −(H+λI)⁻¹g 都落在 K_n 内，因此逐步增大 j 得到越来越准的近似解",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.5 (trust-region Newton-Lanczos method)",
+    "status": "derived",
+    "notes": "Krylov 子空间方法与解的形式由 (H+λI)⁻¹g 的代数结构推出并归属 7.1.5 节；表述为独立重写。"
+  },
+  {
+    "id": "7.1.5-2",
+    "claim": "Lanczos 递推 α_k=q_kᵀHq_k、β_k=‖Hq_k−α_k q_k−β_{k−1}q_{k−1}‖ 生成正交基 Q_j，使 T_j=Q_jᵀHQ_j 为三对角矩阵，且 HQ_j=Q_jT_j+β_j q_{j+1}e_jᵀ",
+    "kind": "algorithm",
+    "source_url": "",
+    "locator": "本文公式与 Python 函数 lanczos",
+    "status": "derived",
+    "notes": "Lanczos 过程的标准三条项递推；由对称性与正交性直接推出。"
+  },
+  {
+    "id": "7.1.5-3",
+    "claim": "限制 p=Q_j w 后，子问题变成 min ‖g‖e₁ᵀw+½wᵀT_jw s.t. ‖w‖≤Δ；对角化 T_j=S diag(θ)Sᵀ 后乘子 λ≥0 由长期方程 ∑ĉᵢ²/(θᵢ+λ)²=Δ² 确定",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.5 (reduced subproblem and secular equation)",
+    "status": "derived",
+    "notes": "降维与解耦由 Q_j 正交、Q_jᵀg=‖g‖e₁ 及谱分解直接得到；长期方程形式依原书 7.1.5 节，表述为独立重写。"
+  },
+  {
+    "id": "7.1.5-4",
+    "claim": "长期方程左侧 ‖ŷ(λ)‖² 关于 λ 单调递减，故根唯一，可用 Newton 法求解（导数 = −2∑ĉᵢ²/(θᵢ+λ)³）",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文长期方程与 Python 函数 solve_reduced",
+    "status": "derived",
+    "notes": "对 λ 求导即得，逐项分母为正且递增，故单调。"
+  },
+  {
+    "id": "7.1.5-5",
+    "claim": "在 H=[[4,1,0],[1,3,1],[0,1,2]]、g=(1,1,1)、Δ=0.3 上，j=1,2,3 的模型下降约为 0.3246、0.3348、0.3353，且 j=3 的 Ritz 值为 4.7321、3.0000、1.2679（H 的特征值）",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文三维教学算例与 Python 断言",
+    "status": "derived",
+    "notes": "由本页程序独立计算并经断言核对（‖p‖=Δ、模型下降随 j 递增）；三维算例属教学示意。"
+  },
+  {
+    "id": "7.1.5-6",
+    "claim": "Δ=10（约束失效）时 j=3 返回无约束解 (−0.2222,−0.1111,−0.4444)，残差 ‖Hp+g‖≈4.6×10⁻¹⁶",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "K₃=ℝ³ 时降维子问题即原三端子问题；残差由程序计算，属数值精度量级，不构成一般结论。"
+  }
+]

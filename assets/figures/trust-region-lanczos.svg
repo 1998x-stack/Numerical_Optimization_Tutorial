@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" role="img" aria-labelledby="ntl-t ntl-d">
+  <title id="ntl-t">信赖域 Newton–Lanczos：在 Krylov 子空间里求解子问题</title>
+  <desc id="ntl-d">左侧：Krylov 子空间 K_j 由 g、Hg、H 平方 g 张成，经 Lanczos 正交化得到正交基 q1 到 qj。右上：投影后得到三对角矩阵 T_j，对角元为 alpha、次对角元为 beta，其特征值 theta 是 Ritz 值。右下：先在降维问题里求出 w，再映回 p 等于 Q_j w，得到信赖域子问题的近似解。</desc>
+  <rect width="720" height="340" rx="16" fill="#f7f4ee"/>
+  <text x="40" y="36" font-family="system-ui, sans-serif" font-size="14" fill="#263a33">Krylov 子空间 K_j = span{ g, Hg, …, H^(j-1) g }</text>
+  <g font-family="system-ui, sans-serif" font-size="13" fill="#3b4a44">
+    <rect x="40" y="54" width="120" height="34" rx="6" fill="#e4ece9" stroke="#9aa8a2"/>
+    <text x="66" y="76">g</text>
+    <rect x="40" y="100" width="120" height="34" rx="6" fill="#e4ece9" stroke="#9aa8a2"/>
+    <text x="66" y="122">H g</text>
+    <rect x="40" y="146" width="120" height="34" rx="6" fill="#e4ece9" stroke="#9aa8a2"/>
+    <text x="60" y="168">H² g</text>
+    <text x="40" y="206" fill="#5b6b64">线性相关 → 正交化</text>
+  </g>
+  <text x="180" y="126" font-family="system-ui, sans-serif" font-size="20" fill="#bd633f">→</text>
+  <text x="178" y="146" font-family="system-ui, sans-serif" font-size="11" fill="#5b6b64">Lanczos</text>
+  <g font-family="system-ui, sans-serif" font-size="13" fill="#0f5f58">
+    <rect x="250" y="54" width="90" height="34" rx="6" fill="#bfe3dc" stroke="#126e66"/>
+    <text x="282" y="76">q₁</text>
+    <rect x="250" y="100" width="90" height="34" rx="6" fill="#bfe3dc" stroke="#126e66"/>
+    <text x="282" y="122">q₂</text>
+    <rect x="250" y="146" width="90" height="34" rx="6" fill="#bfe3dc" stroke="#126e66"/>
+    <text x="282" y="168">qⱼ</text>
+    <text x="250" y="206" fill="#5b6b64">正交基 Qⱼ</text>
+  </g>
+  <text x="420" y="36" font-family="system-ui, sans-serif" font-size="14" fill="#263a33">投影：Tⱼ = Qⱼᵀ H Qⱼ（三对角）</text>
+  <g font-family="system-ui, sans-serif" font-size="14" fill="#263a33">
+    <rect x="440" y="52" width="48" height="48" rx="4" fill="#bfe3dc" stroke="#126e66"/>
+    <rect x="488" y="52" width="48" height="48" rx="4" fill="#f2e3d8" stroke="#bd633f"/>
+    <rect x="536" y="52" width="48" height="48" rx="4" fill="#fbfaf6" stroke="#d8d2c6"/>
+    <rect x="440" y="100" width="48" height="48" rx="4" fill="#f2e3d8" stroke="#bd633f"/>
+    <rect x="488" y="100" width="48" height="48" rx="4" fill="#bfe3dc" stroke="#126e66"/>
+    <rect x="536" y="100" width="48" height="48" rx="4" fill="#f2e3d8" stroke="#bd633f"/>
+    <rect x="440" y="148" width="48" height="48" rx="4" fill="#fbfaf6" stroke="#d8d2c6"/>
+    <rect x="488" y="148" width="48" height="48" rx="4" fill="#f2e3d8" stroke="#bd633f"/>
+    <rect x="536" y="148" width="48" height="48" rx="4" fill="#bfe3dc" stroke="#126e66"/>
+    <text x="464" y="82" text-anchor="middle">α₁</text>
+    <text x="512" y="82" text-anchor="middle" fill="#bd633f">β₁</text>
+    <text x="560" y="82" text-anchor="middle" fill="#9aa8a2">0</text>
+    <text x="464" y="130" text-anchor="middle" fill="#bd633f">β₁</text>
+    <text x="512" y="130" text-anchor="middle">α₂</text>
+    <text x="560" y="130" text-anchor="middle" fill="#bd633f">β₂</text>
+    <text x="464" y="178" text-anchor="middle" fill="#9aa8a2">0</text>
+    <text x="512" y="178" text-anchor="middle" fill="#bd633f">β₂</text>
+    <text x="560" y="178" text-anchor="middle">α₃</text>
+  </g>
+  <g font-family="system-ui, sans-serif" font-size="13" fill="#3b4a44">
+    <text x="420" y="236">降维问题：min ‖g‖ e₁ᵀ w + ½ wᵀTⱼw，‖w‖ ≤ Δ</text>
+    <text x="420" y="262" fill="#0f5f58">特征值 θ 即 Ritz 值，λ ≥ 0 由 ‖w(λ)‖ = Δ 定出</text>
+    <text x="420" y="292" fill="#263a33">映回原空间：p = Qⱼ w</text>
+  </g>
+  <line x1="330" y1="250" x2="400" y2="250" stroke="#9aa8a2" stroke-width="2" stroke-dasharray="6 5"/>
+</svg>

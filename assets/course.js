@@ -1134,6 +1134,60 @@
       output.innerHTML = '<strong>m₁=' + fmt(m1, 2) + '，m₂=' + fmt(m2, 2) + '，Δ=' + fmt(Delta, 2) + ' · 内迭代 ' + it + ' 步 · ' + reason + '</strong>' +
         ' · p=(' + fmt(p[0], 4) + ', ' + fmt(p[1], 4) + ') · ‖p‖=' + fmt(Math.sqrt(dot(p, p)), 4) + ' · 模型下降 ' + fmt(dec, 4);
     });
+    if (kind === "tr-lanczos") bind(root, el => {
+      const j = Math.round(read(el, "j")), Delta = read(el, "delta");
+      const H = [[4, 1, 0], [1, 3, 1], [0, 1, 2]], g = [1, 1, 1];
+      const mv = (A, v) => A.map(row => row.reduce((s, a, k) => s + a*v[k], 0));
+      const dot = (u, v) => u.reduce((s, a, k) => s + a*v[k], 0);
+      const nrm = v => Math.sqrt(dot(v, v));
+      const qs = [], alp = [], bet = [];
+      let q = g.map(x => x/nrm(g)), qp = [0, 0, 0], bp = 0;
+      for (let k = 0; k < j; k++) {
+        qs.push(q.slice());
+        const z = mv(H, q), a = dot(q, z); alp.push(a);
+        for (let i = 0; i < 3; i++) z[i] -= a*q[i] + bp*qp[i];
+        const b = nrm(z); bet.push(b);
+        qp = q.slice(); q = z.map(x => x/b); bp = b;
+      }
+      let a = []; for (let r = 0; r < j; r++) { a.push([]); for (let c = 0; c < j; c++) a[r].push(c === r ? alp[r] : 0); }
+      for (let i = 0; i + 1 < j; i++) { a[i][i+1] = bet[i]; a[i+1][i] = bet[i]; }
+      const V = a.map((_, i) => a.map((_, k) => i === k ? 1 : 0));
+      for (let sw = 0; sw < 100; sw++) {
+        let p = 0, qq = 1, mx = 0;
+        for (let i = 0; i < j; i++) for (let k = i+1; k < j; k++) if (Math.abs(a[i][k]) > mx) { mx = Math.abs(a[i][k]); p = i; qq = k; }
+        if (mx < 1e-15) break;
+        const th = 0.5*(a[qq][qq]-a[p][p])/a[p][qq];
+        const t = (th >= 0 ? 1 : -1)/(Math.abs(th)+Math.sqrt(th*th+1));
+        const c = 1/Math.sqrt(1+t*t), s = t*c;
+        for (let k = 0; k < j; k++) { const kp = a[k][p], kq = a[k][qq]; a[k][p] = c*kp - s*kq; a[k][qq] = s*kp + c*kq; }
+        for (let k = 0; k < j; k++) { const pk = a[p][k], qk = a[qq][k]; a[p][k] = c*pk - s*qk; a[qq][k] = s*pk + c*qk; }
+        for (let k = 0; k < j; k++) { const vp = V[k][p], vq = V[k][qq]; V[k][p] = c*vp - s*vq; V[k][qq] = s*vp + c*vq; }
+      }
+      const theta = a.map((row, i) => row[i]);
+      const gnorm = nrm(g), cc = theta.map((_, i) => gnorm*V[0][i]);
+      const sq = lam => cc.reduce((s, ci, i) => s + ci*ci/(theta[i]+lam)**2, 0);
+      const thmin = Math.min.apply(null, theta);
+      let lam = 0;
+      if (sq(0) > Delta*Delta) {
+        lam = Math.max(0, -thmin) + 1e-9;
+        for (let itr = 0; itr < 100; itr++) {
+          const f = sq(lam) - Delta*Delta;
+          const df = -2*cc.reduce((s, ci, i) => s + ci*ci/(theta[i]+lam)**3, 0);
+          let nu = lam - f/df; const floor = Math.max(0, -thmin);
+          if (nu <= floor) nu = 0.5*(lam+floor);
+          if (Math.abs(nu-lam) < 1e-15) { lam = nu; break; }
+          lam = nu;
+        }
+      }
+      const y = theta.map((th, i) => -cc[i]/(th+lam));
+      const w = [];
+      for (let i = 0; i < j; i++) w.push(V[i].reduce((s, vk, k) => s + vk*y[k], 0));
+      const p = [0, 1, 2].map(i => qs.reduce((s, qv, k) => s + qv[i]*w[k], 0));
+      const dec = -(dot(g, p) + 0.5*dot(p, mv(H, p)));
+      output.innerHTML = '<strong>j=' + j + '，Δ=' + fmt(Delta, 2) + ' · λ=' + fmt(lam, 4) + '</strong>' +
+        ' · Ritz=' + theta.map(t => fmt(t, 3)).join(', ') +
+        ' · p=(' + p.map(x => fmt(x, 4)).join(', ') + ') · ‖p‖=' + fmt(nrm(p), 4) + ' · 模型下降 ' + fmt(dec, 4);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {
