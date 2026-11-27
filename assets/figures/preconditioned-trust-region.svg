@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="ptr-t ptr-d">
+  <title id="ptr-t">预条件把球形信赖域变成椭球形信赖域</title>
+  <desc id="ptr-d">左图：在原始变量 p 中，信赖域是以原点为中心、半径 Δ 的圆，负梯度方向被截断到圆周上。经变量替换 p=Cv 后，右图在 v 空间中信赖域变成由 v 乘 M 乘 v 小于等于 Δ 平方 定义的椭圆；边界步仍需落在椭圆上，因此用 M-范数而非欧氏范数来截断。</desc>
+  <rect width="720" height="300" rx="16" fill="#f7f4ee"/>
+  <text x="60" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#263a33">p 空间：球形信赖域 ‖p‖ ≤ Δ</text>
+  <circle cx="165" cy="170" r="82" fill="#bfe3dc" opacity="0.45"/>
+  <line x1="83" y1="170" x2="247" y2="170" stroke="#263a33" stroke-width="1"/>
+  <line x1="165" y1="88" x2="165" y2="252" stroke="#263a33" stroke-width="1"/>
+  <circle cx="165" cy="170" r="3.5" fill="#263a33"/>
+  <line x1="165" y1="170" x2="228" y2="107" stroke="#9aa8a2" stroke-width="2" stroke-dasharray="6 5"/>
+  <line x1="165" y1="170" x2="219" y2="100" stroke="#126e66" stroke-width="3"/>
+  <circle cx="219" cy="100" r="5.5" fill="#126e66"/>
+  <g font-family="system-ui, sans-serif" font-size="13" fill="#263a33">
+    <text x="150" y="190">0</text>
+    <text x="96" y="268" fill="#0f5f58">‖p‖ = Δ</text>
+    <text x="224" y="96" fill="#126e66">p_k</text>
+  </g>
+  <text x="300" y="170" font-family="system-ui, sans-serif" font-size="26" fill="#bd633f">→</text>
+  <text x="290" y="196" font-family="system-ui, sans-serif" font-size="12" fill="#5b6b64">p = C v</text>
+  <text x="420" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#263a33">v 空间：M-椭球 vᵀMv ≤ Δ²</text>
+  <ellipse cx="540" cy="170" rx="80" ry="92" fill="#bfe3dc" opacity="0.45"/>
+  <line x1="452" y1="170" x2="628" y2="170" stroke="#263a33" stroke-width="1"/>
+  <line x1="540" y1="70" x2="540" y2="270" stroke="#263a33" stroke-width="1"/>
+  <circle cx="540" cy="170" r="3.5" fill="#263a33"/>
+  <line x1="540" y1="170" x2="603" y2="107" stroke="#9aa8a2" stroke-width="2" stroke-dasharray="6 5"/>
+  <line x1="540" y1="170" x2="596" y2="96" stroke="#126e66" stroke-width="3"/>
+  <circle cx="596" cy="96" r="5.5" fill="#126e66"/>
+  <g font-family="system-ui, sans-serif" font-size="13" fill="#263a33">
+    <text x="602" y="106" fill="#126e66">C v_k</text>
+    <text x="470" y="268" fill="#0f5f58">半轴 Δ/√m₁、Δ/√m₂</text>
+  </g>
+</svg>

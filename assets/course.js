@@ -1109,6 +1109,31 @@
       output.innerHTML = '<strong>η=' + fmt(eta, 2) + '，Δ=' + fmt(Delta, 2) + ' · 内迭代 ' + it + ' 步 · ' + reason + '</strong>' +
         ' · ‖p‖=' + fmt(nrm(z), 4) + ' · 模型下降 ' + fmt(dec, 4) + ' · ' + (0 > dot(g, z) ? '下降方向' : '非下降');
     });
+    if (kind === "precond-tr-cg") bind(root, el => {
+      const m1 = read(el, "m1"), m2 = read(el, "m2"), Delta = read(el, "delta");
+      const H = [[4, 1], [1, 3]], g = [-4, -6], c1 = Math.sqrt(m1), c2 = Math.sqrt(m2);
+      const Hv = v => [H[0][0]*v[0] + H[0][1]*v[1], H[1][0]*v[0] + H[1][1]*v[1]];
+      const dot = (u, v) => u[0]*v[0] + u[1]*v[1];
+      const Mv = v => [m1*v[0], m2*v[1]];
+      const Cv = v => [c1*v[0], c2*v[1]];
+      const Hhat = v => Cv(Hv(Cv(v)));
+      const ghat = Cv(g);
+      const mnorm = v => Math.sqrt(dot(v, Mv(v)));
+      const tau = (z, d) => { const zd = dot(z, Mv(d)), dd = dot(d, Mv(d)); return (-zd + Math.sqrt(zd*zd + dd*(Delta*Delta - dot(z, Mv(z))))) / dd; };
+      let z = [0, 0], r = ghat, d = [-r[0], -r[1]], rr = dot(r, r), it = 0, reason = "迭代上限";
+      for (let i = 0; i < 10; i++) {
+        const Hd = Hhat(d), curv = dot(d, Hd);
+        if (0 >= curv) { const t = tau(z, d); z = [z[0]+t*d[0], z[1]+t*d[1]]; it = i+1; reason = "负曲率"; break; }
+        const alpha = rr / curv, zn = [z[0]+alpha*d[0], z[1]+alpha*d[1]];
+        if (mnorm(zn) >= Delta) { const t = tau(z, d); z = [z[0]+t*d[0], z[1]+t*d[1]]; it = i+1; reason = "触及边界"; break; }
+        z = zn; r = [r[0]+alpha*Hd[0], r[1]+alpha*Hd[1]]; it = i+1;
+        if (1e-12*Math.sqrt(dot(ghat, ghat)) >= Math.sqrt(dot(r, r))) { reason = "残差达标"; break; }
+        const beta = dot(r, r)/rr; rr = dot(r, r); d = [-r[0]+beta*d[0], -r[1]+beta*d[1]];
+      }
+      const p = [c1*z[0], c2*z[1]], dec = -(dot(g, p) + 0.5*dot(p, Hv(p)));
+      output.innerHTML = '<strong>m₁=' + fmt(m1, 2) + '，m₂=' + fmt(m2, 2) + '，Δ=' + fmt(Delta, 2) + ' · 内迭代 ' + it + ' 步 · ' + reason + '</strong>' +
+        ' · p=(' + fmt(p[0], 4) + ', ' + fmt(p[1], 4) + ') · ‖p‖=' + fmt(Math.sqrt(dot(p, p)), 4) + ' · 模型下降 ' + fmt(dec, 4);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

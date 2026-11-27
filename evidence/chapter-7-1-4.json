@@ -1,0 +1,56 @@
+[
+  {
+    "id": "7.1.4-1",
+    "claim": "预条件信赖域 Newton–CG 令 M=CCᵀ、p=Cv，把模型写成 m(Cv)=(Cᵀg)ᵀv+½vᵀ(CᵀHC)v，于是信赖域约束 ‖p‖≤Δ 变成椭球约束 vᵀMv≤Δ²",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.4 (preconditioning the trust-region Newton-CG method); Chapter 5, Section 5.1.5 (M=CC^T change of variables)",
+    "status": "derived",
+    "notes": "变量替换与约束改写为由 M=CCᵀ 直接作代数推导得到；该方法归属第七章 7.1.4 节，表述为独立重写。"
+  },
+  {
+    "id": "7.1.4-2",
+    "claim": "在 v 变量中边界步满足 ‖z+τd‖_M=Δ，等价于一元二次方程 τ²(dᵀMd)+2τ(zᵀMd)+(zᵀMz−Δ²)=0 的最小非负根",
+    "kind": "algorithm",
+    "source_url": "",
+    "locator": "本文推导与 Python 函数 boundary_tau",
+    "status": "derived",
+    "notes": "由 ‖z+τd‖_M=Δ 平方展开得到；与未预条件情形的差别仅在于内积用 M。"
+  },
+  {
+    "id": "7.1.4-3",
+    "claim": "M-范数 ‖v‖_M=√(vᵀMv) 等于 p=Cv 空间中的欧氏范数 ‖Cv‖，因此约束与边界步可在 v 空间中用 M-范数统一处理",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文公式 vᵀMv=‖Cv‖²",
+    "status": "derived",
+    "notes": "由 M=CCᵀ 直接得出。"
+  },
+  {
+    "id": "7.1.4-4",
+    "claim": "在 H=[[4,1],[1,3]]、g=(−4,−6) 上，未预条件 Δ=1 时边界步为 (0.5547,0.8321)、模型下降约 5.0957",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例与 Python 断言",
+    "status": "derived",
+    "notes": "由本页程序独立计算并经断言核对；二维算例属教学示意。"
+  },
+  {
+    "id": "7.1.4-5",
+    "claim": "同一问题上用 M=diag(4,3)（C=diag(2,√3)）且 Δ=1 时边界步为 (0.6642,0.7474)、模型下降约 4.9247，椭圆半轴为 Δ/2 与 Δ/√3",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例与 Python 断言",
+    "status": "derived",
+    "notes": "由本页程序独立计算并经断言核对；半轴由 vᵀMv≤Δ² 的几何直接给出。"
+  },
+  {
+    "id": "7.1.4-6",
+    "claim": "Δ 很大时未预条件与预条件两种情形都只需两步共轭梯度即返回精确解 (6/11,20/11)",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "二维正定二次问题中精确算术下共轭梯度至多两步终止；这是教学事实，不构成迭代次数优势的证据。"
+  }
+]
