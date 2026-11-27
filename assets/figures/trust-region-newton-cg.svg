@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="trcg-t trcg-d">
+  <title id="trcg-t">信赖域 Newton–CG 的三种退出方式</title>
+  <desc id="trcg-d">左图：以原点为中心、半径 Δ 的信赖域圆。CG 第一步沿负梯度方向前进，越过边界时被截断到圆周上，得到边界步 p_k。右图列出三种退出：残差达标返回内部点、步长触及边界返回边界点、遇到负曲率沿该方向前进到边界。</desc>
+  <rect width="720" height="300" rx="16" fill="#f7f4ee"/>
+  <circle cx="180" cy="165" r="85" fill="#bfe3dc" opacity="0.45"/>
+  <circle cx="180" cy="165" r="3.5" fill="#263a33"/>
+  <line x1="180" y1="165" x2="248" y2="55" stroke="#9aa8a2" stroke-width="2" stroke-dasharray="6 5"/>
+  <line x1="180" y1="165" x2="238" y2="93" stroke="#126e66" stroke-width="3"/>
+  <circle cx="238" cy="93" r="6" fill="#126e66"/>
+  <circle cx="248" cy="55" r="4" fill="#bd633f"/>
+  <g font-family="system-ui, sans-serif" font-size="13">
+    <text x="150" y="184" fill="#263a33">0</text>
+    <text x="246" y="90" fill="#126e66">p_k（边界步）</text>
+    <text x="252" y="52" fill="#bd633f">z₁ 越界</text>
+    <text x="96" y="270" fill="#0f5f58">信赖域 ‖p‖ ≤ Δ</text>
+  </g>
+  <text x="384" y="42" fill="#263a33" font-family="system-ui, sans-serif" font-size="14">CG 的三种退出</text>
+  <g font-family="system-ui, sans-serif" font-size="14" fill="#3b4a44">
+    <text x="384" y="86">① ‖rᵢ₊₁‖ ≤ η‖g‖：返回内部点</text>
+    <text x="384" y="134">② ‖zᵢ₊₁‖ ≥ Δ：截断到边界</text>
+    <text x="384" y="182">③ dᵢᵀHdᵢ ≤ 0：沿 dᵢ 到边界</text>
+    <text x="384" y="230" fill="#5b6b64" font-size="13">边界步仍满足 m(0) − m(p) &gt; 0，是下降方向</text>
+  </g>
+</svg>

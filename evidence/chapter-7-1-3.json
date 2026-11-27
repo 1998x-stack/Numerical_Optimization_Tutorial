@@ -1,0 +1,56 @@
+[
+  {
+    "id": "7.1.3-1",
+    "claim": "信赖域 Newton–CG（Steihaug 方法）用共轭梯度法近似求解子问题 minimize m(p)=gᵀp+½pᵀHp subject to ‖p‖ ≤ Δ，只需 Hessian–向量乘积",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.3 (trust-region Newton–CG / Steihaug's method)",
+    "status": "verified",
+    "notes": "子问题与 CG 应用方式依据原书；表述为独立重写。"
+  },
+  {
+    "id": "7.1.3-2",
+    "claim": "当 CG 的下一步 zᵢ₊₁ 越过边界 ‖zᵢ₊₁‖ ≥ Δ 时，返回 zᵢ + τ dᵢ，其中 τ ≥ 0 由 ‖zᵢ + τ dᵢ‖ = Δ 确定",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.3 (boundary exit of the inner CG iteration)",
+    "status": "verified",
+    "notes": "边界截断规则依据原书；本文给出求解 τ 的二次方程形式。"
+  },
+  {
+    "id": "7.1.3-3",
+    "claim": "遇到负曲率 dᵢᵀH dᵢ ≤ 0 时，沿 dᵢ 前进到信赖域边界 zᵢ + τ dᵢ（‖·‖ = Δ）并返回",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.3 (negative curvature handling)",
+    "status": "verified",
+    "notes": "负曲率处理依据原书；负曲率方向使模型无下界，故取边界点。"
+  },
+  {
+    "id": "7.1.3-4",
+    "claim": "边界截断步满足 ‖p‖ = Δ，且当 g≠0 时是下降方向并给出正的模型下降 m(0)−m(p) > 0",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文证明要点与 Python 断言",
+    "status": "derived",
+    "notes": "由 m(0)−m(p) = −gᵀp − ½pᵀHp 与边界构造直接推出；已用程序对两个算例核对。"
+  },
+  {
+    "id": "7.1.3-5",
+    "claim": "在 H=[[4,1],[1,3]]、g=(−4,−6) 上，Δ=1 时返回边界步 (0.5547,0.8321)、模型下降约 5.0957；Δ=5 时两步收敛到精确解 (6/11,20/11)",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例与 Python 断言",
+    "status": "derived",
+    "notes": "由本页程序独立计算得到并通过断言；二维算例属教学示意。"
+  },
+  {
+    "id": "7.1.3-6",
+    "claim": "在 H=diag(1,−1)、g=(1,1)、Δ=1 上，首个方向即产生 dᵀHd=0，程序按负曲率规则返回边界点 (−0.7071,−0.7071)",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "由本页程序独立计算；说明负曲率分支，不构成通用结论。"
+  }
+]

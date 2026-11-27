@@ -1088,6 +1088,27 @@
         ' · 方向 p=(' + fmt(z[0], 4) + ', ' + fmt(z[1], 4) + ') · gᵀp=' + fmt(gp, 3) +
         ' · ' + (0 > gp ? '下降方向' : '非下降') + ' · 当前残差 ' + nrm(r).toExponential(2);
     });
+    if (kind === "tr-cg") bind(root, el => {
+      const eta = read(el, "eta"), Delta = read(el, "delta");
+      const H = [[4, 1], [1, 3]], g = [-4, -6];
+      const mv = function (v) { return [H[0][0]*v[0] + H[0][1]*v[1], H[1][0]*v[0] + H[1][1]*v[1]]; };
+      const dot = function (u, v) { return u[0]*v[0] + u[1]*v[1]; };
+      const nrm = function (v) { return Math.sqrt(dot(v, v)); };
+      const tau = function (z, d) { const zd = dot(z, d), dd = dot(d, d); return (-zd + Math.sqrt(zd*zd + dd*(Delta*Delta - dot(z, z)))) / dd; };
+      let z = [0, 0], r = [g[0], g[1]], d = [-r[0], -r[1]], rr = dot(r, r), it = 0, reason = "迭代上限";
+      for (let i = 0; i < 10; i++) {
+        const Hd = mv(d), curv = dot(d, Hd);
+        if (0 >= curv) { const t = tau(z, d); z = [z[0] + t*d[0], z[1] + t*d[1]]; it = i + 1; reason = "负曲率"; break; }
+        const alpha = rr / curv, zn = [z[0] + alpha*d[0], z[1] + alpha*d[1]];
+        if (nrm(zn) >= Delta) { const t = tau(z, d); z = [z[0] + t*d[0], z[1] + t*d[1]]; it = i + 1; reason = "触及边界"; break; }
+        z = zn; r = [r[0] + alpha*Hd[0], r[1] + alpha*Hd[1]]; it = i + 1;
+        if (eta*nrm(g) >= nrm(r)) { reason = "残差达标"; break; }
+        const beta = dot(r, r) / rr; rr = dot(r, r); d = [-r[0] + beta*d[0], -r[1] + beta*d[1]];
+      }
+      const dec = -(dot(g, z) + 0.5*dot(z, mv(z)));
+      output.innerHTML = '<strong>η=' + fmt(eta, 2) + '，Δ=' + fmt(Delta, 2) + ' · 内迭代 ' + it + ' 步 · ' + reason + '</strong>' +
+        ' · ‖p‖=' + fmt(nrm(z), 4) + ' · 模型下降 ' + fmt(dec, 4) + ' · ' + (0 > dot(g, z) ? '下降方向' : '非下降');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

@@ -1,36 +1,99 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>7.1.3. Trust Region Newton–CG Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="信赖域 Newton–CG（Steihaug 方法）用共轭梯度法近似求解带半径约束的二次子问题。本页给出边界截断、残差退出、负曲率处理与可运行校验。">
+<title>7.1.3 信赖域 Newton–CG 方法：在半径约束下截断共轭梯度 | Numerical Optimization</title>
+<link rel="stylesheet" href="../../assets/course.css">
+<script defer src="../../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>02_7.1.3._Trust-Region_Newton–CG_Method</h1>
-<pre><code>Lecture: 07._Large-Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods
-Content: 02_7.1.3._Trust-Region_Newton–CG_Method
-</code></pre>
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar">
+<a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a>
+<nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav>
+</header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录">
+<span class="toc-label">CHAPTER 07 · 7.1.3</span>
+<a href="#subproblem">信赖域子问题</a>
+<a href="#exits">三种退出方式</a>
+<a href="#algorithm">边界截断的计算</a>
+<a href="#example">二维可复现算例</a>
+<a href="#interactive">动态数值检查</a>
+<a href="#code">Python 代码</a>
+<a href="#limits">这一页的边界</a>
+<a href="../../index.html#chapters">课程首页</a>
+</aside>
+<main id="content" class="article-main">
+<article class="article">
+<header class="article-header">
+<div class="article-kicker">CHAPTER 07 · 7.1.3</div>
+<h1>7.1.3 信赖域 Newton–CG 方法：在半径约束下截断共轭梯度</h1>
+<p class="dek">信赖域方法每步在半径 Δₖ 内极小化二次模型 m(p)=gₖᵀp+½pᵀHₖp。Hₖ 可能不定且规模巨大，于是用共轭梯度法近似求解这个带约束子问题，只依赖 Hessian–向量乘积，并在残差达标、触及边界或负曲率时退出。</p>
+<div class="article-meta"><span>子问题</span><span>边界截断</span><span>可复现实验</span></div>
+</header>
+<section id="subproblem"><h2>信赖域子问题</h2><p>信赖域方法在每次迭代先用二阶 Taylor 展开构造局部模型 m(p)=gₖᵀp+½pᵀHₖp，其中 gₖ=∇f(xₖ)、Hₖ=∇²f(xₖ)。然后在一个以原点为中心、半径 Δₖ 的球内极小化模型：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="信赖域子问题"><math display="block" aria-label="信赖域子问题"><mrow><munder><mo>minimize</mo><mrow><mi>p</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>n</mi></msup></mrow></munder><mspace width="0.5em"/><mi>m</mi><mo>(</mo><mi>p</mi><mo>)</mo><mo>=</mo><msubsup><mi>g</mi><mi>k</mi><mo>⊤</mo></msubsup><mi>p</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>p</mi><mo>⊤</mo></msup><msub><mi>H</mi><mi>k</mi></msub><mi>p</mi><mspace width="1em"/><mtext>s.t.</mtext><mspace width="1em"/><mo>‖</mo><mi>p</mi><mo>‖</mo><mo>≤</mo><msub><mi>Δ</mi><mi>k</mi></msub><mo>.</mo></mrow></math></div></div><p>半径 Δₖ 把步长限制在一个可信区域内，因此<strong>不要求 Hₖ 正定</strong>。这是它相对线搜索 Newton–CG 的关键区别：不定 Hessian 不会再让算法失去意义，子问题的最优解会自然落在边界上。</p><p>直接求解这个带约束子问题的精确解法代价很高（需解长期方程），所以采用迭代近似。Newton–CG 用共轭梯度法，但要把它限制在球内。</p></section><section id="exits"><h2>三种退出方式</h2><p>CG 内迭代从 z₀=0、r₀=g、d₀=−r₀ 出发，每一步检查三件事，任一成立就返回：</p><p>（1）<strong>残差达标</strong>：若 ‖rᵢ₊₁‖ ≤ η‖g‖，返回内部点 zᵢ₊₁；（2）<strong>触及边界</strong>：若 ‖zᵢ₊₁‖ ≥ Δ，返回边界点 zᵢ+τ dᵢ；（3）<strong>负曲率</strong>：若 dᵢᵀH dᵢ ≤ 0，沿 dᵢ 前进到边界并返回 zᵢ+τ dᵢ。</p><p>三种退出返回的点都在信赖域内，且都是下降方向（gᵀp&lt;0）。负曲率分支尤其重要：当 H 不定时，子问题的最优解往往在边界上，而不是内部驻点。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" role="img" aria-label="边界截断：从 z 沿 d 前进，取最小的 τ 使 z+τd 恰落在半径 Δ 的圆上"><title>边界截断的几何</title><g font-family="system-ui, sans-serif" font-size="13"><circle cx="250" cy="72" r="52" fill="#bfe3dc" opacity="0.45"/><circle cx="250" cy="72" r="3" fill="#263a33"/><text x="222" y="90" fill="#263a33">zᵢ</text><line x1="250" y1="72" x2="196" y2="18" stroke="#9aa8a2" stroke-width="2" stroke-dasharray="6 5"/><circle cx="302" cy="72" r="6" fill="#126e66"/><line x1="250" y1="72" x2="302" y2="72" stroke="#126e66" stroke-width="3"/><text x="306" y="68" fill="#126e66">zᵢ+τdᵢ</text><text x="264" y="112" fill="#0f5f58">‖·‖ = Δ</text><text x="420" y="66" fill="#3b4a44">τ = [−z·d + √((z·d)² + ‖d‖²(Δ²−‖z‖²))] / ‖d‖²</text><text x="420" y="94" fill="#5b6b64" font-size="12">取最小非负根，保证落在球面而非球内</text></g></svg><p class="caption">边界截断：把当前的 zᵢ 与方向 dᵢ 代入，解二次方程得到最小的 τ≥0，使 zᵢ+τ dᵢ 恰好落在半径 Δ 的球面上。</p></div></section><section id="algorithm"><h2>边界截断的计算</h2><p>边界步的关键是求出步长 τ。要求 ‖zᵢ+τ dᵢ‖=Δ，展开平方得到关于 τ 的一元二次方程：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="求边界步长的二次方程"><math display="block" aria-label="求边界步长的二次方程"><mrow><msup><mrow><mo>‖</mo><msub><mi>d</mi><mi>i</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup><msup><mi>τ</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mo>(</mo><msub><mi>z</mi><mi>i</mi></msub><mo>·</mo><msub><mi>d</mi><mi>i</mi></msub><mo>)</mo><mi>τ</mi><mo>+</mo><mo>(</mo><msup><mrow><mo>‖</mo><msub><mi>z</mi><mi>i</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mi>Δ</mi><mn>2</mn></msup><mo>)</mo><mo>=</mo><mn>0</mn><mo>.</mo></mrow></math></div></div><p>因为 ‖zᵢ‖ ≤ Δ，判别式非负，取最小的非负根就得到边界步。把上述规则与残差停止、负曲率处理合在一起，就是信赖域 Newton–CG（Steihaug 方法）的完整内循环。每一步只需一次 Hessian–向量乘积 H dᵢ，无需分解 H。</p></section><section id="example"><h2>二维可复现算例</h2><p>沿用 H=[[4,1],[1,3]]、g=(−4,−6)。CG 第一步沿 d₀=−g=(4,6) 前进，α₀=52/220≈0.2364，得到 z₁≈(0.9455,1.4182)，其范数约 1.7044。</p><p>（1）Δ=1：‖z₁‖≈1.7044&gt;1 越界，τ=1/‖d₀‖≈0.1387，返回边界步 (0.5547,0.8321)，范数恰为 1，模型下降约 5.0957&gt;0。</p><p>（2）Δ=5：不会越界，两步后残差归零，返回精确解 (6/11,20/11)。</p><p>（3）对不定 H=diag(1,−1)、g=(1,1)、Δ=1，初始方向 d₀=(−1,−1) 满足 d₀ᵀHd₀=0，程序按负曲率规则返回边界点 (−0.7071,−0.7071)。</p><p>以上均为教学示意，用来区分三种退出，不是对任何真实大规模问题的性能测量。</p><figure><img src="../../assets/figures/trust-region-newton-cg.svg" alt="左图：以原点为中心、半径 Δ 的信赖域圆。CG 沿方向前进，越过边界时被截断到圆周上，得到边界步 p_k。右图列出三种退出方式：残差达标返回内部点、步长触及边界返回边界点、遇到负曲率沿该方向前进到边界。"><figcaption>信赖域 Newton–CG 的三种退出（左：边界截断的几何；右：退出规则）。半径 Δ 越小越容易触发边界截断；负曲率出现时总是取边界点。</figcaption></figure></section><section id="interactive"><h2>交互：forcing 项与半径如何决定退出</h2><p>固定 H=[[4,1],[1,3]]、g=(−4,−6)，用滑块同时调节 forcing 项 η 与信赖域半径 Δ。面板实时报告退出原因、返回步范数与模型下降。</p><div class="interactive-panel" data-demo="tr-cg"><h3>实时内迭代检查</h3><div class="demo-controls"><div class="demo-control"><label for="trcg-eta">forcing 项 η <output data-value-for="eta">0.50</output></label><input id="trcg-eta" type="range" data-key="eta" min="0.01" max="0.9" step="0.01" value="0.5"></div><div class="demo-control"><label for="trcg-delta">信赖域半径 Δ <output data-value-for="delta">1.00</output></label><input id="trcg-delta" type="range" data-key="delta" min="0.4" max="3" step="0.1" value="1"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div><p>拖动 Δ：较小时输出由“触及边界”主导，较大时转为“残差达标”。拖动 η：较大时更早停止。</p></section><section id="code"><h2>Python：边界截断与三种退出</h2><p>下面的程序只依赖标准库。它实现信赖域 Newton–CG 的内循环，重现上面的边界、精确解与负曲率算例，并断言退出原因、步长范数与模型下降。</p><pre><code>"""Trust-region Newton-CG (Steihaug): boundary and negative-curvature exits."""
+def matvec(M, v):
+    return (M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1])
 
-    <h3>Python 文件</h3>
-    <pre><code># 02_7.1.3._Trust-Region_Newton–CG_Method
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-"""
-Lecture: 07._Large-Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods
-Content: 02_7.1.3._Trust-Region_Newton–CG_Method
-"""
+def norm(v):
+    return dot(v, v) ** 0.5
 
-</code></pre>
-  </div>
+def boundary_tau(z, d, Delta):
+    """Smallest tau >= 0 with ||z + tau*d|| = Delta."""
+    zd, dd, zz = dot(z, d), dot(d, d), dot(z, z)
+    return (-zd + (zd*zd + dd*(Delta*Delta - zz)) ** 0.5) / dd
+
+def tr_cg(H, g, Delta, eta=0.0, max_iter=10):
+    """Approximately minimize m(p)=g.p+0.5 p.Hp inside ||p|| <= Delta."""
+    z, r = (0.0, 0.0), (g[0], g[1])
+    d, rr = (-r[0], -r[1]), dot(r, r)
+    for i in range(max_iter):
+        Hd = matvec(H, d)
+        curvature = dot(d, Hd)
+        if 0.0 >= curvature:
+            tau = boundary_tau(z, d, Delta)
+            return (z[0] + tau*d[0], z[1] + tau*d[1]), i + 1, "negative curvature"
+        alpha = rr / curvature
+        z_new = (z[0] + alpha*d[0], z[1] + alpha*d[1])
+        if norm(z_new) >= Delta:
+            tau = boundary_tau(z, d, Delta)
+            return (z[0] + tau*d[0], z[1] + tau*d[1]), i + 1, "boundary"
+        z = z_new
+        r = (r[0] + alpha*Hd[0], r[1] + alpha*Hd[1])
+        if eta * norm(g) >= norm(r):
+            return z, i + 1, "residual tolerance"
+        beta = dot(r, r) / rr
+        rr = dot(r, r)
+        d = (-r[0] + beta*d[0], -r[1] + beta*d[1])
+    return z, max_iter, "iteration cap"
+
+def model_decrease(H, g, p):
+    return -(dot(g, p) + 0.5 * dot(p, matvec(H, p)))
+
+def main():
+    H, g = ((4.0, 1.0), (1.0, 3.0)), (-4.0, -6.0)
+    small = tr_cg(H, g, 1.0)
+    large = tr_cg(H, g, 5.0, eta=1e-12)
+    indefinite = tr_cg(((1.0, 0.0), (0.0, -1.0)), (1.0, 1.0), 1.0)
+    assert small[2] == "boundary" and abs(norm(small[0]) - 1.0) < 1e-12
+    assert model_decrease(H, g, small[0]) > 0.0 and dot(g, small[0]) < 0.0
+    assert large[2] == "residual tolerance" and abs(large[0][0] - 6.0/11.0) < 1e-12
+    assert indefinite[2] == "negative curvature" and abs(norm(indefinite[0]) - 1.0) < 1e-12
+    print("Delta=1 ->", small[1], small[2], tuple(round(v, 4) for v in small[0]), "decrease", round(model_decrease(H, g, small[0]), 4))
+    print("Delta=5 ->", large[1], large[2], tuple(round(v, 4) for v in large[0]))
+    print("indefinite ->", indefinite[1], indefinite[2], tuple(round(v, 4) for v in indefinite[0]))
+
+if __name__ == "__main__":
+    main()</code></pre><p>程序只处理固定的二维教学矩阵，用来验证退出规则；它不是完整信赖域求解器，不含半径更新策略、实际/预测下降比计算、预条件或非二次函数的外层循环。</p></section><section id="limits"><h2>这一页的边界</h2><p>本文只描述信赖域 Newton–CG 的内层子问题求解，不展开半径 Δₖ 的更新规则与收敛性证明，也不涉及预条件（7.1.4）。负曲率和边界分支只保证返回一个下降的近似解，不保证它就是精确子问题最优解；实际实现还要处理数值舍入导致的小负曲率、内迭代次数上限与重正交。把这些规则当成性能保证是过度解读。</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 7, Section 7.1.3（信赖域 Newton–CG / Steihaug 方法、边界与负曲率处理），pp. 172–175。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">信赖域 Newton–CG 用共轭梯度法在半径 Δ 内近似求解子问题；残差达标、触及边界、负曲率三种情形都返回一个下降的近似步。</p><nav class="prev-next" aria-label="相邻内容"><a href="01_7.1.2._Line_Search_Newton–CG_Method.html"><small>上一篇</small><strong>线搜索 Newton–CG 方法</strong></a><a href="03_7.1.4._Preconditioning_the_Trust_Region_Newton–CG_Method.html"><small>下一篇</small><strong>预条件 Newton–CG</strong></a></nav></footer>
+</article>
+</main>
+</div>
 </body>
 </html>
-  
