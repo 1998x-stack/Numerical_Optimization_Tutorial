@@ -1062,6 +1062,32 @@
       output.innerHTML = '<strong>η=' + fmt(eta, 2) + '，计划 ' + label + '</strong> · 末步收缩比 ' +
         last.toExponential(3) + ' · 末三个误差 eₖ = ' + errs.slice(-3).map(v => v.toExponential(2)).join(' → ');
     });
+    if (kind === "newton-cg") bind(root, el => {
+      const eta = read(el, "eta");
+      const H = [[4, 1], [1, 3]], g = [-4, -6];
+      const mv = function (v) { return [H[0][0]*v[0] + H[0][1]*v[1], H[1][0]*v[0] + H[1][1]*v[1]]; };
+      const dot = function (u, v) { return u[0]*v[0] + u[1]*v[1]; };
+      const nrm = function (v) { return Math.sqrt(dot(v, v)); };
+      let z = [0, 0], r = [g[0], g[1]], d = [-r[0], -r[1]], rr = dot(r, r);
+      const tol = eta * nrm(g);
+      let it = 0, reason = "iteration cap";
+      for (let i = 0; i < 10; i++) {
+        const Hd = mv(d), curv = dot(d, Hd);
+        if (0 >= curv) { if (i === 0) z = [-g[0], -g[1]]; reason = "negative curvature"; break; }
+        const alpha = rr / curv;
+        z = [z[0] + alpha*d[0], z[1] + alpha*d[1]];
+        r = [r[0] + alpha*Hd[0], r[1] + alpha*Hd[1]];
+        it = i + 1;
+        if (tol >= nrm(r)) { reason = "residual tolerance"; break; }
+        const beta = dot(r, r) / rr; rr = dot(r, r);
+        d = [-r[0] + beta*d[0], -r[1] + beta*d[1]];
+      }
+      const gp = dot(g, z);
+      const label = reason === "residual tolerance" ? "残差达标" : (reason === "negative curvature" ? "负曲率" : "迭代上限");
+      output.innerHTML = '<strong>η=' + fmt(eta, 2) + '，内迭代 ' + it + ' 步 · ' + label + '</strong>' +
+        ' · 方向 p=(' + fmt(z[0], 4) + ', ' + fmt(z[1], 4) + ') · gᵀp=' + fmt(gp, 3) +
+        ' · ' + (0 > gp ? '下降方向' : '非下降') + ' · 当前残差 ' + nrm(r).toExponential(2);
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

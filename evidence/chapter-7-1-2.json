@@ -1,0 +1,56 @@
+[
+  {
+    "id": "7.1.2-1",
+    "claim": "线搜索 Newton–CG 用共轭梯度法近似求解 H_k p_k = −g_k，每次内迭代只用到一次 Hessian–向量乘积，不显式存储或分解 Hessian",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.2, Algorithm 7.1 (Line Search Newton–CG)",
+    "status": "verified",
+    "notes": "算法步骤依据原书 Algorithm 7.1；表述为独立重写。"
+  },
+  {
+    "id": "7.1.2-2",
+    "claim": "CG 内迭代的停止准则为 ‖rᵢ‖ ≤ ηₖ‖gₖ‖，ηₖ∈(0,1)；实用选择 ηₖ = min(0.5, √‖gₖ‖)",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.2 (termination of the inner CG iteration)",
+    "status": "verified",
+    "notes": "停止准则与推荐取舍依据原书；ηₖ 即 7.1.1 的 forcing 项。"
+  },
+  {
+    "id": "7.1.2-3",
+    "claim": "当内迭代遇到 dᵢᵀH_kdᵢ ≤ 0 时共轭梯度法无法继续；线搜索情形下若 i=0 则改取负梯度方向作为下降方向",
+    "kind": "algorithm",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1.2 (negative curvature and descent safeguard)",
+    "status": "verified",
+    "notes": "负曲率处理依据原书；本页只陈述规则，不复刻证明。"
+  },
+  {
+    "id": "7.1.2-4",
+    "claim": "内迭代残差容差与 7.1.1 的 forcing 项一致：ηₖ→0 时外层超线性收敛",
+    "kind": "derived",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Sections 7.1.1–7.1.2",
+    "status": "derived",
+    "notes": "由 7.1.1 的局部收敛定理与本节停止准则直接对应得出。"
+  },
+  {
+    "id": "7.1.2-5",
+    "claim": "在 H=[[4,1],[1,3]]、g=(−4,−6) 上，η=0.5 时内迭代 1 步、η=0.01 时 2 步到达精确解 (6/11, 20/11)，且方向 gᵀp<0",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文二维教学算例与 Python 断言",
+    "status": "derived",
+    "notes": "由本页程序独立计算得到并通过断言；二维二次问题属教学示意。"
+  },
+  {
+    "id": "7.1.2-6",
+    "claim": "在不定矩阵 H=diag(1,−1)、g=(1,1) 上，首个搜索方向满足 dᵀHd=0，程序按负曲率规则停止并返回 −g",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "由本页程序独立计算；用于说明负曲率分支，不构成通用结论。"
+  }
+]

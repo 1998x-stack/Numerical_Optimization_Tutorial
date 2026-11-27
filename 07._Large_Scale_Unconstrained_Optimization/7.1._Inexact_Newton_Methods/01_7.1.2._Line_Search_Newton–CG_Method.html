@@ -1,36 +1,87 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-  <script>hljs.highlightAll();</script>
-  <title>7.1.2. Line Search Newton–CG Method</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Math&display=swap">
-  <link rel="stylesheet" href="../../markdown.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="../../markdown.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="线搜索 Newton–CG 用共轭梯度法近似求解 Hₖpₖ=−gₖ，只依赖 Hessian–向量乘积。本页给出停止准则 ‖rᵢ‖≤η‖gₖ‖、负曲率处理、算法步骤与可运行校验。">
+<title>7.1.2 线搜索 Newton–CG 方法：用共轭梯度解牛顿方程 | Numerical Optimization</title>
+<link rel="stylesheet" href="../../assets/course.css">
+<script defer src="../../assets/course.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>01_7.1.2._Line_Search_Newton–CG_Method</h1>
-<pre><code>Lecture: 07._Large-Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods
-Content: 01_7.1.2._Line_Search_Newton–CG_Method
-</code></pre>
+<a class="skip-link" href="#content">跳转至正文</a>
+<header class="topbar">
+<a class="brand" href="../../index.html"><span class="brand-mark">NO</span><span>数值优化 · Numerical Optimization</span></a>
+<nav class="top-links" aria-label="全站导航"><a href="../../index.html#routes">学习路线</a><a href="../../index.html#chapters">章节目录</a><a href="../../README.md">项目说明</a></nav>
+</header>
+<div class="article-layout">
+<aside class="article-toc" aria-label="文章目录">
+<span class="toc-label">CHAPTER 07 · 7.1.2</span>
+<a href="#why-cg">为什么用 CG 解牛顿方程</a>
+<a href="#stop">残差容差停止</a>
+<a href="#negcurv">负曲率中断</a>
+<a href="#algorithm">算法步骤</a>
+<a href="#example">二维可复现算例</a>
+<a href="#interactive">动态数值检查</a>
+<a href="#code">Python 代码</a>
+<a href="#limits">这一页的边界</a>
+<a href="../../index.html#chapters">课程首页</a>
+</aside>
+<main id="content" class="article-main">
+<article class="article">
+<header class="article-header">
+<div class="article-kicker">CHAPTER 07 · 7.1.2</div>
+<h1>7.1.2 线搜索 Newton–CG 方法：用共轭梯度解牛顿方程</h1>
+<p class="dek">直接分解 Hₖ 在大规模问题上不可行。线搜索 Newton–CG（截断牛顿法）用共轭梯度法只靠 Hessian–向量乘积近似求解 Hₖpₖ=−gₖ，并在残差较小时提前停止，再把 pₖ 交给线搜索。</p>
+<div class="article-meta"><span>算法步骤</span><span>停止规则</span><span>可复现实验</span></div>
+</header>
+<section id="why-cg"><h2>为什么用 CG 解牛顿方程</h2><p>牛顿法每步要求解 Hₖpₖ=−gₖ，其中 Hₖ=∇²f(xₖ)。对大尺度问题，Hessian 稠密时一次分解约 O(n³) 次运算、O(n²) 内存，直接解不可行。</p><p>共轭梯度法求解对称正定系统 Hp=−g，只需反复计算矩阵–向量乘积 Hd。若把 H 看成算子（由有限差分、自动微分或解析公式给出乘积），就可以避开矩阵的存储与分解。<strong>截断牛顿法</strong>正是这个思路：用 CG 近似求解牛顿方程，残差足够小时就停。</p><p>CG 从 z₀=0、r₀=g、d₀=−r₀ 出发，逐步更新近似解 zᵢ、残差 rᵢ 与共轭方向 dᵢ；每一步恰好需要一次 Hessian–向量乘积。与直接分解不同，它给出的是<em>不精确</em>解，但恰好落在此前讨论的不精确牛顿框架内。</p></section><section id="stop"><h2>残差容差停止</h2><p>不需要把系统解到底，也不需要固定内迭代次数。给定 forcing 项 ηₖ∈(0,1)，当残差满足相对容差时停止，取当前 zᵢ 作为不精确牛顿步：</p><div class="equation"><div class="math-scroll" tabindex="0" role="region" aria-label="CG 内迭代的相对停止准则"><math display="block" aria-label="CG 内迭代的相对停止准则"><mrow><mo>‖</mo><msub><mi>r</mi><mi>i</mi></msub><mo>‖</mo><mo>≤</mo><msub><mi>η</mi><mi>k</mi></msub><mo>‖</mo><msub><mi>g</mi><mi>k</mi></msub><mo>‖</mo><mo>,</mo><mspace width="1em"/><msub><mi>η</mi><mi>k</mi></msub><mo>∈</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo><mo>.</mo></mrow></math></div></div><p>ηₖ 越大，内迭代越少、外层收敛越慢；ηₖ 越小则相反。实用取舍是 ηₖ=min(0.5, √‖gₖ‖)：离解较远时可宽松，接近解时自动收紧。这与 7.1.1 的 forcing 项完全一致——ηₖ→0 时外层超线性收敛。正是这个相对容差让 Newton–CG 成为“不精确牛顿法”的一个具体实例。</p></section><section id="negcurv"><h2>负曲率中断</h2><p>CG 的推导假设 H 对称正定。若某一步遇到 dᵢᵀH dᵢ ≤ 0，则沿方向 dᵢ 的二次模型没有下界（负曲率），继续迭代不会给出可信的下降步。此时必须中断内迭代：</p><p>若这是第 0 步（即 d₀=−gₖ 本身就不带正曲率），直接取 pₖ=−gₖ 作为下降方向；否则取当前的 zᵢ 作为 pₖ。这样保证返回的方向仍然是一个下降方向，交给线搜索继续过程。</p></section><section id="algorithm"><h2>算法步骤</h2><p>把上述规则写出来，就得到线搜索 Newton–CG（Nocedal &amp; Wright, Algorithm 7.1）。给定 x₀、容差 ε&gt;0 与 forcing 项 ηₖ：</p><p>（1）若 ‖gₖ‖≤ε 则停；（2）用截断 CG 近似求解 Hₖp=−gₖ，直到 ‖rᵢ‖≤ηₖ‖gₖ‖ 或遇到负曲率；（3）沿 pₖ 做线搜索（如 Wolfe 条件）并令 xₖ₊₁=xₖ+αₖpₖ；（4）k←k+1 重复。</p><div class="figure-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 150" role="img" aria-label="截断 CG 内迭代流程：每步检查正曲率与残差，满足则返回并进入线搜索"><title>截断 CG 内迭代流程</title><g font-family="system-ui, sans-serif" font-size="13" text-anchor="middle"><rect x="8" y="52" width="112" height="46" rx="10" fill="#e3efe9"/><text x="64" y="80" fill="#0f5f58">z₀=0, r₀=g</text><rect x="150" y="52" width="120" height="46" rx="10" fill="#e3efe9"/><text x="210" y="80" fill="#0f5f58">dᵀHd &gt; 0 ?</text><rect x="300" y="52" width="120" height="46" rx="10" fill="#e3efe9"/><text x="360" y="80" fill="#0f5f58">更新 z, r, d</text><rect x="450" y="52" width="140" height="46" rx="10" fill="#e3efe9"/><text x="520" y="80" fill="#0f5f58">‖r‖ ≤ η‖g‖ ?</text><rect x="620" y="52" width="74" height="46" rx="10" fill="#f2e2d8"/><text x="657" y="80" fill="#8a4a2c">线搜索</text><g stroke="#7f8f88" stroke-width="2" fill="none"><line x1="120" y1="75" x2="148" y2="75"/><line x1="270" y1="75" x2="298" y2="75"/><line x1="420" y1="75" x2="448" y2="75"/><line x1="590" y1="75" x2="618" y2="75"/><path d="M520,98 L520,126 L64,126 L64,100"/></g><polygon points="148,75 140,71 140,79" fill="#7f8f88"/><polygon points="298,75 290,71 290,79" fill="#7f8f88"/><polygon points="448,75 440,71 440,79" fill="#7f8f88"/><polygon points="618,75 610,71 610,79" fill="#7f8f88"/><polygon points="64,100 59,108 69,108" fill="#7f8f88"/><text x="300" y="142" fill="#5b6b64" font-size="12">否 → 继续内迭代（此处 dᵀHd≤0 则返回 −g 或 zᵢ）</text></g></svg><p class="caption">截断 CG 的内循环：先检查正曲率，再检查相对残差。任一条件给出停止信号（残差达标或负曲率）就返回 pₖ，交给线搜索。</p></div></section><section id="example"><h2>二维可复现算例</h2><p>取二次函数 f(x)=½xᵀHx−gᵀx，H=[[4,1],[1,3]]（对称正定，特征值约 2.38 与 4.62），−g=(−4,−6)。真解 p*=−H⁻¹g=(6/11,20/11)≈(0.5455,1.8182)。</p><p>（1）η=0.5：容差 0.5‖g‖≈3.61。第 1 次内迭代后 ‖r₁‖≈1.44 已达标，返回 p≈(0.9455,1.4182)，且 gᵀp≈−12.29&lt;0，是一个下降方向。</p><p>（2）η=0.01：容差约 0.072。第 1 步后 ‖r₁‖≈1.44 不够小，第 2 步后残差归零，返回精确解 (6/11,20/11)。二维问题 CG 最多 2 步终止，这也是它精确性的来源。</p><p>（3）对不定矩阵 H=diag(1,−1)、g=(1,1)，初始方向 d₀=(−1,−1) 给出 d₀ᵀHd₀=0，程序按负曲率规则中断并返回 −g=(−1,−1)。</p><p>以上均为教学示意，用来区分两条停止规则，不是对任何真实大规模问题的性能测量。</p><figure><img src="../../assets/figures/newton-cg-truncation.svg" alt="左图：二维平面上，CG 内迭代从 z₀=0 走向 H p=−g 的真解 p*，当残差落入容差球 ‖r‖≤η‖g‖ 时提前停止。右图：当搜索方向出现负曲率 dᵀHd≤0 时，沿 d 的函数曲线是一条开口向下的弧，没有下界，CG 必须停止并退回负梯度方向。"><figcaption>截断 CG 的两条停止规则（左：残差容差；右：负曲率）。η 越大容差球越大、内迭代越少；负曲率出现时必须中断，否则沿该方向没有下降步可取。</figcaption></figure></section><section id="interactive"><h2>交互：forcing 项如何决定内迭代</h2><p>固定 H=[[4,1],[1,3]]、g=(−4,−6)，用滑块选择 forcing 项 ηₖ。面板实时报告 CG 内迭代次数、停止原因和返回方向是否下降。</p><div class="interactive-panel" data-demo="newton-cg"><h3>实时内迭代检查</h3><div class="demo-controls"><div class="demo-control"><label for="tcg-eta">forcing 项 η <output data-value-for="eta">0.50</output></label><input id="tcg-eta" type="range" data-key="eta" min="0.01" max="0.9" step="0.01" value="0.5"></div></div><div class="demo-output" data-output aria-live="polite">正在计算…</div></div><p>拖动滑块观察：η 较大时内迭代一次就停止，η 很小时需要两次。两者返回的方向都满足 gᵀp&lt;0。</p></section><section id="code"><h2>Python：截断 CG 与两条停止规则</h2><p>下面的程序只依赖标准库。它实现截断 CG，重现上面的两个容差算例与一个负曲率分支，并断言停止原因、下降性与精确解。</p><pre><code>"""Truncated Newton-CG on a 2D quadratic, plus a negative-curvature stop guard."""
+def matvec(M, v):
+    return (M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1])
 
-    <h3>Python 文件</h3>
-    <pre><code># 01_7.1.2._Line_Search_Newton–CG_Method
+def dot(u, v):
+    return u[0]*v[0] + u[1]*v[1]
 
-"""
-Lecture: 07._Large-Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods
-Content: 01_7.1.2._Line_Search_Newton–CG_Method
-"""
+def norm(v):
+    return dot(v, v) ** 0.5
 
-</code></pre>
-  </div>
+def newton_cg(H, g, eta, max_iter=10):
+    """Approximately solve H p = -g; stop when ||r|| <= eta*||g|| or curvature <= 0."""
+    z, r = (0.0, 0.0), (g[0], g[1])
+    d, rr, tol = (-r[0], -r[1]), dot(r, r), eta * norm(g)
+    for i in range(max_iter):
+        Hd = matvec(H, d)
+        curvature = dot(d, Hd)
+        if 0.0 >= curvature:
+            return (z if i > 0 else (-g[0], -g[1])), i, "negative curvature"
+        alpha = rr / curvature
+        z = (z[0] + alpha*d[0], z[1] + alpha*d[1])
+        r = (r[0] + alpha*Hd[0], r[1] + alpha*Hd[1])
+        if tol >= norm(r):
+            return z, i + 1, "residual tolerance"
+        beta = dot(r, r) / rr
+        rr = dot(r, r)
+        d = (-r[0] + beta*d[0], -r[1] + beta*d[1])
+    return z, max_iter, "iteration cap"
+
+def main():
+    H, g = ((4.0, 1.0), (1.0, 3.0)), (-4.0, -6.0)
+    loose = newton_cg(H, g, 0.5)
+    tight = newton_cg(H, g, 0.01)
+    indefinite = newton_cg(((1.0, 0.0), (0.0, -1.0)), (1.0, 1.0), 0.3)
+    assert loose[1] == 1 and loose[2] == "residual tolerance"
+    assert dot(g, loose[0]) < 0.0
+    assert tight[1] == 2 and abs(tight[0][0] - 6.0/11.0) < 1e-12
+    assert indefinite[2] == "negative curvature" and indefinite[0] == (-1.0, -1.0)
+    print("eta=0.50 -> steps", loose[1], loose[2], "p", tuple(round(v, 4) for v in loose[0]), "g.p", round(dot(g, loose[0]), 3))
+    print("eta=0.01 -> steps", tight[1], tight[2], "p", tuple(round(v, 4) for v in tight[0]))
+    print("indefinite -> steps", indefinite[1], indefinite[2], "p", indefinite[0])
+
+if __name__ == "__main__":
+    main()</code></pre><p>程序只处理固定的二维教学矩阵，用来验证停止规则；它不是通用 Newton–CG 求解器，不含线搜索、预条件、有限精度处理或非二次函数的外层循环。</p></section><section id="limits"><h2>这一页的边界</h2><p>本文只描述线搜索 Newton–CG 的内层停止与外层框架，不展开预条件（7.1.4）与信赖域版本（7.1.3）。负曲率处理只保证“返回一个下降方向”，不保证这一步最优；实际实现还要处理舍入误差导致的小负曲率、内迭代次数上限与重正交。把这些规则当成性能保证是过度解读。</p><div class="references"><strong>参考依据：</strong><a href="https://doi.org/10.1007/978-0-387-40065-5">Nocedal &amp; Wright, <em>Numerical Optimization</em>, 2nd edition</a>，Chapter 7, Section 7.1.2（Algorithm 7.1、内迭代终止与负曲率处理），pp. 169–172。教学图、数值例子及代码均独立构造。</div></section><footer class="article-footer"><p class="references">Newton–CG 用一次 Hessian–向量乘积/内迭代换取内存，用相对残差容差 ηₖ 控制精度；负曲率出现时必须中断并保证下降方向。</p><nav class="prev-next" aria-label="相邻内容"><a href="00_7.1.1._Local_Convergence_of_Inexact_Newton_Methods.html"><small>上一篇</small><strong>不精确牛顿法的局部收敛</strong></a><a href="02_7.1.3._Trust_Region_Newton–CG_Method.html"><small>下一篇</small><strong>信赖域 Newton–CG 方法</strong></a></nav></footer>
+</article>
+</main>
+</div>
 </body>
 </html>
-  

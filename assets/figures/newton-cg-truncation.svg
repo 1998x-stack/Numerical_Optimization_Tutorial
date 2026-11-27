@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="tcg-t tcg-d">
+  <title id="tcg-t">截断牛顿–CG 的两种停止规则</title>
+  <desc id="tcg-d">左图：CG 内迭代逼近 H p = −g 的解 p*，当残差范数落入容差球 ‖r‖ ≤ η‖g‖ 时提前停止，得到不精确牛顿步。右图：当搜索方向上出现 dᵀHd ≤ 0（负曲率）时，沿 d 的函数没有下界，CG 必须停止并退回负梯度方向。</desc>
+  <rect width="720" height="300" rx="16" fill="#f7f4ee"/>
+  <text x="40" y="34" fill="#263a33" font-family="system-ui, sans-serif" font-size="14">① 残差容差：‖rᵢ‖ ≤ η‖g‖ 时停止</text>
+  <line x1="40" y1="230" x2="340" y2="230" stroke="#9aa8a2" stroke-width="1.5"/>
+  <line x1="40" y1="70" x2="40" y2="230" stroke="#9aa8a2" stroke-width="1.5"/>
+  <circle cx="240" cy="150" r="78" fill="#bfe3dc" opacity="0.5"/>
+  <circle cx="240" cy="150" r="4" fill="#0f5f58"/>
+  <circle cx="180" cy="108" r="6" fill="#126e66"/>
+  <circle cx="120" cy="176" r="5" fill="#263a33"/>
+  <line x1="120" y1="176" x2="180" y2="108" stroke="#7fbcb0" stroke-width="2.5"/>
+  <line x1="180" y1="108" x2="240" y2="150" stroke="#126e66" stroke-width="2.5"/>
+  <g font-family="system-ui, sans-serif" font-size="13">
+    <text x="246" y="146" fill="#0f5f58">p*</text>
+    <text x="150" y="100" fill="#126e66">z₁</text>
+    <text x="86" y="190" fill="#263a33">z₀=0</text>
+    <text x="150" y="222" fill="#0f5f58">容差球</text>
+    <text x="46" y="256" fill="#5b6b64" font-size="12">η 越大球越大、内迭代越少</text>
+  </g>
+  <text x="400" y="34" fill="#263a33" font-family="system-ui, sans-serif" font-size="14">② 负曲率：dᵀHd ≤ 0 时停止</text>
+  <line x1="400" y1="230" x2="700" y2="230" stroke="#9aa8a2" stroke-width="1.5"/>
+  <path d="M410,186 C470,110 630,110 690,186" fill="none" stroke="#bd633f" stroke-width="3"/>
+  <circle cx="550" cy="110" r="5" fill="#bd633f"/>
+  <g font-family="system-ui, sans-serif" font-size="13">
+    <text x="470" y="98" fill="#bd633f">f(z+αd)</text>
+    <text x="516" y="252" fill="#5b6b64" font-size="12">沿 d 无下界 → 停止并取 −g 下降方向</text>
+  </g>
+</svg>
