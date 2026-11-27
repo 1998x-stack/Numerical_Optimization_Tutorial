@@ -1,0 +1,47 @@
+[
+  {
+    "id": "7.1.1-1",
+    "claim": "不精确牛顿步 p_k 满足 ‖∇²f(x_k)p_k + ∇f(x_k)‖ ≤ η_k ‖∇f(x_k)‖，其中 0 ≤ η_k ≤ η < 1 称为 forcing 项",
+    "kind": "definition",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1 (inexact Newton condition and forcing term)",
+    "status": "verified",
+    "notes": "以残差 r_k = ∇²f_k p_k + g_k 重写；条件与符号依据原书。"
+  },
+  {
+    "id": "7.1.1-2",
+    "claim": "设 ∇²f 在 x* 处 Hölder 连续且 ∇²f(x*) 非奇异，x_k→x*。若 η_k≤η<1 则收敛线性；若 η_k→0 则超线性；若 η_k=O(‖∇f(x_k)‖) 则二次收敛",
+    "kind": "theorem",
+    "source_url": "https://doi.org/10.1007/978-0-387-40065-5",
+    "locator": "Chapter 7, Section 7.1, Theorem 7.1",
+    "status": "verified",
+    "notes": "定理陈述依据原书；本页只复述结论，未复刻证明。"
+  },
+  {
+    "id": "7.1.1-3",
+    "claim": "常数 forcing 项下误差按 g(x)=g(x*)+∇²f(x*)e+O(‖e‖²) 的线性项收缩，收缩因子趋于 η",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文一维算例与 Python 断言",
+    "status": "derived",
+    "notes": "由 E_{k+1}≈(η_k)E_k+O(E_k²) 直接推出，已用程序逐项核对。"
+  },
+  {
+    "id": "7.1.1-4",
+    "claim": "在 f(x)=x²/2+x³/6、x*=0 上，常数 η=0.5 收缩比趋于 0.5，η_k=0.5^(k+1) 收缩比趋于 0，η_k=0.5|g(x_k)| 满足 e_{k+1}/e_k²→1",
+    "kind": "illustrative",
+    "source_url": "",
+    "locator": "本文 Python 计算输出",
+    "status": "derived",
+    "notes": "教学用一维玩具问题；数值由本页程序独立计算并通过断言，不构成性能基准。"
+  },
+  {
+    "id": "7.1.1-5",
+    "claim": "容差条件等价于步长落在 p_N= -∇²f⁻¹g 的区间 p_N ± η|p_N| 内，即 x_{k+1} 落在以 x* 为中心、半宽 η|p_N| 的区间内",
+    "kind": "derived",
+    "source_url": "",
+    "locator": "本文图示说明",
+    "status": "derived",
+    "notes": "一维情形下由 |h p + g| ≤ η|g| 解出 |p − p_N| ≤ η|p_N|；说明性推导。"
+  }
+]

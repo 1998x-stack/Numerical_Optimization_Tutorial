@@ -1045,6 +1045,23 @@
         'φ=0.5 det = ' + fmt(detHalf, 3) + '（' + flag(detHalf) + '）<br>' +
         'SR1 det = ' + (detSR1 === null ? '分母为 0' : fmt(detSR1, 3) + '（' + flag(detSR1) + '）');
     });
+    if (kind === "inexact-forcing") bind(root, el => {
+      const eta = read(el, "eta"), plan = Math.round(read(el, "plan"));
+      const grad = x => x + x*x/2, hess = x => 1 + x;
+      const factor = (k, gk) => plan === 0 ? eta : (plan === 1 ? eta * Math.pow(0.5, k + 1) : eta * Math.abs(gk));
+      let x = 0.5; const errs = [];
+      for (let k = 0; k < 8; k++) {
+        const gk = grad(x), hk = hess(x);
+        x += -(1 - factor(k, gk)) * gk / hk;
+        errs.push(Math.abs(x));
+      }
+      const ratios = [];
+      for (let i = 0; i < errs.length - 1; i++) if (errs[i] > 1e-16) ratios.push(errs[i + 1] / errs[i]);
+      const last = ratios[ratios.length - 1];
+      const label = plan === 0 ? "常数：线性收敛" : (plan === 1 ? "趋于零：超线性收敛" : "O(‖g‖)：二次收敛");
+      output.innerHTML = '<strong>η=' + fmt(eta, 2) + '，计划 ' + label + '</strong> · 末步收缩比 ' +
+        last.toExponential(3) + ' · 末三个误差 eₖ = ' + errs.slice(-3).map(v => v.toExponential(2)).join(' → ');
+    });
   });
   const search = document.querySelector("[data-course-search]");
   if (search) {

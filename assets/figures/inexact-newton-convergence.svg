@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" role="img" aria-labelledby="inx-title inx-desc">
+  <title id="inx-title">不精确牛顿步的容差带与三种 forcing 项下的误差收敛</title>
+  <desc id="inx-desc">左图：真实牛顿步指向 x*，不精确步允许落在以 x* 为中心、半宽为 η|pN| 的容差区间内。右图：常数 forcing 项呈线性收敛，forcing 项趋于零呈超线性，forcing 项为 O(‖g‖) 呈二次收敛。</desc>
+  <rect width="720" height="320" rx="16" fill="#f7f4ee"/>
+  <!-- left panel: tolerance band geometry -->
+  <line x1="60" y1="120" x2="360" y2="120" stroke="#263a33" stroke-width="2"/>
+  <g fill="#263a33" font-family="system-ui, sans-serif" font-size="15">
+    <text x="52" y="146">xₖ</text>
+  </g>
+  <circle cx="70" cy="120" r="6" fill="#263a33"/>
+  <circle cx="330" cy="120" r="6" fill="#126e66"/>
+  <text x="318" y="146" fill="#126e66" font-family="system-ui, sans-serif" font-size="15">x*</text>
+  <rect x="261" y="96" width="138" height="48" rx="8" fill="#bfe3dc" opacity="0.6"/>
+  <text x="270" y="88" fill="#0f5f58" font-family="system-ui, sans-serif" font-size="13">‖h p + g‖ ≤ η‖g‖</text>
+  <line x1="70" y1="60" x2="330" y2="60" stroke="#bd633f" stroke-width="3"/>
+  <polygon points="330,60 320,55 320,65" fill="#bd633f"/>
+  <text x="150" y="50" fill="#bd633f" font-family="system-ui, sans-serif" font-size="14">真实步 pN = −g/h</text>
+  <line x1="70" y1="200" x2="200" y2="200" stroke="#126e66" stroke-width="3"/>
+  <polygon points="200,200 190,195 190,205" fill="#126e66"/>
+  <text x="90" y="224" fill="#126e66" font-family="system-ui, sans-serif" font-size="14">不精确步 p = −(1−η)g/h</text>
+  <text x="60" y="270" fill="#5b6b64" font-family="system-ui, sans-serif" font-size="12">η = 0.5：允许目标落在以 x* 为中心、半宽 η|pN| 的区间</text>
+  <!-- right panel: convergence orders -->
+  <text x="420" y="34" fill="#263a33" font-family="system-ui, sans-serif" font-size="14">误差 |xₖ − x*|（对数刻度）</text>
+  <line x1="420" y1="60" x2="420" y2="240" stroke="#9aa8a2" stroke-width="1.5"/>
+  <line x1="420" y1="240" x2="690" y2="240" stroke="#9aa8a2" stroke-width="1.5"/>
+  <g fill="#5b6b64" font-family="system-ui, sans-serif" font-size="11">
+    <text x="396" y="64">10⁰</text>
+    <text x="396" y="184">10⁻⁶</text>
+    <text x="396" y="244">10⁻⁹</text>
+  </g>
+  <polyline fill="none" stroke="#126e66" stroke-width="2.5" points="420,70.7 463,75.8 506,81.2 550,86.9 593,92.7 636,98.7 680,104.6"/>
+  <text x="596" y="102" fill="#126e66" font-family="system-ui, sans-serif" font-size="12">常数 η：线性</text>
+  <polyline fill="none" stroke="#bd633f" stroke-width="2.5" points="420,70.7 463,80.2 506,95.9 550,119.0 593,149.0 636,185.1 680,227.2"/>
+  <text x="470" y="156" fill="#bd633f" font-family="system-ui, sans-serif" font-size="12">η→0：超线性</text>
+  <polyline fill="none" stroke="#263a33" stroke-width="2.5" points="420,73.4 463,87.6 506,115.3 550,170.7 593,240 636,240"/>
+  <text x="596" y="212" fill="#263a33" font-family="system-ui, sans-serif" font-size="12">η=O(‖g‖)：二次</text>
+  <g fill="#5b6b64" font-family="system-ui, sans-serif" font-size="11">
+    <text x="416" y="256">k=0</text>
+    <text x="672" y="256">k=6</text>
+  </g>
+</svg>
