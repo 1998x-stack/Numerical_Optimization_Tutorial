@@ -295,6 +295,18 @@ ARTICLES = [
      "06._Quasi_Newton_Methods/05_6.6._Exercises.md",
      "06._Quasi_Newton_Methods/05_6.6._Exercises.py",
      "evidence/chapter-6-6.json"),
+    ("07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/00_7.1.1._Local_Convergence_of_Inexact_Newton_Methods.html",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/00_7.1.1._Local_Convergence_of_Inexact_Newton_Methods.md",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/00_7.1.1._Local_Convergence_of_Inexact_Newton_Methods.py",
+     "evidence/chapter-7-1-1.json"),
+    ("07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/01_7.1.2._Line_Search_Newton–CG_Method.html",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/01_7.1.2._Line_Search_Newton–CG_Method.md",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/01_7.1.2._Line_Search_Newton–CG_Method.py",
+     "evidence/chapter-7-1-2.json"),
+    ("07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/02_7.1.3._Trust_Region_Newton–CG_Method.html",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/02_7.1.3._Trust_Region_Newton–CG_Method.md",
+     "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/02_7.1.3._Trust_Region_Newton–CG_Method.py",
+     "evidence/chapter-7-1-3.json"),
 ]
 
 
@@ -453,12 +465,12 @@ def validate_repository() -> list[str]:
         if not (ROOT / rel).exists():
             errors.append(f"missing project file: {rel}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7、第四章 4.1.1–4.5.2、第五章 5.1.1–5.1.6、5.2.1–5.2.6 与第六章 6.1.1–6.6 共七十一篇已重构" not in readme:
+    if "第一章 1.1–1.9、第二章 2.1–2.2、第三章 3.1–3.7、第四章 4.1.1–4.5.2、第五章 5.1.1–5.1.6、5.2.1–5.2.6、第六章 6.1.1–6.6 与第七章 7.1.1–7.1.3 共七十四篇已重构" not in readme:
         errors.append("README.md: scope/status statement is missing")
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     if index.count('data-chapter-card') < 20:
         errors.append("index.html: expected 19 chapters plus Appendix A")
-    if index.count('class="featured-card"') != 71:
+    if index.count('class="featured-card"') != 74:
         errors.append("index.html: expected exactly sixty-two featured modules")
     return errors
 

@@ -80,6 +80,9 @@ ARTICLES = [
     "06._Quasi_Newton_Methods/6.4._Convergence_Analysis/02_6.4.3._Convergence_Analysis_of_the_SR1_Method.html",
     "06._Quasi_Newton_Methods/04_6.5._Notes_and_References.html",
     "06._Quasi_Newton_Methods/05_6.6._Exercises.html",
+    "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/00_7.1.1._Local_Convergence_of_Inexact_Newton_Methods.html",
+    "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/01_7.1.2._Line_Search_Newton–CG_Method.html",
+    "07._Large_Scale_Unconstrained_Optimization/7.1._Inexact_Newton_Methods/02_7.1.3._Trust_Region_Newton–CG_Method.html",
 ]
 VIEWPORTS = [(1440, 900), (768, 1024), (390, 844), (360, 800)]
 
